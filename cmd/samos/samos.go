@@ -25,10 +25,10 @@ import (
 	"github.com/samoslab/samos/src/gui"
 	"github.com/samoslab/samos/src/util/browser"
 	"github.com/samoslab/samos/src/util/cert"
+	"github.com/samoslab/samos/src/util/encrypt"
 	"github.com/samoslab/samos/src/util/file"
 	"github.com/samoslab/samos/src/util/logging"
 	"github.com/samoslab/samos/src/visor"
-	"github.com/spolabs/spo/src/util/encrypt"
 )
 
 var (
