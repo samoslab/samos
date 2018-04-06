@@ -7,11 +7,10 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export class PriceService {
 
   price: Subject<number> = new BehaviorSubject<number>(null);
-
   constructor(
     private http: Http,
   ) {
-    this.http.get('https://api.coinmarketcap.com/v1/ticker/skycoin/')
+    this.http.get('https://api.coinmarketcap.com/v1/ticker/samos/')
       .map(response => response.json()[0])
       .subscribe(data => this.price.next(data.price_usd))
   }

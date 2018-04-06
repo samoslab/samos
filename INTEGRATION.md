@@ -1,6 +1,6 @@
-# Skycoin Exchange Integration
+# Samos Exchange Integration
 
-A Skycoin node offers multiple interfaces:
+A Samos node offers multiple interfaces:
 
 * REST API on port 8630
 * JSON-RPC 2.0 API on port 8640 **[deprecated]**
@@ -13,15 +13,15 @@ The API interfaces do not support authentication or encryption so they should on
 
 If your application is written in Go, you can use these client libraries to interface with the node:
 
-* [Skycoin REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
-* [Skycoin CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli)
+* [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
+* [Samos CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli)
 
 *Note*: The CLI interface will be deprecated and replaced with a better one in the future.
 
 The wallet APIs in the REST API operate on wallets loaded from and saved to `~/.skycoin/wallets`.
-Use the CLI tool to perform seed generation and transaction signing outside of the Skycoin node.
+Use the CLI tool to perform seed generation and transaction signing outside of the Samos node.
 
-The Skycoin node's wallet APIs can be disabled with `-disable-wallet-api`.
+The Samos node's wallet APIs can be disabled with `-disable-wallet-api`.
 
 For a node used to support another application,
 it is recommended to use the REST API for blockchain queries and disable the wallet APIs,
@@ -31,9 +31,9 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
 
 - [API Documentation](#api-documentation)
     - [Wallet REST API](#wallet-rest-api)
-    - [Skycoin command line interface](#skycoin-command-line-interface)
-    - [Skycoin REST API Client Documentation](#skycoin-rest-api-client-documentation)
-    - [Skycoin Go Library Documentation](#skycoin-go-library-documentation)
+    - [Samos command line interface](#skycoin-command-line-interface)
+    - [Samos REST API Client Documentation](#skycoin-rest-api-client-documentation)
+    - [Samos Go Library Documentation](#skycoin-go-library-documentation)
     - [libskycoin Documentation](#libskycoin-documentation)
 - [Implementation guidelines](#implementation-guidelines)
     - [Scanning deposits](#scanning-deposits)
@@ -50,11 +50,11 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
         - [Using the REST API](#using-the-rest-api-2)
         - [Using skycoin as a library in a Go application](#using-skycoin-as-a-library-in-a-go-application-2)
         - [Using skycoin as a library in other applications](#using-skycoin-as-a-library-in-other-applications)
-    - [Checking Skycoin node connections](#checking-skycoin-node-connections)
+    - [Checking Samos node connections](#checking-skycoin-node-connections)
         - [Using the CLI](#using-the-cli-3)
         - [Using the REST API](#using-the-rest-api-3)
         - [Using skycoin as a library in a Go application](#using-skycoin-as-a-library-in-a-go-application-3)
-    - [Checking Skycoin node status](#checking-skycoin-node-status)
+    - [Checking Samos node status](#checking-skycoin-node-status)
         - [Using the CLI](#using-the-cli-4)
         - [Using the REST API](#using-the-rest-api-4)
         - [Using skycoin as a library in a Go application](#using-skycoin-as-a-library-in-a-go-application-4)
@@ -68,17 +68,17 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
 
 [Wallet REST API](src/gui/README.md).
 
-### Skycoin command line interface
+### Samos command line interface
 
 [CLI command API](cmd/cli/README.md).
 
-### Skycoin REST API Client Documentation
+### Samos REST API Client Documentation
 
-[Skycoin REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
+[Samos REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
 
-### Skycoin Go Library Documentation
+### Samos Go Library Documentation
 
-[Skycoin Godoc](https://godoc.org/github.com/samoslab/samos)
+[Samos Godoc](https://godoc.org/github.com/samoslab/samos)
 
 ### libskycoin Documentation
 
@@ -114,7 +114,7 @@ To check address outputs, call `GET /outputs?addrs=`. If you only want the balan
 
 #### Using skycoin as a library in a Go application
 
-We recommend using the [Skycoin REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
+We recommend using the [Samos REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
 ### Sending coins
 
@@ -124,7 +124,7 @@ After each spend, wait for the transaction to confirm before trying to spend aga
 
 For higher throughput, combine multiple spends into one transaction.
 
-Skycoin uses "coin hours" to ratelimit transactions.
+Samos uses "coin hours" to ratelimit transactions.
 The total number of coinhours in a transaction's outputs must be 50% or less than the number of coinhours in a transaction's inputs,
 or else the transaction is invalid and will not be accepted. A transaction must have at least 1 input with at least 1 coin hour.
 Sending too many transactions in quick succession will use up all available coinhours.
@@ -165,9 +165,9 @@ configured data directory (which is `$HOME/.skycoin/wallets` by default).
 #### Using skycoin as a library in a Go application
 
 If your application is written in Go, you can interface with the CLI library
-directly, see [Skycoin CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli).
+directly, see [Samos CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli).
 
-A REST API client is also available: [Skycoin REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
+A REST API client is also available: [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
 ### Verifying addresses
 
@@ -198,7 +198,7 @@ Address validation is available through a C wrapper, `libskycoin`.
 
 See the [libskycoin documentation](/lib/cgo/README.md) for usage instructions.
 
-### Checking Skycoin node connections
+### Checking Samos node connections
 
 #### Using the CLI
 
@@ -210,9 +210,9 @@ Not implemented
 
 #### Using skycoin as a library in a Go application
 
-Use the [Skycoin REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
+Use the [Samos REST API Client](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
 
-### Checking Skycoin node status
+### Checking Samos node status
 
 #### Using the CLI
 
@@ -230,4 +230,4 @@ A method similar to `skycoin-cli status` is not implemented, but these endpoints
 
 #### Using skycoin as a library in a Go application
 
-Use the [Skycoin CLI package](https://godoc.org/github.com/samoslab/samos/src/api/cli)
+Use the [Samos CLI package](https://godoc.org/github.com/samoslab/samos/src/api/cli)

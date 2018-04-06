@@ -74,10 +74,11 @@ var (
 
 	// DefaultConnections the default trust node addresses
 	DefaultConnections = []string{
-		//	"47.52.211.167:8858",
-		//	"47.74.7.161:8858",
+		"47.52.211.167:8858",
+		"47.74.7.161:8858",
 		"47.254.130.80:8858",
-		//"127.0.0.1:8858",
+		"47.52.222.166:8858",
+		"45.77.176.52:8858",
 	}
 )
 
@@ -133,7 +134,7 @@ type Config struct {
 	// If true, print the configured client web interface address and exit
 	PrintWebInterfaceAddress bool
 
-	// Data directory holds app data -- defaults to ~/.skycoin
+	// Data directory holds app data -- defaults to ~/.samos
 	DataDirectory string
 	// GUI directory contains assets for the html gui
 	GUIDirectory string
@@ -210,8 +211,8 @@ func (c *Config) register() {
 
 	flag.BoolVar(&c.LaunchBrowser, "launch-browser", c.LaunchBrowser, "launch system default webbrowser at client startup")
 	flag.BoolVar(&c.PrintWebInterfaceAddress, "print-web-interface-address", c.PrintWebInterfaceAddress, "print configured web interface address and exit")
-	flag.StringVar(&c.DataDirectory, "data-dir", c.DataDirectory, "directory to store app data (defaults to ~/.skycoin)")
-	flag.StringVar(&c.DBPath, "db-path", c.DBPath, "path of database file (defaults to ~/.skycoin/data.db)")
+	flag.StringVar(&c.DataDirectory, "data-dir", c.DataDirectory, "directory to store app data (defaults to ~/.samos)")
+	flag.StringVar(&c.DBPath, "db-path", c.DBPath, "path of database file (defaults to ~/.samos/data.db)")
 	flag.BoolVar(&c.DBReadOnly, "db-read-only", c.DBReadOnly, "open bolt db read-only")
 	flag.StringVar(&c.ConnectTo, "connect-to", c.ConnectTo, "connect to this ip only")
 	flag.BoolVar(&c.ProfileCPU, "profile-cpu", c.ProfileCPU, "enable cpu profiling")
@@ -234,7 +235,7 @@ func (c *Config) register() {
 	flag.StringVar(&GenesisSignatureStr, "genesis-signature", GenesisSignatureStr, "genesis block signature")
 	flag.Uint64Var(&c.GenesisTimestamp, "genesis-timestamp", c.GenesisTimestamp, "genesis block timestamp")
 
-	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.skycoin/wallet/")
+	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", 16, "The maximum outgoing connections allowed")
 	flag.IntVar(&c.PeerlistSize, "peerlist-size", 65535, "The peer list size")
 	flag.DurationVar(&c.OutgoingConnectionsRate, "connection-rate", c.OutgoingConnectionsRate, "How often to make an outgoing connection")
@@ -290,7 +291,7 @@ var devConfig = Config{
 	RPCThreadNum:     5,
 
 	LaunchBrowser: true,
-	// Data directory holds app data -- defaults to ~/.skycoin
+	// Data directory holds app data -- defaults to ~/.samos
 	DataDirectory: filepath.Join(home, ".samos"),
 	// Web GUI static resources
 	GUIDirectory: "./src/gui/static/",
@@ -604,7 +605,7 @@ func configureDaemon(c *Config) daemon.Config {
 	return dc
 }
 
-// Run starts the skycoin node
+// Run starts the samos node
 func Run(c *Config) {
 	defer func() {
 		// try catch panic in main thread
@@ -658,7 +659,7 @@ func Run(c *Config) {
 	logger.Info("Opening database %s", dconf.Visor.Config.DBPath)
 	db, err := visor.OpenDB(dconf.Visor.Config.DBPath, dconf.Visor.Config.DBReadOnly)
 	if err != nil {
-		logger.Error("Database failed to open: %v. Is another skycoin instance running?", err)
+		logger.Error("Database failed to open: %v. Is another samos instance running?", err)
 		return
 	}
 

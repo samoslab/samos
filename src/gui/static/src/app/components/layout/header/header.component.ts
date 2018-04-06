@@ -31,9 +31,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private walletSubscription: Subscription;
 
   get balance() {
-    if (this.price === null) { return 'loading..'; }
-    const balance = Math.round(this.coins * this.price * 100) / 100;
-    return '$' + balance.toFixed(2) + ' ($' + (Math.round(this.price * 100) / 100) + ')';
+    return '';
+//     if (this.price === null) { return ''; }
+// //    if (this.price === null) { return 'loading..'; }
+//     const balance = Math.round(this.coins * this.price * 100) / 100;
+//     return '$' + balance.toFixed(2) + ' ($' + (Math.round(this.price * 100) / 100) + ')';
   }
 
   get loading() {
@@ -51,7 +53,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.setVersion();
-    this.priceSubscription = this.priceService.price.subscribe(price => this.price = price);
+    //this.priceSubscription = this.priceService.price.subscribe(price => this.price = price);
+
     this.walletSubscription = this.walletService.all().subscribe(wallets => {
       this.coins = wallets.map(wallet => wallet.coins >= 0 ? wallet.coins : 0).reduce((a, b) => a + b, 0);
       this.hours = wallets.map(wallet => wallet.hours >= 0 ? wallet.hours : 0).reduce((a, b) => a + b, 0);

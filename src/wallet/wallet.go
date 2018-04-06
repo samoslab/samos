@@ -41,6 +41,10 @@ const (
 
 	// CoinTypeSkycoin skycoin type
 	CoinTypeSkycoin CoinType = "skycoin"
+
+	// CoinTypeSamos samos type
+	CoinTypeSamos CoinType = "samos"
+
 	// CoinTypeBitcoin bitcoin type
 	CoinTypeBitcoin CoinType = "bitcoin"
 )
@@ -81,7 +85,7 @@ func NewWallet(wltName string, opts Options) (*Wallet, error) {
 
 	coin := opts.Coin
 	if coin == "" {
-		coin = CoinTypeSkycoin
+		coin = CoinTypeSamos
 	}
 
 	w := &Wallet{

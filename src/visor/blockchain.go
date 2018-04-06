@@ -29,7 +29,7 @@ const (
 // are unlikely to occur. DebugLevel2 adds checks for conditions that
 // can only occur through programmer error and malice.
 
-// Note: a droplet is the base coin unit. Each Skycoin is one million droplets
+// Note: a droplet is the base coin unit. Each Samos is one million droplets
 
 //Termonology:
 // UXTO - unspent transaction outputs

@@ -1,8 +1,8 @@
 # CLI
 
-Skycoin command line interface
+Samos command line interface
 
-The CLI command APIs can be used directly from a Go application, see [Skycoin CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli).
+The CLI command APIs can be used directly from a Go application, see [Samos CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli).
 
 <!-- MarkdownTOC depth="3" autolink="true" bracket="round" -->
 

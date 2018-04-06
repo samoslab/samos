@@ -1954,14 +1954,14 @@ func TestVersion(t *testing.T) {
 	require.NoError(t, err)
 
 	var ver = struct {
-		Skycoin string `json:"skycoin"`
+		Samos string `json:"skycoin"`
 		Cli     string `json:"cli"`
 		RPC     string `json:"rpc"`
 		Wallet  string `json:"wallet"`
 	}{}
 	err = json.NewDecoder(bytes.NewReader(output)).Decode(&ver)
 	require.NoError(t, err)
-	require.True(t, ver.Skycoin != "")
+	require.True(t, ver.Samos != "")
 	require.True(t, ver.Cli != "")
 	require.True(t, ver.RPC != "")
 	require.True(t, ver.Wallet != "")

@@ -40,7 +40,7 @@ function startSkycoin() {
   console.log('Starting samos from electron');
 
   if (samos) {
-    console.log('Skycoin already running');
+    console.log('Samos already running');
     app.emit('samos-ready');
     return
   }
@@ -103,14 +103,14 @@ function startSkycoin() {
   });
 
   samos.on('close', (code) => {
-    // log.info('Skycoin closed');
-    console.log('Skycoin closed');
+    // log.info('Samos closed');
+    console.log('Samos closed');
     reset();
   });
 
   samos.on('exit', (code) => {
-    // log.info('Skycoin exited');
-    console.log('Skycoin exited');
+    // log.info('Samos exited');
+    console.log('Samos exited');
     reset();
   });
 }
@@ -133,7 +133,7 @@ function createWindow(url) {
   win = new BrowserWindow({
     width: 1200,
     height: 900,
-    title: 'Skycoin',
+    title: 'Samos',
     icon: iconPath,
     nodeIntegration: false,
     webPreferences: {
@@ -174,9 +174,9 @@ function createWindow(url) {
 
   // create application's main menu
   var template = [{
-    label: "Skycoin",
+    label: "Samos",
     submenu: [
-      { label: "About Skycoin", selector: "orderFrontStandardAboutPanel:" },
+      { label: "About Samos", selector: "orderFrontStandardAboutPanel:" },
       { type: "separator" },
       { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); } }
     ]

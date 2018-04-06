@@ -1,11 +1,11 @@
 
-# Skycoin C client library
+# Samos C client library
 
 [![Build Status](https://travis-ci.org/samoslab/samos.svg)](https://travis-ci.org/samoslab/samos)
 [![GoDoc](https://godoc.org/github.com/samoslab/samos?status.svg)](https://godoc.org/github.com/samoslab/samos)
 [![Go Report Card](https://goreportcard.com/badge/github.com/samoslab/samos)](https://goreportcard.com/report/github.com/samoslab/samos)
 
-Skycoin C client library (a.k.a libskycoin) provides access to Skycoin Core
+Samos C client library (a.k.a libskycoin) provides access to Samos Core
 internal and API functions for implementing third-party applications.
 
 ## API Interface

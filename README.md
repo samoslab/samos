@@ -1,24 +1,22 @@
-![skycoin logo](https://user-images.githubusercontent.com/26845312/32426705-d95cb988-c281-11e7-9463-a3fce8076a72.png)
+![samos logo]()
 
-# Skycoin
+# Samos
 
 [![Build Status](https://travis-ci.org/samoslab/samos.svg)](https://travis-ci.org/samoslab/samos)
 [![GoDoc](https://godoc.org/github.com/samoslab/samos?status.svg)](https://godoc.org/github.com/samoslab/samos)
 [![Go Report Card](https://goreportcard.com/badge/github.com/samoslab/samos)](https://goreportcard.com/report/github.com/samoslab/samos)
 
-Skycoin is a next-generation cryptocurrency.
+Samos is a  cryptocurrency driven service network.
 
-Skycoin improves on Bitcoin in too many ways to be addressed here.
 
-Skycoin is a small part of OP Redecentralize and OP Darknet Plan.
 
 ## Links
 
-* [skycoin.net](https://www.skycoin.net)
-* [Skycoin Blog](https://www.skycoin.net/blog)
-* [Skycoin Docs](https://www.skycoin.net/docs)
-* [Skycoin Blockchain Explorer](https://explorer.skycoin.net)
-* [Skycoin Development Telegram Channel](https://t.me/skycoindev)
+* [samos.io](https://www.samos.io)
+* [Samos Blog](https://www.samos.io/blog)
+* [Samos Docs](https://www.samos.io/docs)
+* [Samos Blockchain Explorer](https://explorer.samos.io)
+* [Samos Development Telegram Channel](https://t.me/samosdev)
 
 ## Table of Contents
 
@@ -27,16 +25,16 @@ Skycoin is a small part of OP Redecentralize and OP Darknet Plan.
 - [Changelog](#changelog)
 - [Installation](#installation)
     - [Go 1.9+ Installation and Setup](#go-19-installation-and-setup)
-    - [Go get skycoin](#go-get-skycoin)
-    - [Run Skycoin from the command line](#run-skycoin-from-the-command-line)
-    - [Show Skycoin node options](#show-skycoin-node-options)
-    - [Run Skycoin with options](#run-skycoin-with-options)
+    - [Go get samos](#go-get-samos)
+    - [Run Samos from the command line](#run-samos-from-the-command-line)
+    - [Show Samos node options](#show-samos-node-options)
+    - [Run Samos with options](#run-samos-with-options)
     - [Docker image](#docker-image)
 - [API Documentation](#api-documentation)
     - [Wallet REST API](#wallet-rest-api)
     - [JSON-RPC 2.0 API](#json-rpc-20-api)
-    - [Skycoin command line interface](#skycoin-command-line-interface)
-- [Integrating Skycoin with your application](#integrating-skycoin-with-your-application)
+    - [Samos command line interface](#samos-command-line-interface)
+- [Integrating Samos with your application](#integrating-samos-with-your-application)
 - [Contributing a node to the network](#contributing-a-node-to-the-network)
 - [Development](#development)
     - [Modules](#modules)
@@ -63,13 +61,13 @@ Skycoin is a small part of OP Redecentralize and OP Darknet Plan.
 
 ## Installation
 
-Skycoin supports go1.9+.  The preferred version is go1.10.
+Samos supports go1.9+.  The preferred version is go1.10.
 
 ### Go 1.9+ Installation and Setup
 
 [Golang 1.9+ Installation/Setup](./INSTALLATION.md)
 
-### Go get skycoin
+### Go get samos
 
 ```sh
 go get github.com/samoslab/samos/...
@@ -80,21 +78,21 @@ This will download `github.com/samoslab/samos` to `$GOPATH/src/github.com/samosl
 You can also clone the repo directly with `git clone https://github.com/samoslab/samos`,
 but it must be cloned to this path: `$GOPATH/src/github.com/samoslab/samos`.
 
-### Run Skycoin from the command line
+### Run Samos from the command line
 
 ```sh
 cd $GOPATH/src/github.com/samoslab/samos
 make run
 ```
 
-### Show Skycoin node options
+### Show Samos node options
 
 ```sh
 cd $GOPATH/src/github.com/samoslab/samos
 make run-help
 ```
 
-### Run Skycoin with options
+### Run Samos with options
 
 ```sh
 cd $GOPATH/src/github.com/samoslab/samos
@@ -104,11 +102,11 @@ make ARGS="--launch-browser=false" run
 ### Docker image
 
 ```sh
-$ docker volume create skycoin-data
-$ docker volume create skycoin-wallet
+$ docker volume create samos-data
+$ docker volume create samos-wallet
 $ docker run -ti --rm \
-    -v skycoin-data:/data \
-    -v skycoin-wallet:/wallet \
+    -v samos-data:/data \
+    -v samos-wallet:/wallet \
     -p 8858:8858 \
     -p 8630:8630 \
     -p 8640:8640 \
@@ -129,22 +127,22 @@ Access the API: [http://localhost:8630/version](http://localhost:8630/version).
 
 [JSON-RPC 2.0 README](src/api/webrpc/README.md).
 
-### Skycoin command line interface
+### Samos command line interface
 
 [CLI command API](cmd/cli/README.md).
 
-## Integrating Skycoin with your application
+## Integrating Samos with your application
 
-[Skycoin Integration Documentation](INTEGRATION.md)
+[Samos Integration Documentation](INTEGRATION.md)
 
 ## Contributing a node to the network
 
 Add your node's `ip:port` to the [peers.txt](peers.txt) file.
-This file will be periodically uploaded to https://downloads.skycoin.net/blockchain/peers.txt
+This file will be periodically uploaded to https://downloads.samos.io/blockchain/peers.txt
 and used to seed client with peers.
 
 *Note*: Do not add Skywire nodes to `peers.txt`.
-Only add Skycoin nodes with high uptime and a static IP address (such as a Skycoin node hosted on a VPS).
+Only add Samos nodes with high uptime and a static IP address (such as a Samos node hosted on a VPS).
 
 ## Development
 
@@ -167,7 +165,7 @@ We have two branches: `master` and `develop`.
 
 ### Client libraries
 
-Skycoin implements client libraries which export core functionality for usage from
+Samos implements client libraries which export core functionality for usage from
 other programming languages. Read the corresponding README file for further details.
 
 * `lib/cgo/` - libskycoin C client library ( [read more](lib/cgo/README.md) )
@@ -183,7 +181,7 @@ make test
 There are integration tests for the CLI and HTTP API interfaces. They have two
 run modes, "stable" and "live.
 
-The stable integration tests will use a skycoin daemon
+The stable integration tests will use a samos daemon
 whose blockchain is synced to a specific point and has networking disabled so that the internal
 state does not change.
 
@@ -207,10 +205,10 @@ The `-v` option, show verbose logs.
 
 #### Live Integration Tests
 
-The live integration tests run against a live runnning skycoin node, so before running the test, we
-need to start a skycoin node.
+The live integration tests run against a live runnning samos node, so before running the test, we
+need to start a samos node.
 
-After the skycoin node is up, run the following command to start the live tests:
+After the samos node is up, run the following command to start the live tests:
 
 ```sh
 ./ci-scripts/integration-test.live.sh -v
@@ -224,7 +222,7 @@ We can specify the wallet by setting two environment variables: `WALLET_DIR` and
 represents the absolute path of the wallet directory, and `WALLET_NAME` represents the wallet file name.
 
 ```sh
-export WALLET_DIR=$HOME/.skycoin/wallets
+export WALLET_DIR=$HOME/.samos/wallets
 export WALLET_NAME=$wallet-file-name-meet-the-requirements
 ```
 

@@ -24,7 +24,7 @@ Transaction with N inputs, M ouputs is
 - 32+65 bytes per input
 - 21+8+8 bytes per output
 
-Skycoin Transactions are
+Samos Transactions are
 - 97 bytes per input +  37 bytes per output + 37 bytes
 Bitcoin Transactions are
 - 180 bytes per input + 34 bytes per output + 10 bytes

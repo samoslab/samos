@@ -2,7 +2,7 @@
 
 Apis service port is `8630`.
 
-A REST API implemented in Go is available, see [Skycoin REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
+A REST API implemented in Go is available, see [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
 <!-- MarkdownTOC autolink="true" bracket="round" -->
 

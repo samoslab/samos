@@ -51,7 +51,7 @@ echo "checking if skycoin node is running"
 http_proxy="" https_proxy="" wget -O- $HOST 2>&1 >/dev/null
 
 if [ ! $? -eq 0 ]; then
-    echo "Skycoin node is not running on $HOST"
+    echo "Samos node is not running on $HOST"
     exit 1
 fi
 

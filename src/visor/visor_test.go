@@ -223,22 +223,22 @@ func TestVisorCreateBlock(t *testing.T) {
 
 	// Use invalid decimal places to verify decimal place filtering.
 	// The fs are set higher to ensure that they are not filtered due to truncating with a low f
-	// Spending 9.1 SKY
+	// Spending 9.1 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e5, f*20))
 	i++
-	// Spending 9.01 SKY
+	// Spending 9.01 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e4, f*30))
 	i++
-	// Spending 9.0001 SKY
+	// Spending 9.0001 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e3, f*40))
 	i++
-	// Spending 9.0001 SKY
+	// Spending 9.0001 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e2, f*50))
 	i++
-	// Spending 9.00001 SKY
+	// Spending 9.00001 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e1, f*60))
 	i++
-	// Spending 9.000001 SKY
+	// Spending 9.000001 SAMO
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1, f*70))
 	i++
 

@@ -50,7 +50,7 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 	return wallet, nil
 }
 
-// GetSkycoinWalletEntry returns a ReadableEntry in Skycoin format
+// GetSkycoinWalletEntry returns a ReadableEntry in Samos format
 func GetSkycoinWalletEntry(pub cipher.PubKey, sec cipher.SecKey) ReadableEntry {
 	return ReadableEntry{
 		Address: cipher.AddressFromPubKey(pub).String(),

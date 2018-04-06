@@ -4,7 +4,7 @@
 ### Build image
 
 ```
-$ docker build -t skycoin .
+$ docker build -t samos .
 ```
 
 ### Running
@@ -14,7 +14,7 @@ $ docker run -ti --rm \
     -p 8858:8858 \
     -p 8630:8630 \
     -p 8640:8640 \
-    skycoin
+    samos
 ```
 
 Access the dashboard: [http://localhost:8630](http://localhost:8630).
@@ -24,15 +24,15 @@ Access the API: [http://localhost:8630/version](http://localhost:8630/version).
 ### Data persistency
 
 ```
-$ docker volume create skycoin-data
-$ docker volume create skycoin-wallet
+$ docker volume create samos-data
+$ docker volume create samos-wallet
 $ docker run -ti --rm \
-    -v skycoin-data:/root/.skycoin \
-    -v skycoin-wallet:/wallet \
+    -v samos-data:/root/.samos \
+    -v samos-wallet:/wallet \
     -p 8858:8858 \
     -p 8630:8630 \
     -p 8640:8640 \
-    skycoin
+    samos
 ```
 
 ### API

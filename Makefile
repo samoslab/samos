@@ -65,15 +65,15 @@ run:  ## Run the skycoin node. To add arguments, do 'make ARGS="--foo" run'.
 run-help: ## Show skycoin node help
 	@go run cmd/samoslab/samos.go --help
 
-test: ## Run tests for Skycoin
+test: ## Run tests for Samos
 	go test ./cmd/... -timeout=1m
 	go test ./src/... -timeout=1m
 
-test-386: ## Run tests for Skycoin with GOARCH=386
+test-386: ## Run tests for Samos with GOARCH=386
 	GOARCH=386 go test ./cmd/... -timeout=5m
 	GOARCH=386 go test ./src/... -timeout=5m
 
-test-amd64: ## Run tests for Skycoin with GOARCH=amd64
+test-amd64: ## Run tests for Samos with GOARCH=amd64
 	GOARCH=amd64 go test ./cmd/... -timeout=5m
 	GOARCH=amd64 go test ./src/... -timeout=5m
 
