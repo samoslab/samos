@@ -278,7 +278,7 @@ var devConfig = Config{
 	//AddressVersion: "test",
 	// Remote web interface
 	WebInterface:             true,
-	WebInterfacePort:         8630,
+	WebInterfacePort:         8640,
 	WebInterfaceAddr:         "127.0.0.1",
 	WebInterfaceCert:         "",
 	WebInterfaceKey:          "",
@@ -286,7 +286,7 @@ var devConfig = Config{
 	PrintWebInterfaceAddress: false,
 
 	RPCInterface:     true,
-	RPCInterfacePort: 8640,
+	RPCInterfacePort: 8650,
 	RPCInterfaceAddr: "127.0.0.1",
 	RPCThreadNum:     5,
 

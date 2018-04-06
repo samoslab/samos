@@ -92,7 +92,7 @@ func TestMain(m *testing.M) {
 func nodeAddress() string {
 	addr := os.Getenv("SKYCOIN_NODE_HOST")
 	if addr == "" {
-		return "http://127.0.0.1:8630"
+		return "http://127.0.0.1:8640"
 	}
 	return addr
 }
@@ -275,7 +275,7 @@ func doLiveOrStable(t *testing.T) bool {
 func rpcAddress() string {
 	rpcAddr := os.Getenv("RPC_ADDR")
 	if rpcAddr == "" {
-		rpcAddr = "127.0.0.1:8640"
+		rpcAddr = "127.0.0.1:8650"
 	}
 
 	return rpcAddr
@@ -1954,10 +1954,10 @@ func TestVersion(t *testing.T) {
 	require.NoError(t, err)
 
 	var ver = struct {
-		Samos string `json:"skycoin"`
-		Cli     string `json:"cli"`
-		RPC     string `json:"rpc"`
-		Wallet  string `json:"wallet"`
+		Samos  string `json:"skycoin"`
+		Cli    string `json:"cli"`
+		RPC    string `json:"rpc"`
+		Wallet string `json:"wallet"`
 	}{}
 	err = json.NewDecoder(bytes.NewReader(output)).Decode(&ver)
 	require.NoError(t, err)

@@ -27,7 +27,7 @@ const (
 	defaultCoin       = "skycoin"
 	defaultWalletName = "$COIN_cli" + walletExt
 	defaultWalletDir  = "$HOME/.$COIN/wallets"
-	defaultRPCAddress = "127.0.0.1:8640"
+	defaultRPCAddress = "127.0.0.1:8650"
 )
 
 var (

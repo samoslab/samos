@@ -1,15 +1,15 @@
 const PROXY_CONFIG = {
   "/api/*": {
-    "target": "http://127.0.0.1:8630",
+    "target": "http://127.0.0.1:8640",
     "pathRewrite": {
       "^/api" : ""
     },
     "secure": false,
     "logLevel": "debug",
     "bypass": function (req) {
-      req.headers["host"] = '127.0.0.1:8630';
-      req.headers["referer"] = 'http://127.0.0.1:8630';
-      req.headers["origin"] = 'http://127.0.0.1:8630';
+      req.headers["host"] = '127.0.0.1:8640';
+      req.headers["referer"] = 'http://127.0.0.1:8640';
+      req.headers["origin"] = 'http://127.0.0.1:8640';
     }
 },
   "/teller/*": {

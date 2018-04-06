@@ -2,8 +2,8 @@
 
 A Samos node offers multiple interfaces:
 
-* REST API on port 8630
-* JSON-RPC 2.0 API on port 8640 **[deprecated]**
+* REST API on port 8640
+* JSON-RPC 2.0 API on port 8650 **[deprecated]**
 
 A CLI tool is provided in `cmd/cli/cli.go`. This tool communicates over the JSON-RPC 2.0 API. In the future it will communicate over the REST API.
 

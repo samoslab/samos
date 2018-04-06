@@ -30,7 +30,7 @@ RUN cd $GOPATH/src/github.com/samoslab/samos/cmd/address_gen && \
 FROM alpine:3.7
 
 ENV COIN="skycoin" \
-    RPC_ADDR="0.0.0.0:8640" \
+    RPC_ADDR="0.0.0.0:8650" \
     DATA_DIR="/root/.$COIN" \
     WALLET_DIR="/wallet" \
     WALLET_NAME="$COIN_cli.wlt"
@@ -45,6 +45,6 @@ COPY --from=build /go/src/github.com/samoslab/samos/src/gui/static /usr/local/sk
 VOLUME $WALLET_DIR
 VOLUME $DATA_DIR
 
-EXPOSE 8858 8630 8640
+EXPOSE 8858 8640 8650
 
 CMD ["/usr/bin/skycoin", "--gui-dir=/usr/local/skycoin/static", "--web-interface-addr=0.0.0.0"]

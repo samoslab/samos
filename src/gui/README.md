@@ -1,6 +1,6 @@
 # APIs document
 
-Apis service port is `8630`.
+Apis service port is `8640`.
 
 A REST API implemented in Go is available, see [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
@@ -74,7 +74,7 @@ Method: GET
 example:
 
 ```sh
-curl http://127.0.0.1:8630/csrf
+curl http://127.0.0.1:8640/csrf
 ```
 
 result:
@@ -97,7 +97,7 @@ Method: GET
 example:
 
 ```sh
-curl http://127.0.0.1:8630/version
+curl http://127.0.0.1:8640/version
 ```
 
 result:
@@ -121,7 +121,7 @@ Args:
 example:
 
 ```bash
-curl http://127.0.0.1:8630/balance\?addrs\=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq
+curl http://127.0.0.1:8640/balance\?addrs\=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq
 ```
 
 result:
@@ -154,13 +154,13 @@ Addrs and hashes cannot be combined.
 example:
 
 ```sh
-curl http://127.0.0.1:8630/outputs?addrs=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+curl http://127.0.0.1:8640/outputs?addrs=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
 ```
 
 or
 
 ```sh
-curl http://127.0.0.1:8630/outputs?hashes=7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0
+curl http://127.0.0.1:8640/outputs?hashes=7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0
 ```
 
 result:
@@ -197,7 +197,7 @@ Args:
 
 example:
 ```bash
-curl http://127.0.0.1:8630/wallet?id=walletId
+curl http://127.0.0.1:8640/wallet?id=walletId
 ```
 
 result:
@@ -243,7 +243,7 @@ Args:
 // Returns all pending transaction for all addresses by selected Wallet
 example:
 ```bash
-curl http://127.0.0.1:8630/wallet/transactions?id=2017_11_25_e5fb.wlt
+curl http://127.0.0.1:8640/wallet/transactions?id=2017_11_25_e5fb.wlt
 ```
 
 result:
@@ -299,7 +299,7 @@ Args:
 
 example:
 ```bash
-curl http://127.0.0.1:8630/wallets
+curl http://127.0.0.1:8640/wallets
 ```
 
 result:
@@ -344,7 +344,7 @@ Args:
 
 example:
 ```bash
-curl http://127.0.0.1:8630/wallets/folderName
+curl http://127.0.0.1:8640/wallets/folderName
 ```
 
 result:
@@ -368,7 +368,7 @@ Args:
 example:
 
 ```bash
-curl http://127.0.0.1:8630/wallet/newSeed
+curl http://127.0.0.1:8640/wallet/newSeed
 ```
 
 result:
@@ -393,7 +393,7 @@ Args:
 example:
 
 ```bash
-curl http://127.0.0.1:8630/wallet/create -d "seed=$seed&label=$label&scan=5"
+curl http://127.0.0.1:8640/wallet/create -d "seed=$seed&label=$label&scan=5"
 ```
 
 result:
@@ -432,7 +432,7 @@ Args:
 example:
 
 ```bash
-curl -X POST http://127.0.0.1:8630/wallet/newAddress?id=2017_05_09_d554.wlt
+curl -X POST http://127.0.0.1:8640/wallet/newAddress?id=2017_05_09_d554.wlt
 ```
 
 result:
@@ -458,7 +458,7 @@ Args:
 example:
 
 ```bash
-curl -X POST http://127.0.0.1:8630/wallet/update?id=$id&label=$label
+curl -X POST http://127.0.0.1:8640/wallet/update?id=$id&label=$label
 ```
 
 result:
@@ -479,7 +479,7 @@ Args:
 example:
 
 ```bash
-curl http://127.0.0.1:8630/wallet/balance?id=2017_05_09_d554.wlt
+curl http://127.0.0.1:8640/wallet/balance?id=2017_05_09_d554.wlt
 ```
 
 result:
@@ -523,7 +523,7 @@ example, send 1 coin to `2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc` from wallet `2017_
 
 ```bash
 curl -X POST \
-  'http://127.0.0.1:8630/wallet/spend?id=2017_05_09_ea42.wlt&dst=2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc&coins=1000000'
+  'http://127.0.0.1:8640/wallet/spend?id=2017_05_09_ea42.wlt&dst=2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc&coins=1000000'
 ```
 
 result:
@@ -584,7 +584,7 @@ Method: GET
 example:
 
 ```bash
-curl http://127.0.0.1:8630/pendingTxs
+curl http://127.0.0.1:8640/pendingTxs
 ```
 
 result:
@@ -640,7 +640,7 @@ Args:
 example:
 
 ```bash
-curl http://127.0.0.1:8630/transaction?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
+curl http://127.0.0.1:8640/transaction?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
 ```
 
 result:
@@ -688,7 +688,7 @@ Method: GET
 example:
 
 ```bash
-curl http://127.0.0.1:8630/rawtx?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
+curl http://127.0.0.1:8640/rawtx?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
 ```
 
 result:
@@ -712,7 +712,7 @@ Body: {
 example:
 
 ```bash
-curl -X POST http://127.0.0.1:8630/injectTransaction -H 'content-type: application/json' -d '{
+curl -X POST http://127.0.0.1:8640/injectTransaction -H 'content-type: application/json' -d '{
     "rawtx":"dc0000000008b507528697b11340f5a3fcccbff031c487bad59d26c2bdaea0cd8a0199a1720100000017f36c9d8bce784df96a2d6848f1b7a8f5c890986846b7c53489eb310090b91143c98fd233830055b5959f60030b3ca08d95f22f6b96ba8c20e548d62b342b5e0001000000ec9cf2f6052bab24ec57847c72cfb377c06958a9e04a077d07b6dd5bf23ec106020000000072116096fe2207d857d18565e848b403807cd825c044840300000000330100000000000000575e472f8c5295e8fa644e9bc5e06ec10351c65f40420f000000000066020000000000000"
 }'
 ```
@@ -736,18 +736,18 @@ Args:
 To get address related confirmed transactions:
 
 ```bash
-curl http://127.0.0.1:8630/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=1
+curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=1
 ```
 
 To get address related unconfirmed transactions:
 ```bash
-curl http://127.0.0.1:8630/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=0
+curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=0
 ```
 
 To get all addresses related transactions:
 
 ```bash
-curl http://127.0.0.1:8630/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
 ```
 
 
@@ -875,7 +875,7 @@ Args:
 
 example:
 ```bash
-curl http://127.0.0.1:8630/resendUnconfirmedTxns
+curl http://127.0.0.1:8640/resendUnconfirmedTxns
 ```
 
 result:
@@ -900,7 +900,7 @@ Args:
 
 example:
 ```bash
-curl http://127.0.0.1:8630/blockchain/metadata
+curl http://127.0.0.1:8640/blockchain/metadata
 ```
 
 result:
@@ -930,7 +930,7 @@ Method: GET
 example:
 
 ```sh
-curl http://127.0.0.1:8630/blockchain/progress
+curl http://127.0.0.1:8640/blockchain/progress
 ```
 
 result:
@@ -963,13 +963,13 @@ Args:
 ```
 
 ```sh
-curl  http://127.0.0.1:8630/block?hash=6eafd13ab6823223b714246b32c984b56e0043412950faf17defdbb2cbf3fe30
+curl  http://127.0.0.1:8640/block?hash=6eafd13ab6823223b714246b32c984b56e0043412950faf17defdbb2cbf3fe30
 ```
 
 or
 
 ```sh
-curl http://127.0.0.1:8630/block?seq=2760
+curl http://127.0.0.1:8640/block?seq=2760
 ```
 
 result:
@@ -1033,7 +1033,7 @@ Args:
 example:
 
 ```sh
-curl http://127.0.0.1:8630/blocks?start=1&end=2
+curl http://127.0.0.1:8640/blocks?start=1&end=2
 ```
 
 result:
@@ -1126,7 +1126,7 @@ Args: num
 example:
 
 ```sh
-curl http://127.0.0.1:8630/last_blocks?num=2
+curl http://127.0.0.1:8640/last_blocks?num=2
 ```
 
 result:
@@ -1235,7 +1235,7 @@ Args: address
 example:
 
 ```sh
-curl http://127.0.0.1:8630/explorer/address?address=2NfNKsaGJEndpSajJ6TsKJfsdDjW2gFsjXg
+curl http://127.0.0.1:8640/explorer/address?address=2NfNKsaGJEndpSajJ6TsKJfsdDjW2gFsjXg
 ```
 
 result:
@@ -1291,7 +1291,7 @@ Args: uxid
 example:
 
 ```sh
-curl http://127.0.0.1:8630/uxout?uxid=8b64d9b058e10472b9457fd2d05a1d89cbbbd78ce1d97b16587d43379271bed1
+curl http://127.0.0.1:8640/uxout?uxid=8b64d9b058e10472b9457fd2d05a1d89cbbbd78ce1d97b16587d43379271bed1
 ```
 
 result:
@@ -1321,7 +1321,7 @@ Args: address
 example:
 
 ```sh
-curl http://127.0.0.1:8630/address_uxouts?address=
+curl http://127.0.0.1:8640/address_uxouts?address=
 ```
 
 result:
@@ -1354,7 +1354,7 @@ Method: GET
 example:
 
 ```bash
-curl http://127.0.0.1:8630/coinSupply
+curl http://127.0.0.1:8640/coinSupply
 ```
 
 result:
@@ -1486,7 +1486,7 @@ Args:
 example:
 
 ```bash
-curl "http://127.0.0.1:8630/richlist?n=4&include-distribution=true"
+curl "http://127.0.0.1:8640/richlist?n=4&include-distribution=true"
 ```
 
 result:
@@ -1527,7 +1527,7 @@ Method: GET
 example:
 
 ```bash
-curl "http://127.0.0.1:8630/addresscount"
+curl "http://127.0.0.1:8640/addresscount"
 ```
 
 result:
@@ -1552,7 +1552,7 @@ Args:
 example:
 
 ```bash
-curl 'http://127.0.0.1:8630/network/connection?addr=176.9.84.75:8858'
+curl 'http://127.0.0.1:8640/network/connection?addr=176.9.84.75:8858'
 ```
 
 result:
@@ -1580,7 +1580,7 @@ Method: GET
 example:
 
 ```bash
-curl 'http://127.0.0.1:8630/network/connections'
+curl 'http://127.0.0.1:8640/network/connections'
 ```
 
 result:
@@ -1633,7 +1633,7 @@ Method: GET
 example:
 
 ```bash
-curl 'http://127.0.0.1:8630/network/defaultConnections'
+curl 'http://127.0.0.1:8640/network/defaultConnections'
 ```
 
 result:
@@ -1661,7 +1661,7 @@ Method: GET
 example:
 
 ```bash
-curl 'http://127.0.0.1:8630/network/connections/trust'
+curl 'http://127.0.0.1:8640/network/connections/trust'
 ```
 
 result:
@@ -1689,7 +1689,7 @@ Method: GET
 example:
 
 ```bash
-curl 'http://127.0.0.1:8630/network/connections/exchange'
+curl 'http://127.0.0.1:8640/network/connections/exchange'
 ```
 
 result:

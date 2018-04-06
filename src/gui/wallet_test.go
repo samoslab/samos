@@ -20,7 +20,7 @@ import (
 	"github.com/samoslab/samos/src/wallet"
 )
 
-const configuredHost = "127.0.0.1:8630"
+const configuredHost = "127.0.0.1:8640"
 
 func TestWalletSpendHandler(t *testing.T) {
 	type httpBody struct {

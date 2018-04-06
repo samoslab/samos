@@ -28,7 +28,7 @@ import (
 /* Runs HTTP API tests against a running skycoin node
 
 Set envvar SKYCOIN_INTEGRATION_TESTS=1 to enable them
-Set SKYCOIN_NODE_HOST to the node's address (defaults to http://127.0.0.1:8630)
+Set SKYCOIN_NODE_HOST to the node's address (defaults to http://127.0.0.1:8640)
 Set SKYCOIN_INTEGRATION_TEST_MODE to either "stable" or "live" (defaults to "stable")
 
 Each test has two modes:
@@ -64,7 +64,7 @@ var testWallet = flag.Bool("test-wallet", false, "run wallet tests")
 func nodeAddress() string {
 	addr := os.Getenv("SKYCOIN_NODE_HOST")
 	if addr == "" {
-		return "http://127.0.0.1:8630"
+		return "http://127.0.0.1:8640"
 	}
 	return addr
 }

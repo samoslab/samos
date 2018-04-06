@@ -12,14 +12,14 @@ $ docker build -t samos .
 ```
 $ docker run -ti --rm \
     -p 8858:8858 \
-    -p 8630:8630 \
     -p 8640:8640 \
+    -p 8650:8650 \
     samos
 ```
 
-Access the dashboard: [http://localhost:8630](http://localhost:8630).
+Access the dashboard: [http://localhost:8640](http://localhost:8640).
 
-Access the API: [http://localhost:8630/version](http://localhost:8630/version).
+Access the API: [http://localhost:8640/version](http://localhost:8640/version).
 
 ### Data persistency
 
@@ -30,8 +30,8 @@ $ docker run -ti --rm \
     -v samos-data:/root/.samos \
     -v samos-wallet:/wallet \
     -p 8858:8858 \
-    -p 8630:8630 \
     -p 8640:8640 \
+    -p 8650:8650 \
     samos
 ```
 

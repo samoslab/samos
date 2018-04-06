@@ -48,12 +48,12 @@ The CLI uses environment variable to manage the configurations.
 
 ### RPC_ADDR
 
-CLI will connect to skycoin node rpc address:`127.0.0.1:8640` by default,
+CLI will connect to skycoin node rpc address:`127.0.0.1:8650` by default,
 you can change the address by setting the `RPC_ADDR` env variable
 with the following command:
 
 ```bash
-$ export RPC_ADDR=127.0.0.1:8640
+$ export RPC_ADDR=127.0.0.1:8650
 ```
 
 ### WALLET_DIR
@@ -120,7 +120,7 @@ GLOBAL OPTIONS:
    --help, -h     show help
    --version, -v  print the version
 ENVIRONMENT VARIABLES:
-    RPC_ADDR: Address of RPC node. Default "127.0.0.1:8640"
+    RPC_ADDR: Address of RPC node. Default "127.0.0.1:8650"
     COIN: Name of the coin. Default "skycoin"
     WALLET_DIR: Directory where wallets are stored. This value is overriden by any subcommand flag specifying a wallet filename, if that filename includes a path. Default "$HOME/.$COIN/wallets"
     WALLET_NAME: Name of wallet file (without path). This value is overriden by any subcommand flag specifying a wallet filename. Default "$COIN_cli.wlt"

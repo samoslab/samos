@@ -25,7 +25,7 @@ RUN npm install -g --unsafe @angular/cli && \
 FROM alpine:3.7
 
 ENV COIN="skycoin" \
-    RPC_ADDR="0.0.0.0:8640" \
+    RPC_ADDR="0.0.0.0:8650" \
     DATA_DIR="/data/.$COIN" \
     WALLET_DIR="/wallet" \
     WALLET_NAME="$COIN_cli.wlt"
@@ -44,7 +44,7 @@ COPY --from=build-node /skycoin/src/gui/static /usr/local/skycoin/src/gui/static
 VOLUME $WALLET_DIR
 VOLUME $DATA_DIR
 
-EXPOSE 8858 8630 8640
+EXPOSE 8858 8640 8650
 
 WORKDIR /usr/local/skycoin
 

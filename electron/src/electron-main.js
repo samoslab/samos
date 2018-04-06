@@ -19,7 +19,7 @@ require('electron-context-menu')({});
 
 global.eval = function() { throw new Error('bad!!'); }
 
-const defaultURL = 'http://127.0.0.1:8630/';
+const defaultURL = 'http://127.0.0.1:8640/';
 let currentURL;
 
 // Force everything localhost, in case of a leak

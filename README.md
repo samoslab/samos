@@ -108,14 +108,14 @@ $ docker run -ti --rm \
     -v samos-data:/data \
     -v samos-wallet:/wallet \
     -p 8858:8858 \
-    -p 8630:8630 \
     -p 8640:8640 \
+    -p 8650:8650 \
     samoslab/samos
 ```
 
-Access the dashboard: [http://localhost:8630](http://localhost:8630).
+Access the dashboard: [http://localhost:8640](http://localhost:8640).
 
-Access the API: [http://localhost:8630/version](http://localhost:8630/version).
+Access the API: [http://localhost:8640/version](http://localhost:8640/version).
 
 ## API Documentation
 
