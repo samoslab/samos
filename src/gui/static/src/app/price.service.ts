@@ -12,9 +12,12 @@ export class PriceService {
   ) {
     
     
-    this.http.get('https://api.coinmarketcap.com/v1/ticker/skycoin/')
-      .map(response => response.json()[0])
-      .subscribe(data => this.price.next(data.price_usd))
+//    this.http.get('https://api.coinmarketcap.com/v1/ticker/skycoin/')
+//      .map(response => response.json()[0])
+//      .subscribe(data => this.price.next(data.price_usd))
+      setTimeout( ()=> {
+        this.price.next(0)
+      }, 0);
   }
 
 }
