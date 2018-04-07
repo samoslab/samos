@@ -33,7 +33,7 @@ func init() {
 }
 
 // GetDistributionAddresses returns a copy of the hardcoded distribution addresses array.
-// Each address has 1,000,000 coins. There are 100 addresses.
+// Each address has 1,000,000 coins. There are 300 addresses.
 func GetDistributionAddresses() []string {
 	addrs := make([]string, len(distributionAddresses))
 	for i := range distributionAddresses {
