@@ -18,7 +18,7 @@ If your application is written in Go, you can use these client libraries to inte
 
 *Note*: The CLI interface will be deprecated and replaced with a better one in the future.
 
-The wallet APIs in the REST API operate on wallets loaded from and saved to `~/.skycoin/wallets`.
+The wallet APIs in the REST API operate on wallets loaded from and saved to `~/.samos/wallets`.
 Use the CLI tool to perform seed generation and transaction signing outside of the Samos node.
 
 The Samos node's wallet APIs can be disabled with `-disable-wallet-api`.

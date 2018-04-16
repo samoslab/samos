@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-go build -o $GOPATH/bin/skycoin-cli .
+go build -o $GOPATH/bin/samos-cli .
