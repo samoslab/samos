@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>Samos</string>
+    <string>Skycoin</string>
     <key>CFBundleIdentifier</key>
-    <string>io.samos.Samos</string>
+    <string>org.samos.Skycoin</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Samos</string>
+    <string>Skycoin</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>LSMinimumSystemVersion</key>
@@ -26,7 +26,7 @@
     <array>
       <dict>
         <key>CFBundleURLName</key>
-        <string>Samos</string>
+        <string>Skycoin</string>
         <key>CFBundleURLSchemes</key>
         <array>
           <string>samos</string>

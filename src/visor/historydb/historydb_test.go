@@ -3,7 +3,6 @@ package historydb
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/samoslab/samos/src/cipher/encoder"
 	"github.com/samoslab/samos/src/coin"
 	"github.com/samoslab/samos/src/testutil"
+	"github.com/samoslab/samos/src/util/logging"
 )
 
 var (
@@ -24,6 +24,7 @@ var (
 	transactionBkt       = []byte("transactions")
 	outputBkt            = []byte("uxouts")
 	addressInBkt         = []byte("address_in")
+	log                  = logging.MustGetLogger("historydb_test")
 )
 
 var _genTime uint64 = 1000

@@ -27,7 +27,7 @@ export class NetworkService {
       .map(output => output.map((address, index) => ({
         id: index + 1,
         address: address,
-        listen_port: 8858,
+        listen_port: 6000,
       })));
   }
 

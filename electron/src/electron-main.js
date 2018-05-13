@@ -36,7 +36,7 @@ let win;
 
 var samos = null;
 
-function startSkycoin() {
+function startSamos() {
   console.log('Starting samos from electron');
 
   if (samos) {
@@ -69,9 +69,13 @@ function startSkycoin() {
   var args = [
     '-launch-browser=false',
     '-gui-dir=' + path.dirname(exe),
-    '-color-log=false', // must be disabled or web interface detection
+    '-color-log=false', // must be disabled for web interface detection
     '-logtofile=true',
-    '-download-peerlist=true'
+    '-download-peerlist=true',
+    '-enable-seed-api=true',
+    '-enable-wallet-api=true',
+    '-rpc-interface=false',
+    "-disable-csrf=false"
     // will break
     // broken (automatically generated certs do not work):
     // '-web-interface-https=true',
@@ -217,7 +221,7 @@ if (alreadyRunning) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', startSkycoin);
+app.on('ready', startSamos);
 
 app.on('samos-ready', (e) => {
   createWindow(e.url);

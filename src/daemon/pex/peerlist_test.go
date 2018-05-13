@@ -3,7 +3,6 @@ package pex
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -94,7 +93,7 @@ func TestLoadPeersFromFile(t *testing.T) {
 			true,
 			testPeers[0:0],
 			map[string]*Peer{},
-			io.EOF,
+			nil,
 		},
 	}
 
@@ -187,7 +186,7 @@ func TestPeerlistAddPeer(t *testing.T) {
 		},
 		{
 			"add dup peer",
-			[]Peer{Peer{Addr: testPeers[0]}},
+			[]Peer{{Addr: testPeers[0]}},
 			testPeers[0],
 			true,
 			map[string]*Peer{
@@ -342,36 +341,36 @@ func TestPeerlistClearOld(t *testing.T) {
 		{
 			"no old peers",
 			[]Peer{
-				Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
 			},
 			110 * time.Second,
 			map[string]Peer{
-				testPeers[0]: Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				testPeers[0]: {Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
 			},
 		},
 		{
 			"clear one old peer",
 			[]Peer{
-				Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
-				Peer{Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
-				Peer{Addr: testPeers[2], LastSeen: utc.UnixNow() - 120},
+				{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				{Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
+				{Addr: testPeers[2], LastSeen: utc.UnixNow() - 120},
 			},
 			111 * time.Second,
 			map[string]Peer{
-				testPeers[0]: Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
-				testPeers[1]: Peer{Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
+				testPeers[0]: {Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				testPeers[1]: {Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
 			},
 		},
 		{
 			"clear two old peers",
 			[]Peer{
-				Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
-				Peer{Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
-				Peer{Addr: testPeers[2], LastSeen: utc.UnixNow() - 120},
+				{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				{Addr: testPeers[1], LastSeen: utc.UnixNow() - 110},
+				{Addr: testPeers[2], LastSeen: utc.UnixNow() - 120},
 			},
 			101 * time.Second,
 			map[string]Peer{
-				testPeers[0]: Peer{Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
+				testPeers[0]: {Addr: testPeers[0], LastSeen: utc.UnixNow() - 100},
 			},
 		},
 	}
@@ -401,22 +400,22 @@ func TestPeerlistSave(t *testing.T) {
 		{
 			"save all",
 			[]Peer{
-				Peer{Addr: testPeers[0]},
-				Peer{Addr: testPeers[1]},
+				{Addr: testPeers[0]},
+				{Addr: testPeers[1]},
 			},
 			map[string]Peer{
-				testPeers[0]: Peer{Addr: testPeers[0]},
-				testPeers[1]: Peer{Addr: testPeers[1]},
+				testPeers[0]: {Addr: testPeers[0]},
+				testPeers[1]: {Addr: testPeers[1]},
 			},
 		},
 		{
 			"save one peer",
 			[]Peer{
-				Peer{Addr: testPeers[0], RetryTimes: MaxPeerRetryTimes + 1},
-				Peer{Addr: testPeers[1]},
+				{Addr: testPeers[0], RetryTimes: MaxPeerRetryTimes + 1},
+				{Addr: testPeers[1]},
 			},
 			map[string]Peer{
-				testPeers[1]: Peer{Addr: testPeers[1]},
+				testPeers[1]: {Addr: testPeers[1]},
 			},
 		},
 	}
@@ -467,7 +466,7 @@ func TestPeerJSONParsing(t *testing.T) {
 	// The serialized peer json format changed,
 	// this tests that the old format can still parse.
 	oldFormat := `{
-        "Addr": "11.22.33.44:8858",
+        "Addr": "11.22.33.44:6000",
         "LastSeen": "2017-09-24T06:42:18.999999999Z",
         "Private": true,
         "Trusted": true,
@@ -475,7 +474,7 @@ func TestPeerJSONParsing(t *testing.T) {
     }`
 
 	newFormat := `{
-        "Addr": "11.22.33.44:8858",
+        "Addr": "11.22.33.44:6000",
         "LastSeen": 1506235338,
         "Private": true,
         "Trusted": true,
@@ -483,7 +482,7 @@ func TestPeerJSONParsing(t *testing.T) {
     }`
 
 	check := func(p *Peer) {
-		require.Equal(t, "11.22.33.44:8858", p.Addr)
+		require.Equal(t, "11.22.33.44:6000", p.Addr)
 		require.True(t, p.Private)
 		require.True(t, p.Trusted)
 		require.True(t, p.HasIncomingPort)

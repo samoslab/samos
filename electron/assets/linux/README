@@ -1,8 +1,8 @@
-skycoin
+samos
 =======
 
 
-The skycoin client binary uses a localhost http interface for its GUI.
+The samos client binary uses a localhost http interface for its GUI.
 By default it runs on http://127.0.0.1:12176.  This is configurable with
 
     --web-interface-port
@@ -10,10 +10,10 @@ By default it runs on http://127.0.0.1:12176.  This is configurable with
 
 To see a list of all options, use the -h flag.
 
-The skycoin.run script starts the skycoin client binary and opens the interface
-in your browser with xdg-open.  It is not aware of any changes to skycoin client's
-web interface configuration, you can override the url with SKYCOIN_WEB_URL or
-by editing the skycoin.url file.
+The samos.run script starts the samos client binary and opens the interface
+in your browser with xdg-open.  It is not aware of any changes to samos client's
+web interface configuration, you can override the url with SAMOS_WEB_URL or
+by editing the samos.url file.
 
 If there is no webpage available, try reloading the page. The page may have opened
-before the skycoin client finished loading.
+before the samos client finished loading.

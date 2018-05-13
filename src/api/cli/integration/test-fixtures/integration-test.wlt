@@ -1,6 +1,6 @@
 {
     "meta": {
-        "coin": "skycoin",
+        "coin": "samos",
         "filename": "integration-test.wlt",
         "label": "integration-test",
         "lastSeed": "1c0ff9dd77fb5dd079078c3098e61a9d99965e8d55121cc3fb576af61d6d450a",

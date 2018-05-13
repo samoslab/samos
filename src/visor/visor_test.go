@@ -17,6 +17,7 @@ import (
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
 	"github.com/samoslab/samos/src/testutil"
+	_require "github.com/samoslab/samos/src/testutil/require"
 	"github.com/samoslab/samos/src/util/fee"
 	"github.com/samoslab/samos/src/util/utc"
 	"github.com/samoslab/samos/src/visor/blockdb"
@@ -167,7 +168,7 @@ func TestVisorCreateBlock(t *testing.T) {
 	}
 
 	// CreateBlock panics if called when not master
-	require.PanicsWithValue(t, "Only master chain can create blocks", func() {
+	_require.PanicsWithLogMessage(t, "Only master chain can create blocks", func() {
 		v.CreateBlock(when)
 	})
 
@@ -223,22 +224,22 @@ func TestVisorCreateBlock(t *testing.T) {
 
 	// Use invalid decimal places to verify decimal place filtering.
 	// The fs are set higher to ensure that they are not filtered due to truncating with a low f
-	// Spending 9.1 SAMO
+	// Spending 9.1 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e5, f*20))
 	i++
-	// Spending 9.01 SAMO
+	// Spending 9.01 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e4, f*30))
 	i++
-	// Spending 9.0001 SAMO
+	// Spending 9.0001 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e3, f*40))
 	i++
-	// Spending 9.0001 SAMO
+	// Spending 9.0001 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e2, f*50))
 	i++
-	// Spending 9.00001 SAMO
+	// Spending 9.00001 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1e1, f*60))
 	i++
-	// Spending 9.000001 SAMO
+	// Spending 9.000001 SKY
 	txns = append(txns, makeSpendTxWithFee(t, coin.UxArray{uxs[i]}, []cipher.SecKey{genSecret}, toAddr, coins+1, f*70))
 	i++
 
@@ -318,7 +319,7 @@ func TestVisorInjectTransaction(t *testing.T) {
 	}
 
 	// CreateBlock panics if called when not master
-	require.PanicsWithValue(t, "Only master chain can create blocks", func() {
+	_require.PanicsWithLogMessage(t, "Only master chain can create blocks", func() {
 		v.CreateBlock(when)
 	})
 
@@ -447,7 +448,7 @@ func TestVisorCalculatePrecision(t *testing.T) {
 		})
 	}
 
-	require.PanicsWithValue(t, "precision must be <= droplet.Exponent", func() {
+	_require.PanicsWithLogMessage(t, "precision must be <= droplet.Exponent", func() {
 		calculateDivisor(7)
 	})
 }

@@ -1,7 +1,21 @@
 #!/usr/bin/env bash
 
+set -x
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "samos binary dir:" "$DIR"
 pushd "$DIR" >/dev/null
-go run cmd/samoslab/samos.go --gui-dir="${DIR}/src/gui/static/" $@
+
+COMMIT=$(git rev-parse HEAD)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GOLDFLAGS="-X main.Commit=${COMMIT} -X main.Branch=${BRANCH}"
+
+go run -ldflags "${GOLDFLAGS}" cmd/samos/samos.go \
+    -gui-dir="${DIR}/src/gui/static/" \
+    -launch-browser=true \
+    -enable-wallet-api=true \
+    -rpc-interface=false \
+    -log-level=debug \
+    $@
+
 popd >/dev/null

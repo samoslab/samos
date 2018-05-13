@@ -7,12 +7,52 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
+### Fixed
+### Changed
+### Removed
+
+## [0.23.0] - 2018-04-22
+
+### Added
+
+- Add wallet setup wizard
+- Add wallet encryption, using chacha20+poly1305 for encryption and authentication and scrypt for key derivation. Encrypted data is stored in the wallet file in a `"secrets"` metadata field
+- Add `GET /health` endpoint
+- Add `POST /wallet/transaction` API endpoint, creates a transaction, allowing control of spending address and multiple destinations
+- Add `POST /wallet/encrypt` API endpoint, encrypts wallet and returns encrypted wallet without sensitive data
+- Add `POST /wallet/decrypt` API endpoint, decrypts wallet and returns decrypted wallet without sensitive data
+- Add `POST /wallet/seed` API endpoint, returns the seed of an encrypted wallet. Unencrypted wallets will not expose their seeds over the API. Requires `-enable-seed-api` option
+- `-enable-seed-api` option to enable `POST /wallet/seed`
+- Add `"size"` to block API response data (affects `GET /block`, `GET /blocks` and `GET /last_blocks`)
+- Write [specification for samos URIs](https://github.com/samoslab/samos#uri-specification) (based upon bip21)
 
 ### Fixed
 
+- #1309, Float imprecision error in frontend malformed some spend amounts, preventing the spend
+- Fix one aspect of sync stalling caused by a 5-second blocking channel write by switching it to a non-blocking write, decreasing timeouts and increasing buffer sizes
+
 ### Changed
 
+- `GET /wallet` API endpoint, remove sensitive data from the response, and fix the data format to be the same as `POST /wallet/create`
+- `GET /wallets` API endpoint, remove sensitive data from the response
+- `POST /wallet/create` API endpoint, add `encrypt(bool)` and `password` argument
+- `POST /wallet/newAddress` API endpoint, add `password` argument
+- `POST /wallet/spend` API endpoint, add `password` argument
+- Change `-disable-wallet-api` to `-enable-wallet-api`, and disable the wallet API by default
+- `-launch-browser` is set to false by default
+- A default wallet will not be created on startup if there is no wallet. Instead, the wallet setup wizard will run
+- Replace [op/go-logging](https://github.com/op/go-logging) with [logrus](https://github.com/sirupsen/logrus)
+- Disable JSON-RPC 2.0 interface when running the application with `run.sh` and electron
+- Whitespace will be trimmed from the seed string by the frontend client before creating or loading a wallet
+- Notify the user when their wallets have unconfirmed transactions
+- Return an error when providing a transaction that spends to the null address in `POST /injectTransaction`
+- Change accepted `-log-level` values to `debug`, `info`, `warn`, `error`, `fatal` and `panic` (previously were `debug`, `info`, `notice`, `warning`, `error` and `critical`)
+- Default log level is `info`
+
 ### Removed
+
+- Remove `"seed"`, `"lastSeed"` and `"secret_key"` in address entries from wallet API responses. A wallet's seed can be accessed through `POST /wallet/seed` only if the wallet is encrypted and the node is run with `-enable-seed-api`
+- Remove unused `-logtogui` and `-logbufsize` options
 
 ## [0.22.0] - 2018-03-20
 
@@ -20,7 +60,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - go1.10 support
 - Add Dockerfile
-- Add libskycoin C API wrapper
+- Add libsamos C API wrapper
 - New wallet UI
 - Notify the user when a new version is available
 - CLI and GUI integration tests against a stable and live blockchain
@@ -29,9 +69,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `/richlist` API method, returns top n address balances
 - `/addresscount` API method, returns the number of addresses that have any amount of coins
 - `/transactions` API method, returns transactions of addresses
+- `/wallet/unload` API method, removes the wallet of given id from wallet services
 
 ### Fixed
 
+- #1021, remove `SendOr404` and `SendOr500` as they do not work properly due to typed nils
 - Add Read, Write and Idle timeouts to the HTTP listener, preventing file descriptor leaks
 - Support absolute and relative paths for `-data-dir` option
 - Prevent creating transactions whose size exceeds the maximum block size
@@ -71,7 +113,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Require transactions to have an input with non-zero coinhours
 - Add `-peerlist-size` and `-max-outgoing-connections` CLI options
 - Add `-download-peerlist` and `-peerlist-url` CLI options, to get peers from a URL
-- For electron clients, download a list of peers from https://downloads.skycoin.net/blockchain/peers.txt by default
+- For electron clients, download a list of peers from https://downloads.samos.net/blockchain/peers.txt by default
 
 ### Fixed
 
@@ -80,7 +122,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- CLI's `walletBalance` and `addressBalance` commands return aggregate balances for confirmed, spendable and expected balances.  Coins are formatted as droplet strings.  Hours added as strings.
+- CLI's `walletBalance` and `addressBalance` commands return aggregate balances for confirmed, spendable and expected balances. Coins are formatted as droplet strings. Hours added as strings.
 - When splitting an odd number of hours in a spend, give the extra hour to the fee
 - Add `block_seq` to `get_outputs` and `/outputs` API response
 - Improve UxOut spend selection. Previously, they were spent oldest first. Now they are spent to ensure a non-zero coinhour input and otherwise minimize coinhours.
@@ -93,7 +135,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add `/logs` api to filter skycoin logs, so that we can add a debug panel to the GUI wallet to show logs
+- Add `/logs` api to filter samos logs, so that we can add a debug panel to the GUI wallet to show logs
 
 ## [0.20.3] - 2017-10-23
 
@@ -143,7 +185,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `-x` option to `address_gen`, to generate a random base64-encoded 128-bit seed instead of a BIP32 mnemomic seed.
 - Add `-v` option to `address_gen` to print all address information (pubkey, seckey, address, seed) to stdout as JSON.
 - All API and CLI methods with "coin"-related arguments must be a string and can use decimal notation to specify coin amounts.
-- CLI's `walletHistory` command prints amounts as fixed-point decimal strings. Previously, it printed amounts as integers representing whole skycoin amounts, and did not support droplets / fractional skycoins.
+- CLI's `walletHistory` command prints amounts as fixed-point decimal strings. Previously, it printed amounts as integers representing whole samos amounts, and did not support droplets / fractional samoss.
 - A user is prevented from broadcasting a new transaction with unspent outputs that they have already sent as an unconfirmed transaction.
 
 ### Deprecated
@@ -190,7 +232,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - #421 Sort wallet transaction history by time
 - #398 Remove seeds from DOM
 - #390 Make `go test ./src/...` work
-- #383 Error during installation from skycoin source code
+- #383 Error during installation from samos source code
 - #375 Node can't recovery from zero connections
 - #376 Explorer api `/explorer/address` does not return spend transactions
 - #373 Master node will be closed if there're no transactions need to execute
@@ -198,6 +240,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - #350 Wallet name always 'undefined' after loading wallet from seed
 
 [Unreleased]: https://github.com/samoslab/samos/compare/master...develop
+[0.23.0]: https://github.com/samoslab/samos/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/samoslab/samos/compare/v0.21.1...v0.22.0
 [0.21.1]: https://github.com/samoslab/samos/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/samoslab/samos/compare/v0.20.4...v0.21.0

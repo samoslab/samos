@@ -34,7 +34,7 @@ func main() {
 	if *isBitcoin {
 		coinType = wallet.CoinTypeBitcoin
 	} else {
-		coinType = wallet.CoinTypeSkycoin
+		coinType = wallet.CoinTypeSamos
 	}
 
 	if *seed == "" {

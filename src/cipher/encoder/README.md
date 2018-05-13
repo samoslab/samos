@@ -1,7 +1,7 @@
 encoder
 =======
 
-[![GoDoc](http://godoc.org/github.com//samoslab/samos/src/cipher/encoder?status.png)](http://godoc.org/github.com/samoslab/samos/src/cipher/encoder)
+[![GoDoc](http://godoc.org/github.com//skycoin/skycoin/src/cipher/encoder?status.png)](http://godoc.org/github.com/samoslab/samos/src/cipher/encoder)
 
 [Godoc generated documentation](https://godoc.org/github.com/samoslab/samos/src/cipher/encoder)
 

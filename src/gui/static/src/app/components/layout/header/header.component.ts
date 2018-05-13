@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../../services/api.service';
 import { Http } from '@angular/http';
 import { AppService } from '../../../services/app.service';
+import { IntervalObservable } from 'rxjs/observable/IntervalObservable';
 
 @Component({
   selector: 'app-header',
@@ -25,17 +26,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   version: string;
   releaseVersion: string;
   updateAvailable: boolean;
+  hasPendingTxs: boolean;
 
   private price: number;
   private priceSubscription: Subscription;
   private walletSubscription: Subscription;
 
   get balance() {
-    return '';
-//     if (this.price === null) { return ''; }
-// //    if (this.price === null) { return 'loading..'; }
-//     const balance = Math.round(this.coins * this.price * 100) / 100;
-//     return '$' + balance.toFixed(2) + ' ($' + (Math.round(this.price * 100) / 100) + ')';
+    if (this.price === null) { return 'loading..'; }
+    const balance = Math.round(this.coins * this.price * 100) / 100;
+    return '$' + balance.toFixed(2) + ' ($' + (Math.round(this.price * 100) / 100) + ')';
   }
 
   get loading() {
@@ -49,15 +49,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private priceService: PriceService,
     private walletService: WalletService,
     private http: Http,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.setVersion();
-    //this.priceSubscription = this.priceService.price.subscribe(price => this.price = price);
+    this.priceSubscription = this.priceService.price.subscribe(price => this.price = price);
+    this.walletSubscription = this.walletService.allAddresses().subscribe(addresses => {
+      addresses = addresses.reduce((array, item) => {
+        if (!array.find(addr => addr.address === item.address)) {
+          array.push(item);
+        }
+        return array;
+      }, []);
 
-    this.walletSubscription = this.walletService.all().subscribe(wallets => {
-      this.coins = wallets.map(wallet => wallet.coins >= 0 ? wallet.coins : 0).reduce((a, b) => a + b, 0);
-      this.hours = wallets.map(wallet => wallet.hours >= 0 ? wallet.hours : 0).reduce((a, b) => a + b, 0);
+      this.coins = addresses.map(addr => addr.coins >= 0 ? addr.coins : 0).reduce((a, b) => a + b, 0);
+      this.hours = addresses.map(addr => addr.hours >= 0 ? addr.hours : 0).reduce((a, b) => a + b, 0);
     });
 
     this.blockchainService.progress
@@ -68,11 +74,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.current = response.current;
         this.percentage = this.current && this.highest ? (this.current / this.highest) : 0;
       });
+
+    this.walletService.pendingTransactions().subscribe(txs => {
+      this.hasPendingTxs = txs.length > 0;
+    });
   }
 
   ngOnDestroy() {
-    this.priceSubscription && this.priceSubscription.unsubscribe();
-    this.walletSubscription && this.walletSubscription.unsubscribe();
+    this.priceSubscription.unsubscribe();
+    this.walletSubscription.unsubscribe();
   }
 
   setVersion() {
@@ -100,11 +110,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private retrieveReleaseVersion() {
-    this.http.get('https://api.github.com/repos/samoslab/samos/tags')
-      .map((res: any) => {
-        let r = res.json();
-        return r.length < 1 ? [{name: ""}] : r;
-      })
+    this.http.get('https://api.github.com/repos/skycoin/skycoin/tags')
+      .map((res: any) => res.json())
       .catch((error: any) => Observable.throw(error || 'Unable to fetch latest release version from github.'))
       .subscribe(response =>  {
         this.releaseVersion = response.find(element => element['name'].indexOf('rc') === -1)['name'].substr(1);

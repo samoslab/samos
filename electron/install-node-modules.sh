@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e -o pipefail
 
-# installs the node modules for the skycoin electron app
+# installs the node modules for the samos electron app
 # NOT for the electron build process
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

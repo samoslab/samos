@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs "stable"-mode tests against a skycoin node configured with a pinned database
+# Runs "stable"-mode tests against a samos node configured with a pinned database
 # "stable" mode tests assume the blockchain data is static, in order to check API responses more precisely
 # $TEST defines which test to run i.e, cli or gui; If empty both are run
 
@@ -10,15 +10,17 @@ RPC_PORT="46430"
 HOST="http://127.0.0.1:$PORT"
 RPC_ADDR="127.0.0.1:$RPC_PORT"
 MODE="stable"
-BINARY="skycoin-integration"
+BINARY="samos-integration"
 TEST=""
 UPDATE=""
 # run go test with -v flag
 VERBOSE=""
 # run go test with -run flag
 RUN_TESTS=""
-# run wallet tests
-TEST_WALLET=""
+
+COMMIT=$(git rev-parse HEAD)
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+GOLDFLAGS="-X main.Commit=${COMMIT} -X main.Branch=${BRANCH}"
 
 usage () {
   echo "Usage: $SCRIPT"
@@ -27,7 +29,6 @@ usage () {
   echo "-r <string>  -- Run test with -run flag"
   echo "-u <boolean> -- Update stable testdata"
   echo "-v <boolean> -- Run test with -v flag"
-  echo "-w <boolean> -- Run wallet tests"
   exit 1
 }
 
@@ -40,13 +41,12 @@ while getopts "h?t:r:uvw" args; do
     r ) RUN_TESTS="-run ${OPTARG}";;
     u ) UPDATE="--update";;
     v ) VERBOSE="-v";;
-    w ) TEST_WALLET="--test-wallet"
   esac
 done
 
 set -euxo pipefail
 
-DATA_DIR=$(mktemp -d -t skycoin-data-dir.XXXXXX)
+DATA_DIR=$(mktemp -d -t samos-data-dir.XXXXXX)
 WALLET_DIR="${DATA_DIR}/wallets"
 
 if [[ ! "$DATA_DIR" ]]; then
@@ -54,15 +54,15 @@ if [[ ! "$DATA_DIR" ]]; then
   exit 1
 fi
 
-# Compile the skycoin node
+# Compile the samos node
 # We can't use "go run" because this creates two processes which doesn't allow us to kill it at the end
-echo "compiling skycoin"
-go build -o "$BINARY" cmd/samoslab/samos.go
+echo "compiling samos"
+go build -o "$BINARY" -ldflags "${GOLDFLAGS}" cmd/samos/samos.go
 
-# Run skycoin node with pinned blockchain database
-echo "starting skycoin node in background with http listener on $HOST"
+# Run samos node with pinned blockchain database
+echo "starting samos node in background with http listener on $HOST"
 
-./skycoin-integration -disable-networking=true \
+./samos-integration -disable-networking=true \
                       -web-interface-port=$PORT \
                       -download-peerlist=false \
                       -db-path=./src/gui/integration/test-fixtures/blockchain-180.db \
@@ -71,10 +71,12 @@ echo "starting skycoin node in background with http listener on $HOST"
                       -rpc-interface-port=$RPC_PORT \
                       -launch-browser=false \
                       -data-dir="$DATA_DIR" \
-                      -wallet-dir="$WALLET_DIR" &
-SKYCOIN_PID=$!
+                      -enable-wallet-api=true \
+                      -wallet-dir="$WALLET_DIR" \
+                      -enable-seed-api=true &
+SAMOS_PID=$!
 
-echo "skycoin node pid=$SKYCOIN_PID"
+echo "samos node pid=$SAMOS_PID"
 
 echo "sleeping for startup"
 sleep 3
@@ -84,7 +86,8 @@ set +e
 
 if [[ -z $TEST || $TEST = "gui" ]]; then
 
-SKYCOIN_INTEGRATION_TESTS=1 SKYCOIN_INTEGRATION_TEST_MODE=$MODE SKYCOIN_NODE_HOST=$HOST go test ./src/gui/integration/... $UPDATE -timeout=30s $VERBOSE $RUN_TESTS $TEST_WALLET
+SAMOS_INTEGRATION_TESTS=1 SAMOS_INTEGRATION_TEST_MODE=$MODE SAMOS_NODE_HOST=$HOST \
+    go test ./src/gui/integration/... $UPDATE -timeout=3m $VERBOSE $RUN_TESTS
 
 GUI_FAIL=$?
 
@@ -92,18 +95,19 @@ fi
 
 if [[ -z $TEST  || $TEST = "cli" ]]; then
 
-SKYCOIN_INTEGRATION_TESTS=1 SKYCOIN_INTEGRATION_TEST_MODE=$MODE RPC_ADDR=$RPC_ADDR go test ./src/api/cli/integration/... $UPDATE -timeout=30s $VERBOSE $RUN_TESTS $TEST_WALLET
+SAMOS_INTEGRATION_TESTS=1 SAMOS_INTEGRATION_TEST_MODE=$MODE RPC_ADDR=$RPC_ADDR \
+    go test ./src/api/cli/integration/... $UPDATE -timeout=3m $VERBOSE $RUN_TESTS
 
 CLI_FAIL=$?
 
 fi
 
 
-echo "shutting down skycoin node"
+echo "shutting down samos node"
 
-# Shutdown skycoin node
-kill -s SIGINT $SKYCOIN_PID
-wait $SKYCOIN_PID
+# Shutdown samos node
+kill -s SIGINT $SAMOS_PID
+wait $SAMOS_PID
 
 rm "$BINARY"
 

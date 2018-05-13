@@ -74,7 +74,7 @@ func (c *Client) InjectTransaction(tx *coin.Transaction) (string, error) {
 	return c.InjectTransactionString(rawTx)
 }
 
-// GetStatus returns status info for a skycoin node
+// GetStatus returns status info for a samos node
 func (c *Client) GetStatus() (*StatusResult, error) {
 	status := StatusResult{}
 	if err := c.Do(&status, "get_status", nil); err != nil {

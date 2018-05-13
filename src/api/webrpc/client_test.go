@@ -1,7 +1,6 @@
 package webrpc
 
 import (
-	"log"
 	"sort"
 	"strings"
 	"testing"
@@ -12,7 +11,12 @@ import (
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
 	"github.com/samoslab/samos/src/testutil"
+	"github.com/samoslab/samos/src/util/logging"
 	"github.com/samoslab/samos/src/visor"
+)
+
+var (
+	log = logging.MustGetLogger("webrpc_test")
 )
 
 // Tests are setup as subtests, to retain a single *WebRPC instance for scaffolding

@@ -22,7 +22,7 @@ func versionCmd() gcli.Command {
 		OnUsageError: onCommandUsageError(name),
 		Action: func(c *gcli.Context) error {
 			var ver = struct {
-				Samos  string `json:"skycoin"`
+				Samos  string `json:"samos"`
 				Cli    string `json:"cli"`
 				RPC    string `json:"rpc"`
 				Wallet string `json:"wallet"`
@@ -35,7 +35,7 @@ func versionCmd() gcli.Command {
 
 			jsonFmt := c.Bool("json")
 			if jsonFmt {
-				return printJson(ver)
+				return printJSON(ver)
 			}
 
 			v := reflect.ValueOf(ver)

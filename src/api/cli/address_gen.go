@@ -14,7 +14,7 @@ func addressGenCmd() gcli.Command {
 	name := "addressGen"
 	return gcli.Command{
 		Name:        name,
-		Usage:       "Generate skycoin or bitcoin addresses",
+		Usage:       "Generate samos or bitcoin addresses",
 		Description: "",
 		Flags: []gcli.Flag{
 			gcli.IntFlag{
@@ -28,7 +28,7 @@ func addressGenCmd() gcli.Command {
 			},
 			gcli.BoolFlag{
 				Name:  "bitcoin,b",
-				Usage: "Output the addresses as bitcoin addresses instead of skycoin addresses",
+				Usage: "Output the addresses as bitcoin addresses instead of samos addresses",
 			},
 			gcli.BoolFlag{
 				Name:  "hex,x",
@@ -49,7 +49,7 @@ func addressGenCmd() gcli.Command {
 			if c.Bool("bitcoin") {
 				coinType = wallet.CoinTypeBitcoin
 			} else {
-				coinType = wallet.CoinTypeSkycoin
+				coinType = wallet.CoinTypeSamos
 			}
 
 			seed := c.String("seed")
@@ -73,7 +73,7 @@ func addressGenCmd() gcli.Command {
 			}
 
 			if !c.Bool("only-addr") {
-				return printJson(w)
+				return printJSON(w)
 			}
 
 			for _, e := range w.Entries {

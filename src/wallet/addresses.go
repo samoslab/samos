@@ -7,7 +7,7 @@ import (
 	"github.com/samoslab/samos/src/cipher"
 )
 
-// CreateAddresses genCount addresses deterministically from seed.  coinType is either CoinTypeBitcoin or CoinTypeSkycoin.
+// CreateAddresses genCount addresses deterministically from seed.  coinType is either CoinTypeBitcoin or CoinTypeSamos.
 // hideSecretKey will hide the secret key from the output.
 func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey bool) (*ReadableWallet, error) {
 	if genCount < 1 {
@@ -34,7 +34,7 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 		switch coinType {
 		case CoinTypeBitcoin:
 			entry = GetBitcoinWalletEntry(pub, sec)
-		case CoinTypeSkycoin:
+		case CoinTypeSamos:
 			entry = GetSkycoinWalletEntry(pub, sec)
 		default:
 			return nil, fmt.Errorf(`unknown coinType "%s"`, coinType)
@@ -50,7 +50,7 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 	return wallet, nil
 }
 
-// GetSkycoinWalletEntry returns a ReadableEntry in Samos format
+// GetSkycoinWalletEntry returns a ReadableEntry in Skycoin format
 func GetSkycoinWalletEntry(pub cipher.PubKey, sec cipher.SecKey) ReadableEntry {
 	return ReadableEntry{
 		Address: cipher.AddressFromPubKey(pub).String(),
