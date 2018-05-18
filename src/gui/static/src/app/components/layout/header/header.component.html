@@ -4,8 +4,8 @@
     <div class="balance-container">
       <div class="balance">
         <p *ngIf="highest && loading" class="coins"><span>{{ percentage | percent:'1.2-2' }}</span></p>
-        <p *ngIf="!loading" class="coins"><span>{{ coins | number:'1.0-6' }}</span> sky</p>
-        <p *ngIf="!loading" class="dollars">{{ balance }}</p>
+        <p *ngIf="!loading" class="coins"><span>{{ coins | number:'1.0-6' }}</span> SAMO</p>
+        <p *ngIf="!loading" class="dollars" style="display: none;">{{ balance }}</p>
       </div>
     </div>
     <div class="hour-balance">
@@ -21,7 +21,7 @@
     [mode]="querying ? 'query' : 'determinate'"
     [value]="percentage * 100"></mat-progress-bar>
   <mat-toolbar class="notification-bar" *ngIf="updateAvailable">
-    <div> Wallet update <a href="https://www.skycoin.net/downloads/" target="_blank">v{{ releaseVersion }}</a>  available.</div>
+    <div> Wallet update <a href="https://www.samos.io/downloads/" target="_blank">v{{ releaseVersion }}</a>  available.</div>
   </mat-toolbar>
   <mat-toolbar class="notification-bar" *ngIf="appService.error">
     <div *ngIf="appService.error === 1">

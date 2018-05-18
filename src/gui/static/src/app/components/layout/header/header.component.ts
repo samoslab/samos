@@ -81,8 +81,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.priceSubscription.unsubscribe();
-    this.walletSubscription.unsubscribe();
+    this.priceSubscription && this.priceSubscription.unsubscribe();
+    this.walletSubscription && this.walletSubscription.unsubscribe();
   }
 
   setVersion() {
@@ -110,8 +110,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private retrieveReleaseVersion() {
-    this.http.get('https://api.github.com/repos/skycoin/skycoin/tags')
-      .map((res: any) => res.json())
+    this.http.get('https://api.github.com/repos/samoslab/samos/tags')
+          .map((res: any) => res.json())
+          .map((res: any) => {
+            let r = res.json();
+            return r.length < 1 ? [{name: ""}] : r;
+          })
       .catch((error: any) => Observable.throw(error || 'Unable to fetch latest release version from github.'))
       .subscribe(response =>  {
         this.releaseVersion = response.find(element => element['name'].indexOf('rc') === -1)['name'].substr(1);
