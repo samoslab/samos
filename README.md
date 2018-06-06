@@ -1,4 +1,3 @@
-![samos logo]
 # Samos
 
 [![Build Status](https://travis-ci.org/samoslab/samos.svg)](https://travis-ci.org/samoslab/samos)
@@ -25,7 +24,7 @@ Samos is a small part of OP Redecentralize and OP Darknet Plan.
 
 - [Changelog](#changelog)
 - [Installation](#installation)
-    - [Go 1.9+ Installation and Setup](#go-19-installation-and-setup)
+    - [Go 1.10+ Installation and Setup](#go-19-installation-and-setup)
     - [Go get samos](#go-get-samos)
     - [Run Samos from the command line](#run-samos-from-the-command-line)
     - [Show Samos node options](#show-samos-node-options)
@@ -65,11 +64,11 @@ Samos is a small part of OP Redecentralize and OP Darknet Plan.
 
 ## Installation
 
-Samos supports go1.9+.  The preferred version is go1.10.
+Samos supports go1.10+.  
 
-### Go 1.9+ Installation and Setup
+### Go 1.10+ Installation and Setup
 
-[Golang 1.9+ Installation/Setup](./INSTALLATION.md)
+[Golang 1.10+ Installation/Setup](./INSTALLATION.md)
 
 ### Go get samos
 
