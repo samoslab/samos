@@ -12,11 +12,9 @@ Samos is a small part of OP Redecentralize and OP Darknet Plan.
 
 ## Links
 
-* [samos.io](https://www.samos.io)
-* [Samos Blog](https://www.samos.io/blog)
-* [Samos Docs](https://www.samos.io/docs)
+* [samos.io](https://samos.io)
 * [Samos Blockchain Explorer](https://explorer.samos.io)
-* [Samos Development Telegram Channel](https://t.me/samosdev)
+* [Samos Development Telegram Channel](https://t.me/samosnetwork)
 
 ## Table of Contents
 
@@ -171,9 +169,7 @@ $ docker build -f docker/images/mainnet/Dockerfile \
 
 ### JSON-RPC 2.0 API
 
-*Deprecated, avoid using this*
-
-[JSON-RPC 2.0 README](src/api/webrpc/README.md).
+* [JSON-RPC 2.0 API on port 8081](https://github.com/samoslab/sky-fiber-jsonrpc/blob/master/README.md) **another service**
 
 ### Samos command line interface
 
