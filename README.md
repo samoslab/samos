@@ -1,14 +1,8 @@
 # Samos
 
-[![Build Status](https://travis-ci.org/samoslab/samos.svg)](https://travis-ci.org/samoslab/samos)
-[![GoDoc](https://godoc.org/github.com/samoslab/samos?status.svg)](https://godoc.org/github.com/samoslab/samos)
-[![Go Report Card](https://goreportcard.com/badge/github.com/samoslab/samos)](https://goreportcard.com/report/github.com/samoslab/samos)
+Samos  is building Portable AI-Driven Infrastructural Networks for future DApp and Internet.
 
-Samos is a next-generation cryptocurrency.
 
-Samos improves on Bitcoin in too many ways to be addressed here.
-
-Samos is a small part of OP Redecentralize and OP Darknet Plan.
 
 ## Links
 
@@ -147,7 +141,7 @@ Example
 ```sh
 $ git clone https://github.com/samoslab/samos
 $ cd samos
-$ SAMOS_VERSION=v0.23.0
+$ SAMOS_VERSION=v0.23.1
 $ docker build -f docker/images/mainnet/Dockerfile \
   --build-arg=SAMOS_VERSION=$SAMOS_VERSION \
   -t samos:$SAMOS_VERSION .
@@ -157,8 +151,8 @@ or just
 
 ```sh
 $ docker build -f docker/images/mainnet/Dockerfile \
-  --build-arg=SAMOS_VERSION=v0.23.0 \
-  -t samos:v0.23.0 .
+  --build-arg=SAMOS_VERSION=v0.23.1 \
+  -t samos:v0.23.1 .
 ```
 
 ## API Documentation
@@ -182,10 +176,9 @@ $ docker build -f docker/images/mainnet/Dockerfile \
 ## Contributing a node to the network
 
 Add your node's `ip:port` to the [peers.txt](peers.txt) file.
-This file will be periodically uploaded to https://downloads.samos.io/blockchain/peers.txt
+This file will be periodically uploaded to https://samos.io/blockchain/peers.txt
 and used to seed client with peers.
 
-*Note*: Do not add Skywire nodes to `peers.txt`.
 Only add Samos nodes with high uptime and a static IP address (such as a Samos node hosted on a VPS).
 
 ## URI Specification
@@ -434,28 +427,3 @@ Performs these actions before releasing:
 
 [Create Release builds](electron/README.md).
 
-#### Release signing
-
-Releases are signed with this PGP key:
-
-`0x5801631BD27C7874`
-
-The fingerprint for this key is:
-
-```
-pub   ed25519 2017-09-01 [SC] [expires: 2023-03-18]
-      10A7 22B7 6F2F FE7B D238  0222 5801 631B D27C 7874
-uid                      GZ-C SAMOS <token@protonmail.com>
-sub   cv25519 2017-09-01 [E] [expires: 2023-03-18]
-```
-
-Keybase.io account: https://keybase.io/gzc
-
-Follow the [Tor Project's instructions for verifying signatures](https://www.torproject.org/docs/verifying-signatures.html.en).
-
-If you can't or don't want to import the keys from a keyserver, the signing key is available in the repo: [gz-c.asc](gz-c.asc).
-
-Releases and their signatures can be found on the [releases page](https://github.com/samoslab/samos/releases).
-
-Instructions for generating a PGP key, publishing it, signing the tags and binaries:
-https://gist.github.com/gz-c/de3f9c43343b2f1a27c640fe529b067c
