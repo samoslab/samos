@@ -3,7 +3,7 @@
     "productName": "Samos",
     "author": "samos",
     "main": "src/electron-main.js",
-    "version": "0.23.1",
+    "version": "0.23.2",
     "description": "samos wallet",
     "license": "MIT",
     "build": {
