@@ -61,19 +61,19 @@ Thumbs.db
 release
 .bin
 
-.skycoin
+.samos
 
 *.prof
 *.out
 
 # Binaries
 /skycoind
-/skycoin
+/samos
 /skycoindev
 /blockchain
 /generate_cert
 /address_gen
-/skycoin-integration
+/samos-integration
 
 *.pem
 
@@ -118,7 +118,7 @@ coverage.html
 
 src/gui/integration/wallets/
 
-skycoin-cli
+samos-cli
 
 # FIXME: see #1027 - Temporary solution to deal with generated file
 include/libskycoin.h

@@ -7,7 +7,7 @@ import { WalletService } from './services/wallet.service';
 import { WalletsComponent } from './components/pages/wallets/wallets.component';
 import { CreateWalletComponent } from './components/pages/wallets/create-wallet/create-wallet.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SendSkycoinComponent } from './components/pages/send-skycoin/send-skycoin.component';
+import { SendSamosComponent } from './components/pages/send-samos/send-samos.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { DateFromNowPipe } from './pipes/date-from-now.pipe';
 import { RouterModule } from '@angular/router';
@@ -81,7 +81,7 @@ const ROUTES = [
   },
   {
     path: 'send',
-    component: SendSkycoinComponent,
+    component: SendSamosComponent,
     canActivate: [WizardGuardService],
   },
   {
@@ -145,7 +145,7 @@ const ROUTES = [
     OutputsComponent,
     PendingTransactionsComponent,
     QrCodeComponent,
-    SendSkycoinComponent,
+    SendSamosComponent,
     TellerStatusPipe,
     TopBarComponent,
     TransactionDetailComponent,
@@ -169,7 +169,7 @@ const ROUTES = [
     CreateWalletComponent,
     ChangeNameComponent,
     QrCodeComponent,
-    SendSkycoinComponent,
+    SendSamosComponent,
     TransactionDetailComponent,
     OnboardingSafeguardComponent,
     PasswordDialogComponent,

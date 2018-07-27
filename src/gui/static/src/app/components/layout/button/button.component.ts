@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { parseResponseMessage } from '../../../utils/index';
+import { parseResponseMessage } from '../../../utils';
 
 @Component({
   selector: 'app-button',

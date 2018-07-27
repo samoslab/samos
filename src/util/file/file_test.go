@@ -54,7 +54,7 @@ func cleanup(fn string) {
 }
 
 func TestBuildDataDirDotOk(t *testing.T) {
-	dir := "./.test-skycoin/test"
+	dir := "./.test-samos/test"
 	builtDir, err := buildDataDir(dir)
 	require.NoError(t, err)
 
@@ -96,15 +96,15 @@ func TestUserHome(t *testing.T) {
 
 func TestBuildDataDirDefault(t *testing.T) {
 	home := UserHome()
-	defaultDir := filepath.Join(home, ".skycoin")
+	defaultDir := filepath.Join(home, ".samos")
 	dir, err := buildDataDir(defaultDir)
 	require.NoError(t, err)
-	expectedPath := filepath.Join(home, ".skycoin")
+	expectedPath := filepath.Join(home, ".samos")
 	require.Equal(t, dir, expectedPath)
 }
 
 func TestBuildDataDirAbsolute(t *testing.T) {
-	abspath := "/opt/.skycoin"
+	abspath := "/opt/.samos"
 	dir, err := buildDataDir(abspath)
 	require.NoError(t, err)
 	require.Equal(t, abspath, dir)

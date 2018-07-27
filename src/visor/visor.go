@@ -136,7 +136,7 @@ type Config struct {
 }
 
 // NewVisorConfig put cap on block size, not on transactions/block
-//Samos transactions are smaller than Bitcoin transactions so skycoin has
+//Samos transactions are smaller than Bitcoin transactions so samos has
 //a higher transactions per second for the same block size
 func NewVisorConfig() Config {
 	c := Config{

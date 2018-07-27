@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { SendSkycoinComponent } from '../../pages/send-skycoin/send-skycoin.component';
+import { SendSamosComponent } from '../../pages/send-samos/send-samos.component';
 
 @Component({
   selector: 'app-footer',
@@ -22,7 +22,7 @@ export class FooterComponent {
   openSendPage() {
     const config = new MatDialogConfig();
     config.width = '566px';
-    this.dialog.open(SendSkycoinComponent, config);
+    this.dialog.open(SendSamosComponent, config);
   }
 
   openTransactions() {

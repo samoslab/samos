@@ -10,7 +10,7 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue.
 
-$mat-skycoin-primary: (
+$mat-samos-primary: (
   100: #00C3FF,
   500: #0072FF,
   contrast: (
@@ -19,15 +19,15 @@ $mat-skycoin-primary: (
   )
 );
 
-$mat-skycoin-accent: (
+$mat-samos-accent: (
   500: #FFC125,
   contrast: (
     500: white
   )
 );
 
-$candy-app-primary: mat-palette($mat-skycoin-primary, 500, 100, 500);
-$candy-app-accent:  mat-palette($mat-skycoin-accent, 500, 500, 500);
+$candy-app-primary: mat-palette($mat-samos-primary, 500, 100, 500);
+$candy-app-accent:  mat-palette($mat-samos-accent, 500, 500, 500);
 
 // The warn palette is optional (defaults to red).
 $candy-app-warn:    mat-palette($mat-red);
