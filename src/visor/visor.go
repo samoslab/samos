@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/samoslab/samos/src/consensus/dpos"
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
@@ -89,6 +90,12 @@ type Config struct {
 	//Secret key of blockchain authority (if master)
 	BlockchainSeckey cipher.SecKey
 
+	//Public key of blockchain authority
+	BlockchainTrustPubkey cipher.PubKey
+
+	//Secret key of blockchain authority (if master)
+	BlockchainTrustSeckey cipher.SecKey
+
 	// How often new blocks are created by the master, in seconds
 	BlockCreationInterval uint64
 	// How often an unconfirmed txn is checked against the blockchain
@@ -111,6 +118,12 @@ type Config struct {
 
 	//address for genesis
 	GenesisAddress cipher.Address
+
+	//address for genesis
+	TrustAddress cipher.Address
+
+	TrustAddressList []cipher.Address
+
 	// Genesis block sig
 	GenesisSignature cipher.Sig
 	// Genesis block timestamp
@@ -145,7 +158,7 @@ func NewVisorConfig() Config {
 		BlockchainPubkey: cipher.PubKey{},
 		BlockchainSeckey: cipher.SecKey{},
 
-		BlockCreationInterval: 10,
+		BlockCreationInterval: 1,
 		//BlockCreationForceInterval: 120, //create block if no block within this many seconds
 
 		UnconfirmedCheckInterval:     time.Hour * 2,
@@ -243,9 +256,11 @@ type Visor struct {
 	Wallets     *wallet.Service
 	StartedAt   time.Time
 
-	history  historyer
-	bcParser *BlockchainParser
-	db       *bolt.DB
+	history   historyer
+	bcParser  *BlockchainParser
+	db        *bolt.DB
+	dpos      *dpos.Dpos
+	trustNode *blockdb.TrustNode
 }
 
 // NewVisor creates a Visor for managing the blockchain database
@@ -285,7 +300,10 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	tn, err := blockdb.NewTrustNode(db)
+	if err != nil {
+		return nil, err
+	}
 	v := &Visor{
 		Config:      c,
 		db:          db,
@@ -295,6 +313,8 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 		bcParser:    bp,
 		Wallets:     wltServ,
 		StartedAt:   time.Now(),
+		dpos:        dpos.NewDpos(),
+		trustNode:   tn,
 	}
 
 	return v, nil
@@ -374,6 +394,23 @@ func (vs *Visor) RefreshUnconfirmed() ([]cipher.SHA256, error) {
 // Returns the transaction hashes that were removed.
 func (vs *Visor) RemoveInvalidUnconfirmed() ([]cipher.SHA256, error) {
 	return vs.Unconfirmed.RemoveInvalid(vs.Blockchain)
+}
+
+func (vs *Visor) insertTrustAddressList() error {
+	return vs.trustNode.AddNode(vs.Config.TrustAddressList)
+}
+
+// InTurnTheNode it is time create block for this node
+func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
+	lastBlock, err := vs.GetHeadBlock()
+	if err != nil {
+		return false, err
+	}
+	err = vs.dpos.CheckValidator(lastBlock, when)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // CreateBlock creates a SignedBlock from pending transactions

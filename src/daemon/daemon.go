@@ -501,6 +501,13 @@ loop:
 			// Create blocks, if master chain
 			elapser.Register("blockCreationTicker.C")
 			if dm.Visor.Config.Config.IsMaster {
+				now := utc.UnixNow()
+				should, err := dm.Visor.InTurnTheNode(now)
+				if err != nil || !should {
+					logger.Info("slot not for this node")
+					continue
+				}
+
 				sb, err := dm.Visor.CreateAndPublishBlock(dm.Pool)
 				if err != nil {
 					logger.Errorf("Failed to create block: %v", err)

@@ -407,6 +407,10 @@ func (vs *Visor) ResendUnconfirmedTxns(pool *Pool) []cipher.SHA256 {
 	return txids
 }
 
+func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
+	return vs.v.InTurnTheNode(when)
+}
+
 // CreateAndPublishBlock creates a block from unconfirmed transactions and sends it to the network.
 // Will panic if not running as a master chain.  Returns creation error and
 // whether it was published or not

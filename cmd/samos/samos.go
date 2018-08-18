@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"runtime/pprof"
+	"sort"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -55,6 +57,12 @@ var (
 	BlockchainPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
 	// BlockchainSeckeyStr empty private key string
 	BlockchainSeckeyStr = ""
+
+	TrustAddressStr          = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX"
+	BlockchainTrustPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
+	BlockchainTrustSeckeyStr = ""
+
+	TrustAddressListStr = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX,2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C,CB2tqSePaPBrMiBh2513njfUtev8GfMjEX,jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -159,6 +167,11 @@ type Config struct {
 	BlockchainPubkey cipher.PubKey
 	BlockchainSeckey cipher.SecKey
 
+	TrustAddress          cipher.Address
+	BlockchainTrustPubkey cipher.PubKey
+	BlockchainTrustSeckey cipher.SecKey
+	TrustAddressList      []cipher.Address
+
 	/* Developer options */
 
 	// Enable cpu profiling
@@ -229,6 +242,11 @@ func (c *Config) register() {
 	flag.StringVar(&GenesisAddressStr, "genesis-address", GenesisAddressStr, "genesis address")
 	flag.StringVar(&GenesisSignatureStr, "genesis-signature", GenesisSignatureStr, "genesis block signature")
 	flag.Uint64Var(&c.GenesisTimestamp, "genesis-timestamp", c.GenesisTimestamp, "genesis block timestamp")
+
+	flag.StringVar(&BlockchainTrustPubkeyStr, "trust-public-key", BlockchainTrustPubkeyStr, "public key of the trust node")
+	flag.StringVar(&BlockchainTrustSeckeyStr, "trust-secret-key", BlockchainTrustSeckeyStr, "secret key, set for trust node")
+	flag.StringVar(&TrustAddressStr, "trust-address", TrustAddressStr, "trust node address")
+	flag.StringVar(&TrustAddressListStr, "trust-address-list", TrustAddressListStr, "trust address list")
 
 	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos_test/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")
@@ -311,6 +329,11 @@ var devConfig = Config{
 	RunMaster:        false,
 	BlockchainPubkey: cipher.PubKey{},
 	BlockchainSeckey: cipher.SecKey{},
+
+	TrustAddress:          cipher.Address{},
+	BlockchainTrustPubkey: cipher.PubKey{},
+	BlockchainTrustSeckey: cipher.SecKey{},
+	TrustAddressList:      []cipher.Address{},
 
 	GenesisAddress:   cipher.Address{},
 	GenesisTimestamp: GenesisTimestamp,
@@ -413,6 +436,32 @@ func (c *Config) postProcess() {
 	}
 	if BlockchainSeckeyStr != "" {
 		c.BlockchainSeckey = cipher.SecKey{}
+	}
+	if TrustAddressStr != "" {
+		c.TrustAddress, err = cipher.DecodeBase58Address(TrustAddressStr)
+		panicIfError(err, "Invalid Address")
+	}
+	if BlockchainTrustPubkeyStr != "" {
+		c.BlockchainTrustPubkey, err = cipher.PubKeyFromHex(BlockchainTrustPubkeyStr)
+		panicIfError(err, "Invalid Pubkey")
+	}
+	if BlockchainTrustSeckeyStr != "" {
+		c.BlockchainTrustSeckey, err = cipher.SecKeyFromHex(BlockchainTrustSeckeyStr)
+		panicIfError(err, "Invalid Seckey")
+		BlockchainTrustPubkeyStr = ""
+	}
+	if BlockchainTrustPubkeyStr != "" {
+		c.BlockchainTrustSeckey = cipher.SecKey{}
+	}
+
+	if TrustAddressListStr != "" {
+		addresses := strings.Split(TrustAddressListStr, ",")
+		sort.Strings(addresses)
+		for _, address := range addresses {
+			trustAddressStr, err := cipher.DecodeBase58Address(address)
+			panicIfError(err, "Invalid Address")
+			c.TrustAddressList = append(c.TrustAddressList, trustAddressStr)
+		}
 	}
 
 	c.DataDirectory, err = file.InitDataDir(c.DataDirectory)
@@ -592,6 +641,11 @@ func configureDaemon(c *Config) daemon.Config {
 
 	dc.Visor.Config.BlockchainPubkey = c.BlockchainPubkey
 	dc.Visor.Config.BlockchainSeckey = c.BlockchainSeckey
+
+	dc.Visor.Config.BlockchainTrustPubkey = c.BlockchainTrustPubkey
+	dc.Visor.Config.BlockchainTrustSeckey = c.BlockchainTrustSeckey
+	dc.Visor.Config.TrustAddress = c.TrustAddress
+	dc.Visor.Config.TrustAddressList = c.TrustAddressList
 
 	dc.Visor.Config.GenesisAddress = c.GenesisAddress
 	dc.Visor.Config.GenesisSignature = c.GenesisSignature
