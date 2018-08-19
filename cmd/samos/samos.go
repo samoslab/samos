@@ -63,6 +63,7 @@ var (
 	BlockchainTrustSeckeyStr = ""
 
 	TrustAddressListStr = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX,2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C,CB2tqSePaPBrMiBh2513njfUtev8GfMjEX,jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"
+	TrustPubkeyListStr  = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX,2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C,CB2tqSePaPBrMiBh2513njfUtev8GfMjEX,jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -171,6 +172,7 @@ type Config struct {
 	BlockchainTrustPubkey cipher.PubKey
 	BlockchainTrustSeckey cipher.SecKey
 	TrustAddressList      []cipher.Address
+	TrustPubkeyList       []cipher.PubKey
 
 	/* Developer options */
 
@@ -247,6 +249,7 @@ func (c *Config) register() {
 	flag.StringVar(&BlockchainTrustSeckeyStr, "trust-secret-key", BlockchainTrustSeckeyStr, "secret key, set for trust node")
 	flag.StringVar(&TrustAddressStr, "trust-address", TrustAddressStr, "trust node address")
 	flag.StringVar(&TrustAddressListStr, "trust-address-list", TrustAddressListStr, "trust address list")
+	flag.StringVar(&TrustPubkeyListStr, "trust-address-list", TrustPubkeyListStr, "trust address list")
 
 	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos_test/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")
@@ -334,6 +337,7 @@ var devConfig = Config{
 	BlockchainTrustPubkey: cipher.PubKey{},
 	BlockchainTrustSeckey: cipher.SecKey{},
 	TrustAddressList:      []cipher.Address{},
+	TrustPubkeyList:       []cipher.PubKey{},
 
 	GenesisAddress:   cipher.Address{},
 	GenesisTimestamp: GenesisTimestamp,
@@ -461,6 +465,14 @@ func (c *Config) postProcess() {
 			trustAddressStr, err := cipher.DecodeBase58Address(address)
 			panicIfError(err, "Invalid Address")
 			c.TrustAddressList = append(c.TrustAddressList, trustAddressStr)
+		}
+	}
+	if TrustPubkeyListStr != "" {
+		pubkeys := strings.Split(TrustPubkeyListStr, ",")
+		sort.Strings(pubkeys)
+		for _, pubkey := range pubkeys {
+			trustPubkeyStr := cipher.MustPubKeyFromHex(pubkey)
+			c.TrustPubkeyList = append(c.TrustPubkeyList, trustPubkeyStr)
 		}
 	}
 
@@ -646,6 +658,7 @@ func configureDaemon(c *Config) daemon.Config {
 	dc.Visor.Config.BlockchainTrustSeckey = c.BlockchainTrustSeckey
 	dc.Visor.Config.TrustAddress = c.TrustAddress
 	dc.Visor.Config.TrustAddressList = c.TrustAddressList
+	dc.Visor.Config.TrustPubkeyList = c.TrustPubkeyList
 
 	dc.Visor.Config.GenesisAddress = c.GenesisAddress
 	dc.Visor.Config.GenesisSignature = c.GenesisSignature

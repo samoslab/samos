@@ -38,6 +38,8 @@ var (
 	// maxDropletDivisor represents the modulus divisor when checking droplet precision rules.
 	// It is computed from MaxDropletPrecision in init()
 	maxDropletDivisor uint64
+
+	ErrNotTrustPubkey = errors.New("not trust public key")
 )
 
 // MaxDropletDivisor represents the modulus divisor when checking droplet precision rules.
@@ -123,6 +125,7 @@ type Config struct {
 	TrustAddress cipher.Address
 
 	TrustAddressList []cipher.Address
+	TrustPubkeyList  []cipher.PubKey
 
 	// Genesis block sig
 	GenesisSignature cipher.Sig
@@ -180,7 +183,7 @@ func NewVisorConfig() Config {
 // Verify verifies the configuration
 func (c Config) Verify() error {
 	if c.IsMaster {
-		if c.BlockchainPubkey != cipher.PubKeyFromSecKey(c.BlockchainSeckey) {
+		if c.BlockchainTrustPubkey != cipher.PubKeyFromSecKey(c.BlockchainTrustSeckey) {
 			return errors.New("Cannot run in master: invalid seckey for pubkey")
 		}
 	}
@@ -274,7 +277,7 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 		return nil, err
 	}
 
-	db, bc, err := loadBlockchain(db, c.BlockchainPubkey, c.Arbitrating)
+	db, bc, err := loadBlockchain(db, c.TrustPubkeyList, c.Arbitrating)
 	if err != nil {
 		return nil, err
 	}
@@ -486,7 +489,7 @@ func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
 // ExecuteSignedBlock adds a block to the blockchain, or returns error.
 // Blocks must be executed in sequence, and be signed by the master server
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
-	if err := b.VerifySignature(vs.Config.BlockchainPubkey); err != nil {
+	if err := b.VerifySignature(vs.Config.TrustPubkeyList); err != nil {
 		return err
 	}
 
@@ -517,7 +520,7 @@ func (vs *Visor) SignBlock(b coin.Block) coin.SignedBlock {
 		logger.Panic("Only master chain can sign blocks")
 	}
 
-	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainSeckey)
+	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainTrustSeckey)
 
 	return coin.SignedBlock{
 		Block: b,
