@@ -31,17 +31,17 @@ func NewTrustNode(db *bolt.DB) (*TrustNode, error) {
 }
 
 // AddNode write the node into blocks trust_node
-func (bt *TrustNode) AddNode(addresses []cipher.Address) error {
-	return bt.db.Update(func(tx *bolt.Tx) error {
-		return bt.AddNodeWithTx(tx, addresses)
+func (tn *TrustNode) AddNode(addresses []cipher.Address) error {
+	return tn.db.Update(func(tx *bolt.Tx) error {
+		return tn.AddNodeWithTx(tx, addresses)
 	})
 }
 
 // AddNodeWithTx adds block with *bolt.Tx
-func (bt *TrustNode) AddNodeWithTx(tx *bolt.Tx, addresses []cipher.Address) error {
-	bkt := tx.Bucket(bt.node.Name)
+func (tn *TrustNode) AddNodeWithTx(tx *bolt.Tx, addresses []cipher.Address) error {
+	bkt := tx.Bucket(tn.node.Name)
 	if bkt == nil {
-		return fmt.Errorf("bucket %s doesn't eist", bt.node.Name)
+		return fmt.Errorf("bucket %s doesn't eist", tn.node.Name)
 	}
 
 	trustAddrs := []string{}
@@ -55,13 +55,13 @@ func (bt *TrustNode) AddNodeWithTx(tx *bolt.Tx, addresses []cipher.Address) erro
 }
 
 // GetNodes get all trust nodes
-func (bt *TrustNode) GetNodes() []cipher.Address {
-	return bt.getBlock()
+func (tn *TrustNode) GetNodes() []cipher.Address {
+	return tn.getNode()
 }
 
-func (bt *TrustNode) getBlock() []cipher.Address {
+func (tn *TrustNode) getNode() []cipher.Address {
 	addresses := []cipher.Address{}
-	bin := bt.node.Get([]byte("addresses"))
+	bin := tn.node.Get([]byte("addresses"))
 	if bin == nil {
 		return addresses
 	}
@@ -69,4 +69,45 @@ func (bt *TrustNode) getBlock() []cipher.Address {
 		addresses = append(addresses, cipher.MustDecodeBase58Address(addr))
 	}
 	return addresses
+}
+
+// AddNodePubkey write the node into blocks trust_node
+func (tn *TrustNode) AddNodePubkey(pubkeys []cipher.PubKey) error {
+	return tn.db.Update(func(tx *bolt.Tx) error {
+		return tn.AddNodePubkeyWithTx(tx, pubkeys)
+	})
+}
+
+// AddNodePubkeyWithTx adds block with *bolt.Tx
+func (tn *TrustNode) AddNodePubkeyWithTx(tx *bolt.Tx, pubkeys []cipher.PubKey) error {
+	bkt := tx.Bucket(tn.node.Name)
+	if bkt == nil {
+		return fmt.Errorf("bucket %s doesn't eist", tn.node.Name)
+	}
+
+	trustPks := []string{}
+	for _, pk := range pubkeys {
+		trustPks = append(trustPks, pk.Hex())
+	}
+
+	sort.Strings(trustPks)
+
+	return bkt.Put([]byte("pubkey"), []byte(strings.Join(trustPks, ",")))
+}
+
+// GetPubkeys get all trust nodes
+func (tn *TrustNode) GetPubkeys() []cipher.PubKey {
+	return tn.getPubkeys()
+}
+
+func (tn *TrustNode) getPubkeys() []cipher.PubKey {
+	pubkeys := []cipher.PubKey{}
+	bin := tn.node.Get([]byte("pubkey"))
+	if bin == nil {
+		return pubkeys
+	}
+	for _, pk := range strings.Split(string(bin), ",") {
+		pubkeys = append(pubkeys, cipher.MustPubKeyFromHex(pk))
+	}
+	return pubkeys
 }
