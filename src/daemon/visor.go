@@ -75,6 +75,7 @@ func NewVisorConfig() VisorConfig {
 type Visor struct {
 	Config VisorConfig
 	v      *visor.Visor
+	V      *visor.Visor
 	// Peer-reported blockchain height.  Use to estimate download progress
 	blockchainHeights map[string]uint64
 	// all request will go through this channel, to keep writing and reading member variable thread safe.
@@ -97,6 +98,7 @@ func NewVisor(c VisorConfig, db *bolt.DB) (*Visor, error) {
 	}
 
 	vs.v = v
+	vs.V = v
 
 	return vs, nil
 }

@@ -26,8 +26,8 @@ const (
 	walletExt         = ".wlt"
 	defaultCoin       = "samos"
 	defaultWalletName = "$COIN_cli" + walletExt
-	defaultWalletDir  = "$HOME/.$COIN/wallets"
-	defaultRPCAddress = "127.0.0.1:8650"
+	defaultWalletDir  = "$HOME/.$COIN_test/wallets"
+	defaultRPCAddress = "127.0.0.1:18650"
 )
 
 var (

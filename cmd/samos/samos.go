@@ -50,16 +50,16 @@ var (
 	logger = logging.MustGetLogger("main")
 
 	// GenesisSignatureStr hex string of genesis signature
-	GenesisSignatureStr = "73874031bb09f93f7a7acfb23cd6b823abaa33cdeb07806ea57c998c715b99d07ee7b599df1c35526cfee8d91c7204194bbf8880f6646714e72dcca1b80d09de00"
+	GenesisSignatureStr = "4e1629eff99296063619cff8b4400ca19642e04c6329a974c9683c3b3a13680b7b72e446dee9d627aa93fe6a180d62b1f2cf2e233149e95a40304c2ddf15422d01"
 	// GenesisAddressStr genesis address string
-	GenesisAddressStr = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX"
+	GenesisAddressStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
 	// BlockchainPubkeyStr pubic key string
-	BlockchainPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
+	BlockchainPubkeyStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563"
 	// BlockchainSeckeyStr empty private key string
 	BlockchainSeckeyStr = ""
 
-	TrustAddressStr          = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX"
-	BlockchainTrustPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
+	TrustAddressStr          = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
+	BlockchainTrustPubkeyStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563"
 	BlockchainTrustSeckeyStr = ""
 
 	TrustAddressListStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe,2mBbNkm1pxv1Q8pYiA4n8v9zoUEWBEyKZ24,vwXnudR3vJ4EnS9FacQFaCH1XPLg31T1sJ"
@@ -75,11 +75,8 @@ var (
 
 	// DefaultConnections the default trust node addresses
 	DefaultConnections = []string{
-		"47.52.211.167:8858",
-		"47.74.7.161:8858",
-		"47.254.130.80:8858",
-		"47.52.222.166:8858",
-		"45.77.176.52:8858",
+		"47.52.211.167:18858",
+		"47.52.222.166:18858",
 	}
 )
 
@@ -283,7 +280,7 @@ var devConfig = Config{
 	// public interface
 	Address: "",
 	//gnet uses this for TCP incoming and outgoing
-	Port: 8858,
+	Port: 18858,
 	// MaxOutgoingConnections is the maximum outgoing connections allowed.
 	MaxOutgoingConnections: 16,
 	DownloadPeerList:       false,
@@ -855,29 +852,12 @@ func Run(c *Config) {
 	}
 
 	/*
-	   time.Sleep(5)
-	   tx := InitTransaction()
-	   _ = tx
-	   err, _ = d.Visor.Visor.InjectTransaction(tx)
-	   if err != nil {
-	       log.Panic(err)
-	   }
-	*/
-
-	/*
-	   //first transaction
-	   if c.RunMaster == true {
-	       go func() {
-	           for d.Visor.Visor.Blockchain.Head().Seq() < 2 {
-	               time.Sleep(5)
-	               tx := InitTransaction()
-	               err, _ := d.Visor.Visor.InjectTransaction(tx)
-	               if err != nil {
-	                   //log.Panic(err)
-	               }
-	           }
-	       }()
-	   }
+		time.Sleep(5)
+		tx := InitTransaction()
+		_, _, err = d.Visor.V.InjectTransaction(tx)
+		if err != nil {
+			log.Panic(err)
+		}
 	*/
 
 	select {
@@ -914,7 +894,7 @@ func main() {
 func InitTransaction() coin.Transaction {
 	var tx coin.Transaction
 
-	output := cipher.MustSHA256FromHex("c8d02e832715e862f9c6ac7e763151483bb990e916cf5a75defa0d8029c23399")
+	output := cipher.MustSHA256FromHex("98bc6f88740f70a371748cb5569cedcaf495956fe684eb33500c8f6408592759")
 	tx.PushInput(output)
 
 	addrs := visor.GetDistributionAddresses()
@@ -938,11 +918,6 @@ func InitTransaction() coin.Transaction {
 		seckeys[0] = cipher.MustSecKeyFromHex(seckey)
 		tx.SignInputs(seckeys)
 	*/
-
-	txs := make([]cipher.Sig, 1)
-	sig := "7af6be1241be6e825e902895fc1a53d7b91b09f58c48235e8ccd073a7fee09ca65771e8b84439807c96d1c7382342e2aaff115f21237a72032540aa09a4410e900"
-	txs[0] = cipher.MustSigFromHex(sig)
-	tx.Sigs = txs
 
 	tx.UpdateHeader()
 
