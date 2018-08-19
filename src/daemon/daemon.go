@@ -363,6 +363,8 @@ func (dm *Daemon) Run() error {
 	unconfirmedRemoveInvalidTicker := time.Tick(dm.Visor.Config.Config.UnconfirmedRemoveInvalidRate)
 	blocksRequestTicker := time.Tick(dm.Visor.Config.BlocksRequestRate)
 	blocksAnnounceTicker := time.Tick(dm.Visor.Config.BlocksAnnounceRate)
+	TrustNodeRequestTicker := time.Tick(dm.Visor.Config.TrustNodeRequestRate)
+	TrustNodeAnnounceTicker := time.Tick(dm.Visor.Config.TrustNodeAnnounceRate)
 
 	privateConnectionsTicker := time.Tick(dm.Config.PrivateRate)
 	cullInvalidTicker := time.Tick(dm.Config.CullInvalidRate)
@@ -548,6 +550,13 @@ loop:
 
 		case <-blocksAnnounceTicker:
 			elapser.Register("blocksAnnounceTicker")
+			dm.Visor.AnnounceBlocks(dm.Pool)
+		case <-TrustNodeRequestTicker:
+			elapser.Register("TrustNodeRequestTicker")
+			dm.Visor.RequestBlocks(dm.Pool)
+
+		case <-TrustNodeAnnounceTicker:
+			elapser.Register("TrustNodeAnnounceTicker")
 			dm.Visor.AnnounceBlocks(dm.Pool)
 
 		case err = <-errC:

@@ -48,21 +48,26 @@ type VisorConfig struct {
 	RequestDeadline time.Duration
 	// Internal request buffer size
 	RequestBufferSize int
+	// How often to announce our trust node to peers
+	TrustNodeAnnounceRate time.Duration
+	TrustNodeRequestRate  time.Duration
 }
 
 // NewVisorConfig creates default visor config
 func NewVisorConfig() VisorConfig {
 	return VisorConfig{
-		Config:               visor.NewVisorConfig(),
-		DisableNetworking:    false,
-		BlocksRequestRate:    time.Second * 60,
-		BlocksAnnounceRate:   time.Second * 60,
-		BlocksResponseCount:  20,
-		BlockchainBackupRate: time.Second * 30,
-		MaxTxnAnnounceNum:    16,
-		TxnsAnnounceRate:     time.Minute,
-		RequestDeadline:      time.Second * 3,
-		RequestBufferSize:    100,
+		Config:                visor.NewVisorConfig(),
+		DisableNetworking:     false,
+		BlocksRequestRate:     time.Second * 60,
+		BlocksAnnounceRate:    time.Second * 60,
+		BlocksResponseCount:   20,
+		BlockchainBackupRate:  time.Second * 30,
+		MaxTxnAnnounceNum:     16,
+		TxnsAnnounceRate:      time.Minute,
+		RequestDeadline:       time.Second * 3,
+		RequestBufferSize:     100,
+		TrustNodeAnnounceRate: time.Second * 60,
+		TrustNodeRequestRate:  time.Second * 60,
 	}
 }
 
@@ -190,6 +195,42 @@ func (vs *Visor) AnnounceBlocks(pool *Pool) error {
 
 	if err != nil {
 		logger.Debugf("Broadcast AnnounceBlocksMessage failed: %v", err)
+	}
+
+	return err
+}
+
+// RequestTrustNode Sends a GetTrustNodeMessage to all connections
+func (vs *Visor) RequestTrustNode(pool *Pool) error {
+	if vs.Config.DisableNetworking {
+		return nil
+	}
+
+	err := vs.strand("RequestTrustNode", func() error {
+		m := NewGetTrustMessage()
+		return pool.Pool.BroadcastMessage(m)
+	})
+
+	if err != nil {
+		logger.Debugf("Broadcast GetTrustMessage failed: %v", err)
+	}
+
+	return err
+}
+
+// AnnounceTrustNode sends an AnnounceTrustNodeMessage to all connections
+func (vs *Visor) AnnounceTrustNode(pool *Pool) error {
+	if vs.Config.DisableNetworking {
+		return nil
+	}
+
+	err := vs.strand("AnnounceTrustNode", func() error {
+		m := NewAnnounceTrustMessage(vs.v.TrustNodes())
+		return pool.Pool.BroadcastMessage(m)
+	})
+
+	if err != nil {
+		logger.Debugf("Broadcast AnnounceTrustMessage failed: %v", err)
 	}
 
 	return err
@@ -559,6 +600,11 @@ func (vs *Visor) UnConfirmKnow(hashes []cipher.SHA256) coin.Transactions {
 	return txns
 }
 
+// TrustNodes returns all trust nodes
+func (vs *Visor) TrustNodes() []cipher.PubKey {
+	return vs.v.TrustNodes()
+}
+
 // Communication layer for the coin pkg
 
 // GetBlocksMessage sent to request blocks since LastBlock
@@ -856,5 +902,131 @@ func (gtm *GiveTxnsMessage) Process(d *Daemon) {
 		logger.Debugf("Announce %d transactions", len(hashes))
 		m := NewAnnounceTxnsMessage(hashes)
 		d.Pool.Pool.BroadcastMessage(m)
+	}
+}
+
+// GetTrustMessage request transactions of given hash
+type GetTrustMessage struct {
+	c *gnet.MessageContext `enc:"-"`
+}
+
+// NewGetTrustMessage creates GetTrustMessage
+func NewGetTrustMessage() *GetTrustMessage {
+	return &GetTrustMessage{}
+}
+
+// Handle handle message
+func (gtm *GetTrustMessage) Handle(mc *gnet.MessageContext, daemon interface{}) error {
+	gtm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(gtm, mc)
+}
+
+// Process process message
+func (gtm *GetTrustMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	// Locate all txns from the unconfirmed pool
+	trustNodes := d.Visor.TrustNodes()
+
+	// Reply to sender with GiveTrustMessage
+	m := NewGiveTrustMessage(trustNodes, d.Visor.v.Config.BlockchainSeckey)
+	if err := d.Pool.Pool.SendMessage(gtm.c.Addr, m); err != nil {
+		logger.Errorf("Send GiveTrustMessage to %s failed: %v", gtm.c.Addr, err)
+	}
+}
+
+// GiveTrustMessage tells the transaction of given hashes
+type GiveTrustMessage struct {
+	Trust []cipher.PubKey
+	Sig   cipher.Sig
+	c     *gnet.MessageContext `enc:"-"`
+}
+
+func pubkeysArrHash(pubkeys []cipher.PubKey) cipher.SHA256 {
+	trustKey := ""
+	for _, pk := range pubkeys {
+		trustKey += pk.Hex()
+	}
+	return cipher.MustSHA256FromHex(trustKey)
+}
+
+// NewGiveTrustMessage creates GiveTrustMessage
+func NewGiveTrustMessage(trust []cipher.PubKey, secKey cipher.SecKey) *GiveTrustMessage {
+	trustHash := pubkeysArrHash(trust)
+	sig := cipher.SignHash(trustHash, secKey)
+	return &GiveTrustMessage{
+		Trust: trust,
+		Sig:   sig,
+	}
+}
+
+// GetTrust returns transactions hashes
+func (gtm *GiveTrustMessage) GetTrust() []cipher.PubKey {
+	return gtm.Trust
+}
+
+// Handle handle message
+func (gtm *GiveTrustMessage) Handle(mc *gnet.MessageContext,
+	daemon interface{}) error {
+	gtm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(gtm, mc)
+}
+
+// Process process message
+func (gtm *GiveTrustMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	// Announce these transactions to peers
+	if len(gtm.Trust) != 0 {
+		// verify signature
+		verifiedHash := pubkeysArrHash(gtm.Trust)
+		cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gtm.Sig, verifiedHash)
+		if err := d.Visor.v.InsertTrustPubkeyList(gtm.Trust); err != nil {
+			return
+		}
+		logger.Debugf("Announce %d trust message", len(gtm.Trust))
+		m := NewAnnounceTrustMessage(gtm.Trust)
+		d.Pool.Pool.BroadcastMessage(m)
+	}
+}
+
+// AnnounceTrustMessage tells a peer that we have these transactions
+type AnnounceTrustMessage struct {
+	Trust []cipher.PubKey
+	c     *gnet.MessageContext `enc:"-"`
+}
+
+// NewAnnounceTrustMessage creates announce trust message
+func NewAnnounceTrustMessage(trust []cipher.PubKey) *AnnounceTrustMessage {
+	return &AnnounceTrustMessage{
+		Trust: trust,
+	}
+}
+
+// GetTrust returns trust
+func (atm *AnnounceTrustMessage) GetTrust() []cipher.PubKey {
+	return atm.Trust
+}
+
+// Handle handle message
+func (atm *AnnounceTrustMessage) Handle(mc *gnet.MessageContext,
+	daemon interface{}) error {
+	atm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(atm, mc)
+}
+
+// Process process message
+func (atm *AnnounceTrustMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	m := NewGetTrustMessage()
+	if err := d.Pool.Pool.SendMessage(atm.c.Addr, m); err != nil {
+		logger.Errorf("Send GetTrustMessage to %s failed: %v", atm.c.Addr, err)
 	}
 }

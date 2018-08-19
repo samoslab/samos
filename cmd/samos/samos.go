@@ -62,8 +62,8 @@ var (
 	BlockchainTrustPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
 	BlockchainTrustSeckeyStr = ""
 
-	TrustAddressListStr = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX,2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C,CB2tqSePaPBrMiBh2513njfUtev8GfMjEX,jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"
-	TrustPubkeyListStr  = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX,2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C,CB2tqSePaPBrMiBh2513njfUtev8GfMjEX,jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"
+	TrustAddressListStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe,2mBbNkm1pxv1Q8pYiA4n8v9zoUEWBEyKZ24,vwXnudR3vJ4EnS9FacQFaCH1XPLg31T1sJ"
+	TrustPubkeyListStr  = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -249,7 +249,7 @@ func (c *Config) register() {
 	flag.StringVar(&BlockchainTrustSeckeyStr, "trust-secret-key", BlockchainTrustSeckeyStr, "secret key, set for trust node")
 	flag.StringVar(&TrustAddressStr, "trust-address", TrustAddressStr, "trust node address")
 	flag.StringVar(&TrustAddressListStr, "trust-address-list", TrustAddressListStr, "trust address list")
-	flag.StringVar(&TrustPubkeyListStr, "trust-address-list", TrustPubkeyListStr, "trust address list")
+	flag.StringVar(&TrustPubkeyListStr, "trust-pubkey-list", TrustPubkeyListStr, "trust pubkey list")
 
 	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos_test/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")

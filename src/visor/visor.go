@@ -399,8 +399,16 @@ func (vs *Visor) RemoveInvalidUnconfirmed() ([]cipher.SHA256, error) {
 	return vs.Unconfirmed.RemoveInvalid(vs.Blockchain)
 }
 
-func (vs *Visor) insertTrustAddressList() error {
+func (vs *Visor) InsertTrustAddressList() error {
 	return vs.trustNode.AddNode(vs.Config.TrustAddressList)
+}
+
+func (vs *Visor) InsertTrustPubkeyList(pubkeys []cipher.PubKey) error {
+	return vs.trustNode.AddNodePubkey(pubkeys)
+}
+
+func (vs *Visor) TrustNodes() []cipher.PubKey {
+	return vs.trustNode.GetPubkeys()
 }
 
 // InTurnTheNode it is time create block for this node
