@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -18,7 +17,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/howeyc/gopass"
 	"github.com/samoslab/samos/src/api/webrpc"
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
@@ -26,7 +24,6 @@ import (
 	"github.com/samoslab/samos/src/gui"
 	"github.com/samoslab/samos/src/util/browser"
 	"github.com/samoslab/samos/src/util/cert"
-	"github.com/samoslab/samos/src/util/encrypt"
 	"github.com/samoslab/samos/src/util/file"
 	"github.com/samoslab/samos/src/util/logging"
 	"github.com/samoslab/samos/src/visor"
@@ -50,7 +47,7 @@ var (
 	logger = logging.MustGetLogger("main")
 
 	// GenesisSignatureStr hex string of genesis signature
-	GenesisSignatureStr = "4e1629eff99296063619cff8b4400ca19642e04c6329a974c9683c3b3a13680b7b72e446dee9d627aa93fe6a180d62b1f2cf2e233149e95a40304c2ddf15422d01"
+	GenesisSignatureStr = "8970950ab1d54faef79adfc4a4942db55b8123b05124b8cf441128566c3928214abb5537aad196555770f8824f36e42d48ddc5b7c1dc0991b26e09d33d639ba800"
 	// GenesisAddressStr genesis address string
 	GenesisAddressStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
 	// BlockchainPubkeyStr pubic key string
@@ -383,35 +380,35 @@ func (c *Config) Parse() {
 		flag.Usage()
 		os.Exit(0)
 	}
-	if c.RunMaster == true && BlockchainSeckeyStr == "" {
-		if BlockchainSeckeyFile == "" {
-			logger.Error("master-secret-file must not empty")
-			os.Exit(1)
-		}
-		if _, err := os.Stat(BlockchainSeckeyFile); os.IsNotExist(err) {
-			logger.Error("%s not exists", BlockchainSeckeyFile)
-			os.Exit(1)
-		}
-		fmt.Printf("input password\n")
-		key, err := gopass.GetPasswd()
-		if err != nil {
-			logger.Error("password input error")
-			os.Exit(1)
-		}
-		encryptMsg, err := ioutil.ReadFile(BlockchainSeckeyFile)
-		if err != nil {
-			logger.Error("read secret file failed, %+v", err)
-			os.Exit(1)
-		}
+	//if c.RunMaster == true && BlockchainSeckeyStr == "" {
+	//	if BlockchainSeckeyFile == "" {
+	//		logger.Error("master-secret-file must not empty")
+	//		os.Exit(1)
+	//	}
+	//	if _, err := os.Stat(BlockchainSeckeyFile); os.IsNotExist(err) {
+	//		logger.Error("%s not exists", BlockchainSeckeyFile)
+	//		os.Exit(1)
+	//	}
+	//	fmt.Printf("input password\n")
+	//	key, err := gopass.GetPasswd()
+	//	if err != nil {
+	//		logger.Error("password input error")
+	//		os.Exit(1)
+	//	}
+	//	encryptMsg, err := ioutil.ReadFile(BlockchainSeckeyFile)
+	//	if err != nil {
+	//		logger.Error("read secret file failed, %+v", err)
+	//		os.Exit(1)
+	//	}
 
-		msg, err := encrypt.Decrypt(key, string(encryptMsg))
-		if err != nil {
-			logger.Error("decrypt failed, please input corrent password: error %+v", err)
-			os.Exit(1)
-		}
+	//	msg, err := encrypt.Decrypt(key, string(encryptMsg))
+	//	if err != nil {
+	//		logger.Error("decrypt failed, please input corrent password: error %+v", err)
+	//		os.Exit(1)
+	//	}
 
-		BlockchainSeckeyStr = msg
-	}
+	//	BlockchainSeckeyStr = msg
+	//}
 
 	c.postProcess()
 }
@@ -912,12 +909,12 @@ func InitTransaction() coin.Transaction {
 		addr := cipher.MustDecodeBase58Address(addrs[i])
 		tx.PushOutput(addr, visor.DistributionAddressInitialBalance*1e6, 1)
 	}
+	seckeys := make([]cipher.SecKey, 1)
+	seckey := "0627aa3953f78239d3ff89bf3eccef63410f78b9d7dc23ad05f460cb8e3cc8e8"
+	seckeys[0] = cipher.MustSecKeyFromHex(seckey)
+	tx.SignInputs(seckeys)
 	/*
-		seckeys := make([]cipher.SecKey, 1)
-		seckey := ""
-		seckeys[0] = cipher.MustSecKeyFromHex(seckey)
-		tx.SignInputs(seckeys)
-	*/
+	 */
 
 	tx.UpdateHeader()
 
