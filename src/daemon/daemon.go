@@ -552,11 +552,11 @@ loop:
 			dm.Visor.AnnounceBlocks(dm.Pool)
 		case <-TrustNodeRequestTicker:
 			elapser.Register("TrustNodeRequestTicker")
-			dm.Visor.RequestBlocks(dm.Pool)
+			dm.Visor.RequestTrustNode(dm.Pool)
 
 		case <-TrustNodeAnnounceTicker:
 			elapser.Register("TrustNodeAnnounceTicker")
-			dm.Visor.AnnounceBlocks(dm.Pool)
+			dm.Visor.AnnounceTrustNode(dm.Pool)
 
 		case err = <-errC:
 			break loop
