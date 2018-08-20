@@ -309,6 +309,7 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 	}
 	dpos := dpos.NewDpos()
 	dpos.SetSigner(c.BlockchainTrustPubkey)
+	dpos.SetTrustNode(c.TrustPubkeyList)
 	v := &Visor{
 		Config:      c,
 		db:          db,

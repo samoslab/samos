@@ -83,6 +83,7 @@ func (d *Dpos) CheckValidator(lastBlock *coin.SignedBlock, now int64) error {
 	if (validator == cipher.PubKey{} || validator != d.signer) {
 		return ErrInvalidBlockValidator
 	}
+	fmt.Printf("in turn the validator create block %s\n", validator.Hex())
 	return nil
 }
 

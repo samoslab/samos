@@ -506,7 +506,7 @@ loop:
 				now := utc.UnixNow()
 				should, err := dm.Visor.InTurnTheNode(now)
 				if err != nil || !should {
-					logger.Info("slot not for this node")
+					logger.Infof("slot not for this node: %v", err)
 					continue
 				}
 
