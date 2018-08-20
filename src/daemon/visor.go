@@ -929,13 +929,14 @@ func (gtm *GetTrustMessage) Process(d *Daemon) {
 		return
 	}
 
-	// Locate all txns from the unconfirmed pool
-	trustNodes := d.Visor.TrustNodes()
-
 	// Reply to sender with GiveTrustMessage
-	m := NewGiveTrustMessage(trustNodes, d.Visor.v.Config.BlockchainSeckey)
-	if err := d.Pool.Pool.SendMessage(gtm.c.Addr, m); err != nil {
-		logger.Errorf("Send GiveTrustMessage to %s failed: %v", gtm.c.Addr, err)
+	if d.Visor.v.IsGenesisNode() {
+		// Locate all txns from the unconfirmed pool
+		trustNodes := d.Visor.TrustNodes()
+		m := NewGiveTrustMessage(trustNodes, d.Visor.v.Config.BlockchainSeckey)
+		if err := d.Pool.Pool.SendMessage(gtm.c.Addr, m); err != nil {
+			logger.Errorf("Send GiveTrustMessage to %s failed: %v", gtm.c.Addr, err)
+		}
 	}
 }
 

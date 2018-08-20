@@ -388,6 +388,15 @@ func (vs *Visor) GenesisPreconditions() {
 	}
 }
 
+func (vs *Visor) IsGenesisNode() bool {
+	if vs.Config.BlockchainSeckey != (cipher.SecKey{}) {
+		if vs.Config.BlockchainPubkey == cipher.PubKeyFromSecKey(vs.Config.BlockchainSeckey) {
+			return true
+		}
+	}
+	return false
+}
+
 // RefreshUnconfirmed checks unconfirmed txns against the blockchain and returns
 // all transaction that turn to valid.
 func (vs *Visor) RefreshUnconfirmed() ([]cipher.SHA256, error) {
