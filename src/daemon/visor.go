@@ -947,11 +947,11 @@ type GiveTrustMessage struct {
 }
 
 func pubkeysArrHash(pubkeys []cipher.PubKey) cipher.SHA256 {
-	trustKey := ""
+	trustKey := []byte{}
 	for _, pk := range pubkeys {
-		trustKey += pk.Hex()
+		trustKey = append(trustKey, pk[:]...)
 	}
-	return cipher.MustSHA256FromHex(trustKey)
+	return cipher.SumSHA256(trustKey)
 }
 
 // NewGiveTrustMessage creates GiveTrustMessage
