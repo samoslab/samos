@@ -34,20 +34,19 @@ type Dpos struct {
 	mu          sync.RWMutex
 	stop        chan bool
 	dposContext *DposContext
+	lastSlot    uint32
 }
 
-func NewDpos() *Dpos {
+func NewDpos(signer cipher.PubKey) *Dpos {
 	return &Dpos{
 		dposContext: NewDposContext(),
+		signer:      signer,
+		lastSlot:    0,
 	}
 }
 
 func (d *Dpos) SetTrustNode(trusts []cipher.PubKey) error {
 	return d.dposContext.SetValidators(trusts)
-}
-
-func (d *Dpos) SetSigner(signer cipher.PubKey) {
-	d.signer = signer
 }
 
 func (d *Dpos) checkDeadline(lastBlock *coin.SignedBlock, now int64) error {
@@ -63,10 +62,6 @@ func (d *Dpos) checkDeadline(lastBlock *coin.SignedBlock, now int64) error {
 	if int64(lastBlock.Time()) < prevSlot {
 		return nil
 	}
-	// last block was arrived, or time's up
-	if int64(lastBlock.Time()) == prevSlot || nextSlot-now <= 1 {
-		return nil
-	}
 	return ErrWaitForPrevBlock
 }
 
@@ -79,11 +74,11 @@ func (d *Dpos) CheckValidator(lastBlock *coin.SignedBlock, now int64) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("validator %s\n", validator.Hex())
+	fmt.Printf("create block validator %s\n", validator.Hex())
 	if (validator == cipher.PubKey{} || validator != d.signer) {
 		return ErrInvalidBlockValidator
 	}
-	fmt.Printf("in turn the validator create block %s\n", validator.Hex())
+	fmt.Printf("in turn the validator %s create block\n", validator.Hex())
 	return nil
 }
 

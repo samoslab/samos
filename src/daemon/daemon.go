@@ -503,8 +503,7 @@ loop:
 			// Create blocks, if master chain
 			elapser.Register("blockCreationTicker.C")
 			if dm.Visor.Config.Config.IsMaster {
-				now := utc.UnixNow()
-				should, err := dm.Visor.InTurnTheNode(now)
+				should, err := dm.Visor.InTurnTheNode(utc.UnixNow())
 				if err != nil || !should {
 					logger.Infof("slot not for this node: %v", err)
 					continue

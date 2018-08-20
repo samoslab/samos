@@ -123,7 +123,7 @@ func LoadConfig() (Config, error) {
 	// get wallet dir from env
 	wltDir := os.Getenv("WALLET_DIR")
 	if wltDir == "" {
-		wltDir = fmt.Sprintf("%s/.%s/wallets", home, coin)
+		wltDir = fmt.Sprintf("%s/.%s_test/wallets", home, coin)
 	}
 
 	// get wallet name from env
@@ -136,7 +136,7 @@ func LoadConfig() (Config, error) {
 		return Config{}, ErrWalletName
 	}
 
-	dataDir := filepath.Join(home, fmt.Sprintf(".%s", coin))
+	dataDir := filepath.Join(home, fmt.Sprintf(".%s_test", coin))
 
 	return Config{
 		WalletDir:  wltDir,
