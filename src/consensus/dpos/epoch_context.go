@@ -18,21 +18,21 @@ func NewEpochFromDposContext(dc DposContext, ts int64) *EpochContext {
 	}
 }
 
-func (ec *EpochContext) LookupValidator(now int64) (validator cipher.Address, err error) {
-	validator = cipher.Address{}
+func (ec *EpochContext) LookupValidator(now int64) (validator cipher.PubKey, err error) {
+	validator = cipher.PubKey{}
 	offset := now % epochInterval
 	if offset%blockInterval != 0 {
-		return cipher.Address{}, ErrInvalidMintBlockTime
+		return cipher.PubKey{}, ErrInvalidMintBlockTime
 	}
 	offset /= blockInterval
 
 	validators, err := ec.DposContext.GetValidators()
 	if err != nil {
-		return cipher.Address{}, err
+		return cipher.PubKey{}, err
 	}
 	validatorSize := len(validators)
 	if validatorSize == 0 {
-		return cipher.Address{}, errors.New("failed to lookup validator")
+		return cipher.PubKey{}, errors.New("failed to lookup validator")
 	}
 	offset %= int64(validatorSize)
 	return validators[offset], nil
