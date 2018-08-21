@@ -2,7 +2,6 @@ package dpos
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/samoslab/samos/src/cipher"
@@ -52,7 +51,6 @@ func (d *Dpos) SetTrustNode(trusts []cipher.PubKey) error {
 func (d *Dpos) checkDeadline(lastBlock *coin.SignedBlock, now int64) error {
 	prevSlot := PrevSlot(now)
 	nextSlot := NextSlot(now)
-	fmt.Printf("prev %d, next %d, now %d, last %d\n", prevSlot, nextSlot, now, lastBlock.Time())
 	if int64(lastBlock.Time()) >= nextSlot {
 		return ErrMintFutureBlock
 	}
@@ -74,11 +72,9 @@ func (d *Dpos) CheckValidator(lastBlock *coin.SignedBlock, now int64) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("create block validator %s\n", validator.Hex())
 	if (validator == cipher.PubKey{} || validator != d.signer) {
 		return ErrInvalidBlockValidator
 	}
-	fmt.Printf("in turn the validator %s create block\n", validator.Hex())
 	return nil
 }
 
