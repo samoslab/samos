@@ -2,24 +2,16 @@
 
 A Samos node offers multiple interfaces:
 
-* REST API on port 8640
-* JSON-RPC 2.0 API on port 8650 **[deprecated]**
-
-A CLI tool is provided in `cmd/cli/cli.go`. This tool communicates over the JSON-RPC 2.0 API. In the future it will communicate over the REST API.
-
-*Note*: Do not interface with the JSON-RPC 2.0 API directly, it is deprecated and will be removed in a future version.
+* REST API on port 18640
+* [JSON-RPC 2.0 API on port 8081](https://github.com/samoslab/sky-fiber-jsonrpc/blob/master/README.md) **another service**
 
 The API interfaces do not support authentication or encryption so they should only be used over localhost.
 
 If your application is written in Go, you can use these client libraries to interface with the node:
 
 * [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client)
-* [Samos CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli)
-
-*Note*: The CLI interface will be deprecated and replaced with a better one in the future.
 
 The wallet APIs in the REST API operate on wallets loaded from and saved to `~/.samos/wallets`.
-Use the CLI tool to perform seed generation and transaction signing outside of the Samos node.
 
 The Samos node's wallet APIs can be enabled with `-enable-wallet-api`.
 
@@ -31,18 +23,15 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
 
 - [API Documentation](#api-documentation)
     - [Wallet REST API](#wallet-rest-api)
-    - [Samos command line interface](#samos-command-line-interface)
     - [Samos REST API Client Documentation](#samos-rest-api-client-documentation)
     - [Samos Go Library Documentation](#samos-go-library-documentation)
     - [libsamos Documentation](#libsamos-documentation)
 - [Implementation guidelines](#implementation-guidelines)
     - [Scanning deposits](#scanning-deposits)
-        - [Using the CLI](#using-the-cli)
         - [Using the REST API](#using-the-rest-api)
         - [Using samos as a library in a Go application](#using-samos-as-a-library-in-a-go-application)
     - [Sending coins](#sending-coins)
         - [General principles](#general-principles)
-        - [Using the CLI](#using-the-cli-1)
         - [Using the REST API](#using-the-rest-api-1)
         - [Using samos as a library in a Go application](#using-samos-as-a-library-in-a-go-application-1)
         - [Coinhours](#coinhours)
@@ -52,11 +41,9 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
         - [Using samos as a library in a Go application](#using-samos-as-a-library-in-a-go-application-2)
         - [Using samos as a library in other applications](#using-samos-as-a-library-in-other-applications)
     - [Checking Samos node connections](#checking-samos-node-connections)
-        - [Using the CLI](#using-the-cli-3)
         - [Using the REST API](#using-the-rest-api-3)
         - [Using samos as a library in a Go application](#using-samos-as-a-library-in-a-go-application-3)
     - [Checking Samos node status](#checking-samos-node-status)
-        - [Using the CLI](#using-the-cli-4)
         - [Using the REST API](#using-the-rest-api-4)
         - [Using samos as a library in a Go application](#using-samos-as-a-library-in-a-go-application-4)
 
@@ -68,10 +55,6 @@ and to use the CLI tool for wallet operations (seed and address generation, tran
 ### Wallet REST API
 
 [Wallet REST API](src/gui/README.md).
-
-### Samos command line interface
-
-[CLI command API](cmd/cli/README.md).
 
 ### Samos REST API Client Documentation
 
@@ -93,13 +76,6 @@ There are multiple approaches to scanning for deposits, depending on your implem
 
 One option is to watch for incoming blocks and check them for deposits made to a list of known deposit addresses.
 Another option is to check the unspent outputs for a list of known deposit addresses.
-
-#### Using the CLI
-
-To scan the blockchain, use `samos-cli lastBlocks` or `samos-cli blocks`. These will return block data as JSON
-and new unspent outputs sent to an address can be detected.
-
-To check address outputs, use `samos-cli addressOutputs`. If you only want the balance, you can use `samos-cli addressBalance`.
 
 #### Using the REST API
 
@@ -142,21 +118,6 @@ There are other strategies to minimize the likelihood of running out of coinhour
 as splitting up balances into many unspent outputs and having a large balance which generates
 coinhours quickly.
 
-#### Using the CLI
-
-When sending coins from the CLI tool, a wallet file local to the caller is used.
-The CLI tool allows you to specify the wallet file on disk to use for operations.
-
-See [CLI command API](cmd/cli/README.md) for documentation of the CLI interface.
-
-To perform a send, the preferred method follows these steps in a loop:
-
-* `samos-cli createRawTransaction -m '[{"addr:"$addr1,"coins:"$coins1"}, ...]` - `-m` flag is send-to-many
-* `samos-cli broadcastTransaction` - returns `txid`
-* `samos-cli transaction $txid` - repeat this command until `"status"` is `"confirmed"`
-
-That is, create a raw transaction, broadcast it, and wait for it to confirm.
-
 #### Using the REST API
 
 When sending coins via the REST API, a wallet file local to the samos node is used.
@@ -164,9 +125,6 @@ The wallet file is specified by wallet ID, and all wallet files are in the
 configured data directory (which is `$HOME/.samos/wallets` by default).
 
 #### Using samos as a library in a Go application
-
-If your application is written in Go, you can interface with the CLI library
-directly, see [Samos CLI Godoc](https://godoc.org/github.com/samoslab/samos/src/api/cli).
 
 A REST API client is also available: [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
@@ -193,20 +151,6 @@ If we send `5` samoss to another address then that address will receive
 `5` samoss and `12` coinhours, `26` coinhours(burned coinhours are made even) will be burned.
 The sending address will be left with `5` samoss and `12` coinhours which
 will then be sent to the change address.
-
-##### CLI
-When using the `CLI` the amount of coinhours sent to the receiver is capped to
-the number of coins they receive with a minimum of `1` coinhour for transactions
-with `<1` samos being sent.
-
-The coinhours left after burning `50%` and sending to receivers are sent to the change address.
-
-For eg. If an address has `10` samoss and `50` coinhours and only `1` unspent.
-If we send `5` samoss to another address then that address will receive
-`5` samoss and `5` coinhours, `26` coinhours will be burned.
-The sending address will be left with `5` samoss and `19` coinhours which
-will then be sent to the change address.
-
 
 ### Verifying addresses
 
@@ -239,10 +183,6 @@ See the [libsamos documentation](/lib/cgo/README.md) for usage instructions.
 
 ### Checking Samos node connections
 
-#### Using the CLI
-
-Not implemented
-
 #### Using the REST API
 
 * `/network/connections`
@@ -253,12 +193,6 @@ Use the [Samos REST API Client](https://godoc.org/github.com/samoslab/samos/src/
 
 ### Checking Samos node status
 
-#### Using the CLI
-
-```sh
-samos-cli status
-```
-
 #### Using the REST API
 
 A method similar to `samos-cli status` is not implemented, but these endpoints can be used:
@@ -266,7 +200,3 @@ A method similar to `samos-cli status` is not implemented, but these endpoints c
 * `/version`
 * `/blockchain/metadata`
 * `/blockchain/progress`
-
-#### Using samos as a library in a Go application
-
-Use the [Samos CLI package](https://godoc.org/github.com/samoslab/samos/src/api/cli)

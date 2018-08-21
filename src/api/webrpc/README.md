@@ -4,7 +4,7 @@
 
 This is a description about samos webrpc, which implemented the [json-rpc 2.0](http://www.jsonrpc.org/specification) protocol.
 The rpc service entry point is /webrpc, and only accept the HTTP `POST` requests.
-The rpc service is exposed on port `8650`.
+The rpc service is exposed on port `18650`.
 
 ## Get Status
 

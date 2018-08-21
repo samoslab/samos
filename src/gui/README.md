@@ -1,6 +1,6 @@
 # REST API Documentation
 
-API default service port is `8640`.
+API default service port is `18640`.
 
 A REST API implemented in Go is available, see [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
@@ -81,7 +81,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/csrf
+curl http://127.0.0.1:18640/csrf
 ```
 
 Result:
@@ -104,7 +104,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/health
+curl http://127.0.0.1:18640/health
 ```
 
 Response:
@@ -147,7 +147,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/version
+curl http://127.0.0.1:18640/version
 ```
 
 Result:
@@ -171,7 +171,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/balance\?addrs\=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq
+curl http://127.0.0.1:18640/balance\?addrs\=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq
 ```
 
 Result:
@@ -204,13 +204,13 @@ Addrs and hashes cannot be combined.
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/outputs?addrs=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+curl http://127.0.0.1:18640/outputs?addrs=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
 ```
 
 or
 
 ```sh
-curl http://127.0.0.1:8640/outputs?hashes=7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0
+curl http://127.0.0.1:18640/outputs?hashes=7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0
 ```
 
 Result:
@@ -248,7 +248,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet?id=2017_11_25_e5fb.wlt
+curl http://127.0.0.1:18640/wallet?id=2017_11_25_e5fb.wlt
 ```
 
 Result:
@@ -292,7 +292,7 @@ Returns all pending transaction for all addresses by selected Wallet
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/transactions?id=2017_11_25_e5fb.wlt
+curl http://127.0.0.1:18640/wallet/transactions?id=2017_11_25_e5fb.wlt
 ```
 
 Result:
@@ -348,7 +348,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallets
+curl http://127.0.0.1:18640/wallets
 ```
 
 Result:
@@ -390,7 +390,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallets/folderName
+curl http://127.0.0.1:18640/wallets/folderName
 ```
 
 Result:
@@ -415,7 +415,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/newSeed
+curl http://127.0.0.1:18640/wallet/newSeed
 ```
 
 Result:
@@ -442,7 +442,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/create \
+curl -X POST http://127.0.0.1:18640/wallet/create \
  -H 'Content-Type: application/x-www-form-urlencoded' \
  -d 'seed=$seed' \
  -d 'label=$label' \
@@ -487,7 +487,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/newAddress \
+curl -X POST http://127.0.0.1:18640/wallet/newAddress \
  -H 'Content-Type: x-www-form-urlencoded' \
  -d 'id=2017_05_09_d554.wlt' \
  -d 'num=2' \
@@ -517,7 +517,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/update \
+curl -X POST http://127.0.0.1:18640/wallet/update \
  -H 'Content-Type: application/x-www-form-urlencoded' \
  -d 'id=$id' \
  -d 'label=$label'
@@ -541,7 +541,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/balance?id=2017_05_09_d554.wlt
+curl http://127.0.0.1:18640/wallet/balance?id=2017_05_09_d554.wlt
 ```
 
 Result:
@@ -586,7 +586,7 @@ Statuses:
 example, send 1 coin to `2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc` from wallet `2017_05_09_ea42.wlt`:
 
 ```sh
-curl -X POST  http://127.0.0.1:8640/wallet/spend \
+curl -X POST  http://127.0.0.1:18640/wallet/spend \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -d 'id=2017_05_09_ea42.wlt' \
   -d 'dst=2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc' \
@@ -781,7 +781,7 @@ for spending. To control which addresses may spend, specify the addresses in thi
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/transaction -H 'content-type: application/json' -d '{
+curl -X POST http://127.0.0.1:18640/wallet/transaction -H 'content-type: application/json' -d '{
     "hours_selection": {
         "type": "auto",
         "mode": "share",
@@ -863,7 +863,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/unload \
+curl -X POST http://127.0.0.1:18640/wallet/unload \
  -H 'Content-Type: x-www-form-urlencoded' \
  -d 'id=2017_05_09_d554.wlt'
 ```
@@ -881,7 +881,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/encrypt \
+curl -X POST http://127.0.0.1:18640/wallet/encrypt \
  -H 'Content-Type: application/x-www-form-urlencoded' \
  -d 'id=test.wlt' \
  -d 'password=$password'
@@ -923,7 +923,7 @@ Args:
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/wallet/decrypt \
+curl -X POST http://127.0.0.1:18640/wallet/decrypt \
  -H 'Content-Type: application/x-www-form-urlencoded' \
  -d 'id=test.wlt' \
  -d 'password=$password'
@@ -967,7 +967,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/seed?id=test.wlt&password=$password
+curl http://127.0.0.1:18640/wallet/seed?id=test.wlt&password=$password
 ```
 
 Result:
@@ -990,7 +990,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/pendingTxs
+curl http://127.0.0.1:18640/pendingTxs
 ```
 
 Result:
@@ -1046,7 +1046,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/transaction?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
+curl http://127.0.0.1:18640/transaction?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
 ```
 
 Result:
@@ -1094,7 +1094,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/rawtx?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
+curl http://127.0.0.1:18640/rawtx?txid=a6446654829a4a844add9f181949d12f8291fdd2c0fcb22200361e90e814e2d3
 ```
 
 Result:
@@ -1122,7 +1122,7 @@ This can happen if the node's network has recently become unavailable but its co
 Example:
 
 ```sh
-curl -X POST http://127.0.0.1:8640/injectTransaction -H 'content-type: application/json' -d '{
+curl -X POST http://127.0.0.1:18640/injectTransaction -H 'content-type: application/json' -d '{
     "rawtx":"dc0000000008b507528697b11340f5a3fcccbff031c487bad59d26c2bdaea0cd8a0199a1720100000017f36c9d8bce784df96a2d6848f1b7a8f5c890986846b7c53489eb310090b91143c98fd233830055b5959f60030b3ca08d95f22f6b96ba8c20e548d62b342b5e0001000000ec9cf2f6052bab24ec57847c72cfb377c06958a9e04a077d07b6dd5bf23ec106020000000072116096fe2207d857d18565e848b403807cd825c044840300000000330100000000000000575e472f8c5295e8fa644e9bc5e06ec10351c65f40420f000000000066020000000000000"
 }'
 ```
@@ -1146,18 +1146,18 @@ Args:
 To get address related confirmed transactions:
 
 ```sh
-curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=1
+curl http://127.0.0.1:18640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=1
 ```
 
 To get address related unconfirmed transactions:
 ```sh
-curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=0
+curl http://127.0.0.1:18640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY&confirmed=0
 ```
 
 To get all addresses related transactions:
 
 ```sh
-curl http://127.0.0.1:8640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+curl http://127.0.0.1:18640/transactions?addrs=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
 ```
 
 
@@ -1285,7 +1285,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/resendUnconfirmedTxns
+curl http://127.0.0.1:18640/resendUnconfirmedTxns
 ```
 
 Result:
@@ -1311,7 +1311,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/blockchain/metadata
+curl http://127.0.0.1:18640/blockchain/metadata
 ```
 
 Result:
@@ -1342,7 +1342,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/blockchain/progress
+curl http://127.0.0.1:18640/blockchain/progress
 ```
 
 Result:
@@ -1375,13 +1375,13 @@ Args:
 ```
 
 ```sh
-curl http://127.0.0.1:8640/block?hash=6eafd13ab6823223b714246b32c984b56e0043412950faf17defdbb2cbf3fe30
+curl http://127.0.0.1:18640/block?hash=6eafd13ab6823223b714246b32c984b56e0043412950faf17defdbb2cbf3fe30
 ```
 
 or
 
 ```sh
-curl http://127.0.0.1:8640/block?seq=2760
+curl http://127.0.0.1:18640/block?seq=2760
 ```
 
 Result:
@@ -1444,7 +1444,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/blocks?start=1&end=2
+curl http://127.0.0.1:18640/blocks?start=1&end=2
 ```
 
 Result:
@@ -1540,7 +1540,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/last_blocks?num=2
+curl http://127.0.0.1:18640/last_blocks?num=2
 ```
 
 Result:
@@ -1650,7 +1650,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/explorer/address?address=2NfNKsaGJEndpSajJ6TsKJfsdDjW2gFsjXg
+curl http://127.0.0.1:18640/explorer/address?address=2NfNKsaGJEndpSajJ6TsKJfsdDjW2gFsjXg
 ```
 
 Result:
@@ -1707,7 +1707,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/uxout?uxid=8b64d9b058e10472b9457fd2d05a1d89cbbbd78ce1d97b16587d43379271bed1
+curl http://127.0.0.1:18640/uxout?uxid=8b64d9b058e10472b9457fd2d05a1d89cbbbd78ce1d97b16587d43379271bed1
 ```
 
 Result:
@@ -1738,7 +1738,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/address_uxouts?address=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+curl http://127.0.0.1:18640/address_uxouts?address=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
 ```
 
 Result:
@@ -1771,7 +1771,7 @@ Method: GET
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/coinSupply
+curl http://127.0.0.1:18640/coinSupply
 ```
 
 Result:
@@ -1903,7 +1903,7 @@ Args:
 Example:
 
 ```sh
-curl "http://127.0.0.1:8640/richlist?n=4&include-distribution=true"
+curl "http://127.0.0.1:18640/richlist?n=4&include-distribution=true"
 ```
 
 Result:
@@ -1945,7 +1945,7 @@ Method: GET
 Example:
 
 ```sh
-curl "http://127.0.0.1:8640/addresscount"
+curl "http://127.0.0.1:18640/addresscount"
 ```
 
 Result:
@@ -1970,7 +1970,7 @@ Args:
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/connection?addr=176.9.84.75:6000'
+curl 'http://127.0.0.1:18640/network/connection?addr=176.9.84.75:6000'
 ```
 
 Result:
@@ -1998,7 +1998,7 @@ Method: GET
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/connections'
+curl 'http://127.0.0.1:18640/network/connections'
 ```
 
 Result:
@@ -2051,7 +2051,7 @@ Method: GET
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/defaultConnections'
+curl 'http://127.0.0.1:18640/network/defaultConnections'
 ```
 
 Result:
@@ -2079,7 +2079,7 @@ Method: GET
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/connections/trust'
+curl 'http://127.0.0.1:18640/network/connections/trust'
 ```
 
 Result:
@@ -2107,7 +2107,7 @@ Method: GET
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/connections/exchange'
+curl 'http://127.0.0.1:18640/network/connections/exchange'
 ```
 
 Result:

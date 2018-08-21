@@ -21,7 +21,7 @@ import (
 	"github.com/samoslab/samos/src/wallet"
 )
 
-const configuredHost = "127.0.0.1:8640"
+const configuredHost = "127.0.0.1:18640"
 
 var mxConfig = muxConfig{host: configuredHost, appLoc: "."}
 

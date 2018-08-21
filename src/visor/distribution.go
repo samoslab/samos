@@ -15,7 +15,7 @@ const (
 	DistributionAddressInitialBalance uint64 = MaxCoinSupply / DistributionAddressesTotal
 
 	// InitialUnlockedCount is the initial number of unlocked addresses
-	InitialUnlockedCount uint64 = 30
+	InitialUnlockedCount uint64 = 100
 
 	// UnlockAddressRate is the number of addresses to unlock per unlock time interval
 	UnlockAddressRate uint64 = 5

@@ -34,10 +34,10 @@ import (
 	"github.com/samoslab/samos/src/wallet"
 )
 
-/* Runs HTTP API tests against a running skycoin node
+/* Runs HTTP API tests against a running samos node
 
 Set envvar SKYCOIN_INTEGRATION_TESTS=1 to enable them
-Set SKYCOIN_NODE_HOST to the node's address (defaults to http://127.0.0.1:8640)
+Set SKYCOIN_NODE_HOST to the node's address (defaults to http://127.0.0.1:18640)
 Set SKYCOIN_INTEGRATION_TEST_MODE to either "stable" or "live" (defaults to "stable")
 
 Each test has two modes:
@@ -45,7 +45,7 @@ Each test has two modes:
     2. against a live, active blockchain
 
 When running mode 1, API responses do not change. The exact responses are compared to saved responses on disk.
-Make sure the skycoin node is running against the pinned blockchain data provided in this package's folder.
+Make sure the samos node is running against the pinned blockchain data provided in this package's folder.
 
 When running mode 2, API responses may change (such as /coinSupply). The exact responses are not compared,
 but the response is checked to be unmarshallable to a known JSON object.
@@ -75,7 +75,7 @@ var testLiveWallet = flag.Bool("test-live-wallet", false, "run live wallet tests
 func nodeAddress() string {
 	addr := os.Getenv("SKYCOIN_NODE_HOST")
 	if addr == "" {
-		return "http://127.0.0.1:8640"
+		return "http://127.0.0.1:18640"
 	}
 	return addr
 }

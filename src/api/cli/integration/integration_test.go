@@ -94,7 +94,7 @@ func TestMain(m *testing.M) {
 func nodeAddress() string {
 	addr := os.Getenv("SKYCOIN_NODE_HOST")
 	if addr == "" {
-		return "http://127.0.0.1:8640"
+		return "http://127.0.0.1:18640"
 	}
 	return addr
 }
@@ -288,7 +288,7 @@ func doLiveOrStable(t *testing.T) bool {
 func rpcAddress() string {
 	rpcAddr := os.Getenv("RPC_ADDR")
 	if rpcAddr == "" {
-		rpcAddr = "127.0.0.1:8650"
+		rpcAddr = "127.0.0.1:18650"
 	}
 
 	return rpcAddr

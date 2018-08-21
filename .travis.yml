@@ -69,7 +69,7 @@ script:
 
 notifications:
   email:
-    - travis@skycoin.net
+    - travis@samos.net
   # https://github.com/kvld/travisci-telegram TravisCI Telegram Bot integration
   webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
 
@@ -84,5 +84,5 @@ deploy:
   acl: public_read
   region: $AWS_REGION
   on:
-    repo: skycoin/skycoin
+    repo: samos/samos
     branch: master

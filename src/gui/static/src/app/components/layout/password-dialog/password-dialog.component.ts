@@ -4,7 +4,7 @@ import { MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material'
 import { FormControl, FormGroup } from '@angular/forms';
 import { ButtonComponent } from '../button/button.component';
 import { Observable } from 'rxjs/Observable';
-import { parseResponseMessage } from '../../../utils/index';
+import { parseResponseMessage } from '../../../utils';
 
 @Component({
   selector: 'app-password-dialog',

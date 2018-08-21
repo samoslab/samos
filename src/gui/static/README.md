@@ -36,7 +36,7 @@ Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app 
 
 Please note that you will most likely receive CORS errors as there's a difference between the port number of the source and destination.
 
-As a work-around, the development server will create a proxy from `http://localhost:4200/api` to `http://127.0.0.1:8640/`.
+As a work-around, the development server will create a proxy from `http://localhost:4200/api` to `http://127.0.0.1:18640/`.
 
 You can route all calls to this address by changing the url property on the ApiService class.
 
