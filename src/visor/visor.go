@@ -337,6 +337,12 @@ func (vs *Visor) Run() error {
 	}
 	logger.Infof("Removed %d invalid txns from pool", len(removed))
 
+	if vs.IsGenesisNode() {
+		if err := vs.InsertTrustPubkeyList(vs.Config.TrustPubkeyList); err != nil {
+			return err
+		}
+	}
+
 	return vs.bcParser.Run()
 }
 
