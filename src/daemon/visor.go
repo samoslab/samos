@@ -1060,8 +1060,7 @@ func (gpm *GetPrepareMessage) Process(d *Daemon) {
 	// Reply to sender with GivePrepareMessage
 	if d.Visor.v.Config.IsMaster {
 		// Locate all txns from the unconfirmed pool
-		hash := cipher.SHA256{}
-		m := NewGivePrepareMessage(hash, d.Visor.v.Config.BlockchainTrustSeckey)
+		m := NewGivePrepareMessage(gpm.hash, d.Visor.v.Config.BlockchainTrustSeckey)
 		if err := d.Pool.Pool.SendMessage(gpm.c.Addr, m); err != nil {
 			logger.Errorf("Send GivePrepareMessage to %s failed: %v", gpm.c.Addr, err)
 		}
@@ -1098,9 +1097,28 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 	}
 
 	// verify signature
-	err := cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gpm.Sig, gpm.Hash)
+	pubkeyRec, err := cipher.PubKeyFromSig(gpm.Sig, gpm.Hash) //recovered pubkey
 	if err != nil {
+		logger.Errorf("Invalid sig: PubKey recovery failed: %v", err)
 		return
+	}
+	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
+		d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
+		creatorNum := len(d.Visor.v.TrustNodes())
+		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
+		if err != nil {
+			logger.Errorf("Get Validator Number failed: %v", err)
+			return
+		}
+		if creatorNum > 0 && currentNum > creatorNum-2 {
+			// todo Execute Block
+			err := d.Visor.v.StartExecuteSignedBlock(gpm.Hash)
+			if err != nil {
+				logger.Errorf("Start Execute Block %s failed: %v", gpm.Hash.Hex(), err)
+				return
+			}
+		}
+
 	}
 	// todo handle prepare msg
 	//m := NewAnnouncePrepareMessage()

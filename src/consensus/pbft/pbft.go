@@ -21,6 +21,13 @@ func NewPBFT() *PBFT {
 	}
 }
 
+func (p *PBFT) GetSignedBlock(hash cipher.SHA256) (coin.SignedBlock, error) {
+	if sb, ok := p.PendingBlocks[hash]; ok {
+		return sb, nil
+	}
+	return coin.SignedBlock{}, errors.New("block not exists")
+}
+
 func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
 	bh := sb.Block.HashHeader()
 	if _, ok := p.PendingBlocks[bh]; ok {

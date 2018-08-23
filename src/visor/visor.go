@@ -341,6 +341,7 @@ func (vs *Visor) Run() error {
 	logger.Infof("Removed %d invalid txns from pool", len(removed))
 
 	if vs.IsGenesisNode() {
+		// todo need check pubkey equal or not
 		if err := vs.InsertTrustPubkeyList(vs.Config.TrustPubkeyList); err != nil {
 			return err
 		}
@@ -431,6 +432,31 @@ func (vs *Visor) TrustNodes() []cipher.PubKey {
 	return vs.trustNode.GetPubkeys()
 }
 
+func (vs *Visor) IsTrustPubkey(pubKey cipher.PubKey) bool {
+	for _, pkey := range vs.TrustNodes() {
+		if pkey == pubKey {
+			return true
+		}
+	}
+	return false
+}
+
+func (vs *Visor) AddValidator(hash cipher.SHA256, pubKey cipher.PubKey) error {
+	return vs.pbft.AddValidator(hash, pubKey)
+}
+
+func (vs *Visor) GetValidatorNumber(hash cipher.SHA256) (int, error) {
+	return vs.pbft.ValidatorNumber(hash)
+}
+
+func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
+	block, err := vs.pbft.GetSignedBlock(hash)
+	if err != nil {
+		return err
+	}
+	return vs.ExecuteSignedBlock(block)
+}
+
 // InTurnTheNode it is time create block for this node
 func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
 	lastBlock, err := vs.GetHeadBlock()
@@ -507,6 +533,7 @@ func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
 // CreateAndExecuteBlock creates a SignedBlock from pending transactions and executes it
 func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
 	sb, err := vs.CreateBlock(uint64(utc.UnixNow()))
+	//todo should broadcast block
 	if err == nil {
 		return sb, vs.ExecuteSignedBlock(sb)
 	}
@@ -517,7 +544,7 @@ func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
 // ExecuteSignedBlock adds a block to the blockchain, or returns error.
 // Blocks must be executed in sequence, and be signed by the master server
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
-	if err := b.VerifySignature(vs.Config.TrustPubkeyList); err != nil {
+	if err := b.VerifySignature(vs.TrustNodes()); err != nil {
 		return err
 	}
 
