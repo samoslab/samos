@@ -9,6 +9,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/samoslab/samos/src/consensus/dpos"
+	"github.com/samoslab/samos/src/consensus/pbft"
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
@@ -263,6 +264,7 @@ type Visor struct {
 	bcParser  *BlockchainParser
 	db        *bolt.DB
 	dpos      *dpos.Dpos
+	pbft      *pbft.PBFT
 	trustNode *blockdb.TrustNode
 }
 
@@ -319,6 +321,7 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 		Wallets:     wltServ,
 		StartedAt:   time.Now(),
 		dpos:        dpos,
+		pbft:        pbft.NewPBFT(),
 		trustNode:   tn,
 	}
 

@@ -11,11 +11,6 @@ type DposContext struct {
 }
 
 func NewDposContext() *DposContext {
-	//address := []string{"2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C", "CB2tqSePaPBrMiBh2513njfUtev8GfMjEX", "jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"}
-	//candidate := []cipher.PubKey{}
-	//for _, v := range address {
-	//	candidate = append(candidate, cipher.MustDecodeBase58PubKey(v))
-	//}
 	return &DposContext{}
 }
 
