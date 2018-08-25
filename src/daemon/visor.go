@@ -607,6 +607,11 @@ func (vs *Visor) TrustNodes() []cipher.PubKey {
 	return vs.v.TrustNodes()
 }
 
+// AddPendingBlock add pending block
+func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
+	return vs.v.AddPendingBlock(block)
+}
+
 // Communication layer for the coin pkg
 
 // GetBlocksMessage sent to request blocks since LastBlock
@@ -700,15 +705,26 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 			continue
 		}
 
-		err := d.Visor.ExecuteSignedBlock(b)
-		if err == nil {
-			logger.Critical().Infof("Added new block %d", b.Block.Head.BkSeq)
-			processed++
+		if b.Pending {
+			err := d.Visor.AddPendingBlock(b)
+			if err == nil {
+				logger.Critical().Infof("Added pending  block %d", b.Block.Head.BkSeq)
+			} else {
+				logger.Critical().Errorf("Failed to add pending block %d: %v", b.Block.Head.BkSeq, err)
+				break
+			}
 		} else {
-			logger.Critical().Errorf("Failed to execute received block %d: %v", b.Block.Head.BkSeq, err)
-			// Blocks must be received in order, so if one fails its assumed
-			// the rest are failing
-			break
+
+			err := d.Visor.ExecuteSignedBlock(b)
+			if err == nil {
+				logger.Critical().Infof("Added new block %d", b.Block.Head.BkSeq)
+				processed++
+			} else {
+				logger.Critical().Errorf("Failed to execute received block %d: %v", b.Block.Head.BkSeq, err)
+				// Blocks must be received in order, so if one fails its assumed
+				// the rest are failing
+				break
+			}
 		}
 	}
 	if processed == 0 {
@@ -1194,153 +1210,6 @@ func (vs *Visor) AnnouncePrepare(pool *Pool) error {
 
 	if err != nil {
 		logger.Debugf("Broadcast AnnouncePrepareMessage failed: %v", err)
-	}
-
-	return err
-}
-
-// GetCommitMessage request transactions of given hash
-type GetCommitMessage struct {
-	hash cipher.SHA256
-	c    *gnet.MessageContext `enc:"-"`
-}
-
-// NewGetCommitMessage creates GetCommitMessage
-func NewGetCommitMessage(hash cipher.SHA256) *GetCommitMessage {
-	return &GetCommitMessage{hash: hash}
-}
-
-// Handle handle message
-func (gcm *GetCommitMessage) Handle(mc *gnet.MessageContext, daemon interface{}) error {
-	gcm.c = mc
-	return daemon.(*Daemon).recordMessageEvent(gcm, mc)
-}
-
-// Process process message
-func (gcm *GetCommitMessage) Process(d *Daemon) {
-	if d.Visor.Config.DisableNetworking {
-		return
-	}
-
-	// Reply to sender with GiveCommitMessage
-	if d.Visor.v.Config.IsMaster {
-		// Locate all txns from the unconfirmed pool
-		hash := cipher.SHA256{}
-		m := NewGiveCommitMessage(hash, d.Visor.v.Config.BlockchainTrustSeckey)
-		if err := d.Pool.Pool.SendMessage(gcm.c.Addr, m); err != nil {
-			logger.Errorf("Send GiveCommitMessage to %s failed: %v", gcm.c.Addr, err)
-		}
-	}
-}
-
-// GiveCommitMessage tells the transaction of given hashes
-type GiveCommitMessage struct {
-	Hash cipher.SHA256
-	Sig  cipher.Sig
-	c    *gnet.MessageContext `enc:"-"`
-}
-
-// NewGiveCommitMessage creates GiveCommitMessage
-func NewGiveCommitMessage(hash cipher.SHA256, secKey cipher.SecKey) *GiveCommitMessage {
-	sig := cipher.SignHash(hash, secKey)
-	return &GiveCommitMessage{
-		Hash: hash,
-		Sig:  sig,
-	}
-}
-
-// Handle handle message
-func (gcm *GiveCommitMessage) Handle(mc *gnet.MessageContext,
-	daemon interface{}) error {
-	gcm.c = mc
-	return daemon.(*Daemon).recordMessageEvent(gcm, mc)
-}
-
-// Process process message
-func (gcm *GiveCommitMessage) Process(d *Daemon) {
-	if d.Visor.Config.DisableNetworking {
-		return
-	}
-
-	// verify signature
-	err := cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gcm.Sig, gcm.Hash)
-	if err != nil {
-		return
-	}
-	// todo handle prepare msg
-	//m := NewAnnounceCommitMessage()
-	//d.Pool.Pool.BroadcastMessage(m)
-}
-
-// AnnounceCommitMessage tells a peer that we have these transactions
-type AnnounceCommitMessage struct {
-	Hash cipher.SHA256
-	Sig  cipher.Sig
-	c    *gnet.MessageContext `enc:"-"`
-}
-
-// NewAnnounceCommitMessage creates announce trust message
-func NewAnnounceCommitMessage(hash cipher.SHA256, secKey cipher.SecKey) *AnnounceCommitMessage {
-	sig := cipher.SignHash(hash, secKey)
-	return &AnnounceCommitMessage{
-		Hash: hash,
-		Sig:  sig,
-	}
-}
-
-// Handle handle message
-func (acm *AnnounceCommitMessage) Handle(mc *gnet.MessageContext,
-	daemon interface{}) error {
-	acm.c = mc
-	return daemon.(*Daemon).recordMessageEvent(acm, mc)
-}
-
-// Process process message
-func (acm *AnnounceCommitMessage) Process(d *Daemon) {
-	if d.Visor.Config.DisableNetworking {
-		return
-	}
-
-	hash := cipher.SHA256{}
-	m := NewGetCommitMessage(hash)
-	if err := d.Pool.Pool.SendMessage(acm.c.Addr, m); err != nil {
-		logger.Errorf("Send GetCommitMessage to %s failed: %v", acm.c.Addr, err)
-	}
-}
-
-// RequestCommit Sends a GetCommitMessage to all connections
-func (vs *Visor) RequestCommit(pool *Pool) error {
-	if vs.Config.DisableNetworking {
-		return nil
-	}
-
-	err := vs.strand("RequestCommit", func() error {
-		hash := cipher.SHA256{}
-		m := NewGetCommitMessage(hash)
-		return pool.Pool.BroadcastMessage(m)
-	})
-
-	if err != nil {
-		logger.Debugf("Broadcast GetCommitMessage failed: %v", err)
-	}
-
-	return err
-}
-
-// AnnounceCommit sends an AnnounceCommitMessage to all connections
-func (vs *Visor) AnnounceCommit(pool *Pool) error {
-	if vs.Config.DisableNetworking {
-		return nil
-	}
-
-	err := vs.strand("AnnounceCommit", func() error {
-		hash := cipher.SHA256{}
-		m := NewGiveCommitMessage(hash, vs.v.Config.BlockchainTrustSeckey)
-		return pool.Pool.BroadcastMessage(m)
-	})
-
-	if err != nil {
-		logger.Debugf("Broadcast AnnounceCommitMessage failed: %v", err)
 	}
 
 	return err

@@ -517,7 +517,7 @@ loop:
 
 				// Not a critical error, but we want it visible in logs
 				head := sb.Block.Head
-				logger.Critical().Infof("Created and published a new block, version=%d seq=%d time=%d", head.Version, head.BkSeq, head.Time)
+				logger.Critical().Infof("Created and Broadcast a new block, version=%d seq=%d time=%d", head.Version, head.BkSeq, head.Time)
 			}
 
 		case <-unconfirmedRefreshTicker:

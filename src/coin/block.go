@@ -46,7 +46,8 @@ type BlockBody struct {
 // SignedBlock signed block
 type SignedBlock struct {
 	Block
-	Sig cipher.Sig
+	Sig     cipher.Sig
+	Pending bool
 }
 
 // VerifySignature verifies that the block is signed by pubkey

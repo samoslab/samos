@@ -532,13 +532,12 @@ func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
 
 // CreateAndExecuteBlock creates a SignedBlock from pending transactions and executes it
 func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
-	sb, err := vs.CreateBlock(uint64(utc.UnixNow()))
-	//todo should broadcast block
-	if err == nil {
-		return sb, vs.ExecuteSignedBlock(sb)
-	}
+	return vs.CreateBlock(uint64(utc.UnixNow()))
+}
 
-	return sb, err
+// AddPendingBlocks hold pending block, store into blockchain if validator number reach threshold
+func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
+	return vs.pbft.AddSignedBlock(block)
 }
 
 // ExecuteSignedBlock adds a block to the blockchain, or returns error.
@@ -578,8 +577,9 @@ func (vs *Visor) SignBlock(b coin.Block) coin.SignedBlock {
 	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainTrustSeckey)
 
 	return coin.SignedBlock{
-		Block: b,
-		Sig:   sig,
+		Block:   b,
+		Sig:     sig,
+		Pending: true,
 	}
 }
 
