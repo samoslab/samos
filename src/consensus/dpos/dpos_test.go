@@ -113,4 +113,8 @@ func TestCheckValidator(t *testing.T) {
 	now = int64(12345691)
 	err = dpos.CheckValidator(block, now)
 	assert.NoError(t, err)
+
+	pubkeyValidator, err := dpos.GetValidator(int64(ts))
+	assert.NoError(t, err)
+	assert.Equal(t, pubkeyValidator, trusts[1])
 }

@@ -86,3 +86,9 @@ func PrevSlot(now int64) int64 {
 func NextSlot(now int64) int64 {
 	return int64((now+blockInterval-1)/blockInterval) * blockInterval
 }
+
+// GetValidator returns validator in the timestamp
+func (d *Dpos) GetValidator(timestamp int64) (cipher.PubKey, error) {
+	epochContext := NewEpochFromDposContext(*d.dposContext, timestamp)
+	return epochContext.LookupValidator(PrevSlot(timestamp))
+}

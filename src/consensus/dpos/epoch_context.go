@@ -20,14 +20,22 @@ func NewEpochFromDposContext(dc DposContext, ts int64) *EpochContext {
 	}
 }
 
+func calSolt(now int64) (int64, error) {
+	offset := now % epochInterval
+	if offset%blockInterval != 0 {
+		return 0, ErrInvalidMintBlockTime
+	}
+	offset /= blockInterval
+	return offset, nil
+}
+
 // LookupValidator lookup a valid validator according to time
 func (ec *EpochContext) LookupValidator(now int64) (validator cipher.PubKey, err error) {
 	validator = cipher.PubKey{}
-	offset := now % epochInterval
-	if offset%blockInterval != 0 {
-		return cipher.PubKey{}, ErrInvalidMintBlockTime
+	offset, err := calSolt(now)
+	if err != nil {
+		return cipher.PubKey{}, err
 	}
-	offset /= blockInterval
 
 	validators, err := ec.DposContext.GetValidators()
 	if err != nil {

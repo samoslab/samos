@@ -581,8 +581,27 @@ func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
 	return sb, vs.AddPendingBlock(sb)
 }
 
-// AddPendingBlocks hold pending block, store into blockchain if validator number reach threshold
+// CheckBlockMakerConstraint verify the block should made by the pubkey in the slot
+func (vs *Visor) CheckBlockMakerConstraint(block coin.SignedBlock) error {
+	pubkeyRec, err := cipher.PubKeyFromSig(block.Sig, block.HashHeader()) //recovered pubkey
+	if err != nil {
+		return err
+	}
+	validatorPubkey, err := vs.dpos.GetValidator(block.Time())
+	if err != nil {
+		return err
+	}
+	if pubkeyRec == validatorPubkey {
+		return nil
+	}
+	return errors.New("block create time is not satified")
+}
+
+// AddPendingBlock hold pending block, store into blockchain if validator number reach threshold
 func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
+	if err := vs.CheckBlockMakerConstraint(block); err != nil {
+		return err
+	}
 	return vs.pbft.AddSignedBlock(block)
 }
 
