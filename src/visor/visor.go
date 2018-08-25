@@ -587,7 +587,7 @@ func (vs *Visor) CheckBlockMakerConstraint(block coin.SignedBlock) error {
 	if err != nil {
 		return err
 	}
-	validatorPubkey, err := vs.dpos.GetValidator(block.Time())
+	validatorPubkey, err := vs.dpos.GetValidator(int64(block.Time()))
 	if err != nil {
 		return err
 	}
