@@ -570,6 +570,7 @@ func (vs *Visor) HeadBkSeq() uint64 {
 
 // ExecuteSignedBlock executes signed block
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
+	fmt.Printf("execut signed block +++++++++++++\n")
 	return vs.strand("ExecuteSignedBlock", func() error {
 		return vs.v.ExecuteSignedBlock(b)
 	})

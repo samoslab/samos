@@ -493,7 +493,7 @@ func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
 		return err
 	}
 	err = vs.ExecuteSignedBlock(block)
-	if err != nil {
+	if err == nil {
 		vs.DeletePbftHash(hash)
 	}
 	return err
