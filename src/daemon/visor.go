@@ -1143,7 +1143,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {
-			logger.Errorf("AddValidator for hash %d failed: %v", gpm.Hash.Hex(), err)
+			logger.Errorf("AddValidator for hash %s failed: %v", gpm.Hash.Hex(), err)
 		}
 		creatorNum := len(d.Visor.v.TrustNodes())
 		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
@@ -1151,7 +1151,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 			logger.Errorf("Get Validator Number failed: %v", err)
 			return
 		}
-		if creatorNum > 0 && currentNum > creatorNum-2 {
+		if creatorNum > 0 && currentNum == creatorNum {
 			err := d.Visor.v.StartExecuteSignedBlock(gpm.Hash)
 			if err != nil {
 				logger.Errorf("Start Execute Block %s failed: %v", gpm.Hash.Hex(), err)
