@@ -420,18 +420,17 @@ func (vs *Visor) RemoveInvalidUnconfirmed() ([]cipher.SHA256, error) {
 	return vs.Unconfirmed.RemoveInvalid(vs.Blockchain)
 }
 
-func (vs *Visor) InsertTrustAddressList() error {
-	return vs.trustNode.AddNode(vs.Config.TrustAddressList)
-}
-
+// InsertTrustPubkeyList insert trust pubkey into bolt db
 func (vs *Visor) InsertTrustPubkeyList(pubkeys []cipher.PubKey) error {
 	return vs.trustNode.AddNodePubkey(pubkeys)
 }
 
+// TrustNodes get trust node pubkey list
 func (vs *Visor) TrustNodes() []cipher.PubKey {
 	return vs.trustNode.GetPubkeys()
 }
 
+// IsTrustPubkey check the pubkey valid or not
 func (vs *Visor) IsTrustPubkey(pubKey cipher.PubKey) bool {
 	for _, pkey := range vs.TrustNodes() {
 		if pkey == pubKey {
@@ -441,18 +440,22 @@ func (vs *Visor) IsTrustPubkey(pubKey cipher.PubKey) bool {
 	return false
 }
 
+// AddValidator add a validator for block
 func (vs *Visor) AddValidator(hash cipher.SHA256, pubKey cipher.PubKey) error {
 	return vs.pbft.AddValidator(hash, pubKey)
 }
 
+// GetValidatorNumber returns nunber of valid validator
 func (vs *Visor) GetValidatorNumber(hash cipher.SHA256) (int, error) {
 	return vs.pbft.ValidatorNumber(hash)
 }
 
+// GetPendingHash returns waiting into chian block hash list
 func (vs *Visor) GetPendingHash() []cipher.SHA256 {
 	return vs.pbft.WaitingConfirmedBlockHash()
 }
 
+// CheckHashExists check block hash exists in pbft or not
 func (vs *Visor) CheckHashExists(hash cipher.SHA256) bool {
 	_, err := vs.pbft.GetSignedBlock(hash)
 	if err != nil {
@@ -461,6 +464,7 @@ func (vs *Visor) CheckHashExists(hash cipher.SHA256) bool {
 	return true
 }
 
+// CheckHashExistsInChain check block hash exists in blockchian or not
 func (vs *Visor) CheckHashExistsInChain(hash cipher.SHA256) bool {
 	_, err := vs.GetBlockByHash(hash)
 	if err != nil {
@@ -469,6 +473,7 @@ func (vs *Visor) CheckHashExistsInChain(hash cipher.SHA256) bool {
 	return true
 }
 
+// CheckPubkeyExists check pubkey is in pbft validator list or not
 func (vs *Visor) CheckPubkeyExists(hash cipher.SHA256, pubKey cipher.PubKey) bool {
 	if err := vs.pbft.CheckPubkeyExists(hash, pubKey); err != nil {
 		return false
@@ -476,10 +481,12 @@ func (vs *Visor) CheckPubkeyExists(hash cipher.SHA256, pubKey cipher.PubKey) boo
 	return true
 }
 
+// DeletePbftHash delete block hash from pbft
 func (vs *Visor) DeletePbftHash(hash cipher.SHA256) error {
 	return vs.pbft.DeleteHash(hash)
 }
 
+// StartExecuteSignedBlock make block into blockchain if validtor check ok
 func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
 	block, err := vs.pbft.GetSignedBlock(hash)
 	if err != nil {

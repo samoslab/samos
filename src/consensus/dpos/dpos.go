@@ -14,20 +14,15 @@ const (
 )
 
 var (
-	// errUnknownBlock is returned when the list of signers is requested for a block
-	// that is not part of the local blockchain.
-	errUnknownBlock = errors.New("unknown block")
-
-	ErrInvalidTimestamp           = errors.New("invalid timestamp")
-	ErrWaitForPrevBlock           = errors.New("wait for last block arrived")
-	ErrMintFutureBlock            = errors.New("mint the future block")
-	ErrBlockAlreadyCreated        = errors.New("block already created in the slot")
-	ErrMismatchSignerAndValidator = errors.New("mismatch block signer and validator")
-	ErrInvalidBlockValidator      = errors.New("invalid block validator")
-	ErrInvalidMintBlockTime       = errors.New("invalid time to mint the block")
-	ErrNilBlockHeader             = errors.New("nil block header returned")
+	ErrInvalidTimestamp      = errors.New("invalid timestamp")
+	ErrWaitForPrevBlock      = errors.New("wait for last block arrived")
+	ErrMintFutureBlock       = errors.New("mint the future block")
+	ErrBlockAlreadyCreated   = errors.New("block already created in the slot")
+	ErrInvalidBlockValidator = errors.New("invalid block validator")
+	ErrInvalidMintBlockTime  = errors.New("invalid time to mint the block")
 )
 
+// Dpos consensus alg
 type Dpos struct {
 	signer      cipher.PubKey
 	mu          sync.RWMutex
@@ -36,6 +31,7 @@ type Dpos struct {
 	lastSlot    uint32
 }
 
+// NewDpos create dpos instance
 func NewDpos(signer cipher.PubKey) *Dpos {
 	return &Dpos{
 		dposContext: NewDposContext(),
@@ -44,6 +40,7 @@ func NewDpos(signer cipher.PubKey) *Dpos {
 	}
 }
 
+// SetTrustNode set trust nodes for block creator
 func (d *Dpos) SetTrustNode(trusts []cipher.PubKey) error {
 	return d.dposContext.SetValidators(trusts)
 }
@@ -63,6 +60,8 @@ func (d *Dpos) checkDeadline(lastBlock *coin.SignedBlock, now int64) error {
 	return ErrWaitForPrevBlock
 }
 
+// CheckValidator check current node create block or not, every node has same chance to
+// make block, it is destined by time
 func (d *Dpos) CheckValidator(lastBlock *coin.SignedBlock, now int64) error {
 	if err := d.checkDeadline(lastBlock, now); err != nil {
 		return err
@@ -78,10 +77,12 @@ func (d *Dpos) CheckValidator(lastBlock *coin.SignedBlock, now int64) error {
 	return nil
 }
 
+// PrevSlot previos slot for create block
 func PrevSlot(now int64) int64 {
 	return int64((now-1)/blockInterval) * blockInterval
 }
 
+// NextSlot next slot for create block
 func NextSlot(now int64) int64 {
 	return int64((now+blockInterval-1)/blockInterval) * blockInterval
 }

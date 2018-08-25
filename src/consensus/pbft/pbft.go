@@ -35,6 +35,7 @@ func (p *PBFT) GetSignedBlock(hash cipher.SHA256) (coin.SignedBlock, error) {
 	return coin.SignedBlock{}, errors.New("block not exists")
 }
 
+// DeleteHash delete hash from pending block map
 func (p *PBFT) DeleteHash(hash cipher.SHA256) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
@@ -62,20 +63,23 @@ func (p *PBFT) WaitingConfirmedBlockHash() []cipher.SHA256 {
 // AddSignedBlock add a signed block
 func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
 	p.mutex.Lock()
-	defer p.mutex.Unlock()
 	bh := sb.Block.HashHeader()
 	if _, ok := p.PendingBlocks[bh]; ok {
+		p.mutex.Unlock()
 		return errors.New("the block has added")
 	}
+	p.PendingBlocks[bh] = sb
 
 	pubkeyRec, err := cipher.PubKeyFromSig(sb.Sig, bh) //recovered pubkey
 	if err != nil {
+		p.mutex.Unlock()
 		return errors.New("Invalid sig: PubKey recovery failed")
 	}
-
+	p.mutex.Unlock()
 	return p.AddValidator(bh, pubkeyRec)
 }
 
+// CheckPubkeyExists check pubkey exists for the block hash
 func (p *PBFT) CheckPubkeyExists(hash cipher.SHA256, pubkey cipher.PubKey) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
