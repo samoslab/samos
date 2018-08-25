@@ -724,7 +724,7 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 		if b.Pending {
 			err := d.Visor.AddPendingBlock(b)
 			if err == nil {
-				logger.Critical().Infof("Added pending  block %d", b.Block.Head.BkSeq)
+				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
 				if d.Visor.v.Config.IsMaster {
 					m := NewGivePrepareMessage(b.HashHeader(), d.Visor.v.Config.BlockchainTrustSeckey)
 					d.Pool.Pool.BroadcastMessage(m)
@@ -1098,6 +1098,7 @@ func (gpm *GetPrepareMessage) Process(d *Daemon) {
 		// todo: should check hash exists or not
 		if d.Visor.v.CheckHashExists(gpm.Hash) || d.Visor.v.CheckHashExistsInChain(gpm.Hash) {
 			m := NewGivePrepareMessage(gpm.Hash, d.Visor.v.Config.BlockchainTrustSeckey)
+			fmt.Printf("get block hash %s from other nodes\n", gpm.Hash.Hex())
 			if err := d.Pool.Pool.SendMessage(gpm.c.Addr, m); err != nil {
 				logger.Errorf("Send GivePrepareMessage to %s failed: %v", gpm.c.Addr, err)
 			}
@@ -1151,6 +1152,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 			logger.Errorf("Get Validator Number failed: %v", err)
 			return
 		}
+		fmt.Printf("creatorNum is %d , current Number is %d\n", creatorNum, currentNum)
 		if creatorNum > 0 && currentNum == creatorNum {
 			err := d.Visor.v.StartExecuteSignedBlock(gpm.Hash)
 			if err != nil {
@@ -1203,7 +1205,9 @@ func (apm *AnnouncePrepareMessage) Process(d *Daemon) {
 	}
 	// check hash should request or not
 	if d.Visor.v.CheckHashExists(apm.Hash) {
+		//todo the logic is stupid, pubkey not exists
 		if !d.Visor.v.CheckPubkeyExists(apm.Hash, pubkeyRec) {
+			fmt.Printf("stupid announce prepare message\n")
 			m := NewGetPrepareMessage(apm.Hash)
 			if err := d.Pool.Pool.SendMessage(apm.c.Addr, m); err != nil {
 				logger.Errorf("Send GetPrepareMessage to %s failed: %v", apm.c.Addr, err)
