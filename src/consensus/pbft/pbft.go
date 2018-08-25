@@ -2,17 +2,21 @@ package pbft
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
 )
 
+// PBFT pending block data
 type PBFT struct {
 	Status        int
 	PendingBlocks map[cipher.SHA256]coin.SignedBlock
 	PreparedInfos map[cipher.SHA256][]cipher.PubKey
+	mutex         sync.Mutex
 }
 
+// NewPBFT new pbft
 func NewPBFT() *PBFT {
 	return &PBFT{
 		PendingBlocks: make(map[cipher.SHA256]coin.SignedBlock, 1),
@@ -21,14 +25,44 @@ func NewPBFT() *PBFT {
 	}
 }
 
+// GetSignedBlock get SignedBlock for the hash
 func (p *PBFT) GetSignedBlock(hash cipher.SHA256) (coin.SignedBlock, error) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	if sb, ok := p.PendingBlocks[hash]; ok {
 		return sb, nil
 	}
 	return coin.SignedBlock{}, errors.New("block not exists")
 }
 
+func (p *PBFT) DeleteHash(hash cipher.SHA256) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	if _, ok := p.PendingBlocks[hash]; !ok {
+		return errors.New("block hash not exists")
+	}
+
+	delete(p.PendingBlocks, hash)
+	delete(p.PreparedInfos, hash)
+
+	return nil
+}
+
+// WaitingConfirmedBlockHash block hash that waiting other validator message
+func (p *PBFT) WaitingConfirmedBlockHash() []cipher.SHA256 {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	watingHash := []cipher.SHA256{}
+	for hash := range p.PendingBlocks {
+		watingHash = append(watingHash, hash)
+	}
+	return watingHash
+}
+
+// AddSignedBlock add a signed block
 func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	bh := sb.Block.HashHeader()
 	if _, ok := p.PendingBlocks[bh]; ok {
 		return errors.New("the block has added")
@@ -42,7 +76,25 @@ func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
 	return p.AddValidator(bh, pubkeyRec)
 }
 
+func (p *PBFT) CheckPubkeyExists(hash cipher.SHA256, pubkey cipher.PubKey) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	validators, ok := p.PreparedInfos[hash]
+	if !ok {
+		return errors.New("not exists")
+	}
+	for _, pk := range validators {
+		if pk == pubkey {
+			return nil
+		}
+	}
+	return errors.New("not exists")
+}
+
+// AddValidator add a validator , if validator number exceed threshold, then make block into chain
 func (p *PBFT) AddValidator(hash cipher.SHA256, pubkey cipher.PubKey) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	validators, ok := p.PreparedInfos[hash]
 	if !ok {
 		validators = []cipher.PubKey{}
@@ -57,7 +109,10 @@ func (p *PBFT) AddValidator(hash cipher.SHA256, pubkey cipher.PubKey) error {
 	return nil
 }
 
+// ValidatorNumber the nunber of validator for the block hash
 func (p *PBFT) ValidatorNumber(hash cipher.SHA256) (int, error) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	validators, ok := p.PreparedInfos[hash]
 	if !ok {
 		return 0, errors.New("the hash not exists")

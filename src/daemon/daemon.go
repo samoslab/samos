@@ -366,6 +366,8 @@ func (dm *Daemon) Run() error {
 	TrustNodeRequestTicker := time.Tick(dm.Visor.Config.TrustNodeRequestRate)
 	TrustNodeAnnounceTicker := time.Tick(dm.Visor.Config.TrustNodeAnnounceRate)
 
+	PrepareRequestTicker := time.Tick(dm.Visor.Config.PrepareRequestRate)
+
 	privateConnectionsTicker := time.Tick(dm.Config.PrivateRate)
 	cullInvalidTicker := time.Tick(dm.Config.CullInvalidRate)
 	outgoingConnectionsTicker := time.Tick(dm.Config.OutgoingRate)
@@ -557,6 +559,10 @@ loop:
 		case <-TrustNodeAnnounceTicker:
 			elapser.Register("TrustNodeAnnounceTicker")
 			dm.Visor.AnnounceTrustNode(dm.Pool)
+
+		case <-PrepareRequestTicker:
+			elapser.Register("PrepareRequestTicker")
+			dm.Visor.RequestPrepare(dm.Pool)
 
 		case err = <-errC:
 			break loop

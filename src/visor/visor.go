@@ -449,12 +449,47 @@ func (vs *Visor) GetValidatorNumber(hash cipher.SHA256) (int, error) {
 	return vs.pbft.ValidatorNumber(hash)
 }
 
+func (vs *Visor) GetPendingHash() []cipher.SHA256 {
+	return vs.pbft.WaitingConfirmedBlockHash()
+}
+
+func (vs *Visor) CheckHashExists(hash cipher.SHA256) bool {
+	_, err := vs.pbft.GetSignedBlock(hash)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (vs *Visor) CheckHashExistsInChain(hash cipher.SHA256) bool {
+	_, err := vs.GetBlockByHash(hash)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func (vs *Visor) CheckPubkeyExists(hash cipher.SHA256, pubKey cipher.PubKey) bool {
+	if err := vs.pbft.CheckPubkeyExists(hash, pubKey); err != nil {
+		return false
+	}
+	return true
+}
+
+func (vs *Visor) DeletePbftHash(hash cipher.SHA256) error {
+	return vs.pbft.DeleteHash(hash)
+}
+
 func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
 	block, err := vs.pbft.GetSignedBlock(hash)
 	if err != nil {
 		return err
 	}
-	return vs.ExecuteSignedBlock(block)
+	err = vs.ExecuteSignedBlock(block)
+	if err != nil {
+		vs.DeletePbftHash(hash)
+	}
+	return err
 }
 
 // InTurnTheNode it is time create block for this node
@@ -532,7 +567,11 @@ func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
 
 // CreateAndExecuteBlock creates a SignedBlock from pending transactions and executes it
 func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
-	return vs.CreateBlock(uint64(utc.UnixNow()))
+	sb, err := vs.CreateBlock(uint64(utc.UnixNow()))
+	if err != nil {
+		return sb, err
+	}
+	return sb, vs.AddPendingBlock(sb)
 }
 
 // AddPendingBlocks hold pending block, store into blockchain if validator number reach threshold
