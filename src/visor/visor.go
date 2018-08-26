@@ -124,12 +124,8 @@ type Config struct {
 	//address for genesis
 	GenesisAddress cipher.Address
 
-	//address for genesis
-	TrustAddress cipher.Address
-
-	TrustAddressList []cipher.Address
-	TrustPubkeyList  []cipher.PubKey
-	AgreeNum         int
+	TrustPubkeyList []cipher.PubKey
+	AgreeNum        int
 
 	// Genesis block sig
 	GenesisSignature cipher.Sig
@@ -666,7 +662,11 @@ func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
 // ExecuteSignedBlock adds a block to the blockchain, or returns error.
 // Blocks must be executed in sequence, and be signed by the master server
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
-	if err := b.VerifySignature(vs.TrustNodes()); err != nil {
+	trustPubkeys := vs.TrustNodes()
+	if len(vs.TrustNodes()) == 0 {
+		trustPubkeys = vs.Config.TrustPubkeyList
+	}
+	if err := b.VerifySignature(trustPubkeys); err != nil {
 		return err
 	}
 
