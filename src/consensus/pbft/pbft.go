@@ -7,7 +7,7 @@ import (
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
-	"github.com/spaco/spo/src/util/utc"
+	"github.com/samoslab/samos/src/util/utc"
 )
 
 // PBFT pending block data
