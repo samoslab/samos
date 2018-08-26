@@ -162,7 +162,7 @@ func NewVisorConfig() Config {
 		BlockchainPubkey: cipher.PubKey{},
 		BlockchainSeckey: cipher.SecKey{},
 
-		BlockCreationInterval: 1,
+		BlockCreationInterval: 2,
 		//BlockCreationForceInterval: 120, //create block if no block within this many seconds
 
 		UnconfirmedCheckInterval:     time.Hour * 2,
@@ -606,9 +606,23 @@ func (vs *Visor) CheckBlockMakerConstraint(block coin.SignedBlock) error {
 	return errors.New("block create time is not satified")
 }
 
+// VerifyBlockTransactions check tansaction in block is confirmed or not
+func (vs *Visor) VerifyBlockTransactions(block coin.SignedBlock) error {
+	for _, tx := range block.Block.Body.Transactions {
+		if err := tx.Verify(); err != nil {
+			fmt.Printf("Transaction %s verify failed %v\n", tx.Hash().Hex(), err)
+			return err
+		}
+	}
+	return nil
+}
+
 // AddPendingBlock hold pending block, store into blockchain if validator number reach threshold
 func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
 	if err := vs.CheckBlockMakerConstraint(block); err != nil {
+		return err
+	}
+	if err := vs.VerifyBlockTransactions(block); err != nil {
 		return err
 	}
 	return vs.pbft.AddSignedBlock(block)
