@@ -79,6 +79,17 @@ func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
 	return p.AddValidator(bh, pubkeyRec)
 }
 
+// GetBlockValidators returns all pubkeys for block hash
+func (p *PBFT) GetBlockValidators(hash cipher.SHA256) ([]cipher.PubKey, error) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	validators, ok := p.PreparedInfos[hash]
+	if !ok {
+		return []cipher.PubKey{}, errors.New("not exists")
+	}
+	return validators, nil
+}
+
 // CheckPubkeyExists check pubkey exists for the block hash
 func (p *PBFT) CheckPubkeyExists(hash cipher.SHA256, pubkey cipher.PubKey) error {
 	p.mutex.Lock()

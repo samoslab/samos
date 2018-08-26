@@ -1142,6 +1142,13 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		logger.Errorf("Invalid sig: PubKey recovery failed: %v", err)
 		return
 	}
+	pubkeys, err := d.Visor.v.GetBlockValidators(gpm.Hash)
+	if err != nil {
+		logger.Errorf("Get block %s validator failed", gpm.Hash.Hex())
+	}
+	for _, v := range pubkeys {
+		fmt.Printf("pubkey %s\n", v.Hex())
+	}
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {

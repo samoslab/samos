@@ -481,6 +481,11 @@ func (vs *Visor) CheckPubkeyExists(hash cipher.SHA256, pubKey cipher.PubKey) boo
 	return true
 }
 
+// GetBlockValidators  returns all pubkeys for block hash
+func (vs *Visor) GetBlockValidators(hash cipher.SHA256) ([]cipher.PubKey, error) {
+	return vs.pbft.GetBlockValidators(hash)
+}
+
 // DeletePbftHash delete block hash from pbft
 func (vs *Visor) DeletePbftHash(hash cipher.SHA256) error {
 	return vs.pbft.DeleteHash(hash)
@@ -501,6 +506,10 @@ func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
 
 // InTurnTheNode it is time create block for this node
 func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
+	if len(vs.GetPendingHash()) > 0 {
+		return false, errors.New("pbft has unconfirmed block")
+	}
+
 	lastBlock, err := vs.GetHeadBlock()
 	if err != nil {
 		return false, err
