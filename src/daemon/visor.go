@@ -726,7 +726,9 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 			err := d.Visor.AddPendingBlock(b)
 			if err == nil {
 				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
+				logger.Critical().Infof("local pubkey %s", d.Visor.v.Config.BlockchainTrustPubkey)
 				if d.Visor.v.Config.IsMaster {
+					logger.Critical().Infof("send givepreparemsg using %s", d.Visor.v.Config.BlockchainTrustSeckey)
 					m := NewGivePrepareMessage(b.HashHeader(), d.Visor.v.Config.BlockchainTrustSeckey)
 					d.Pool.Pool.BroadcastMessage(m)
 				}
@@ -1152,7 +1154,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {
-			logger.Errorf("AddValidator for hash %s failed: %v", gpm.Hash.Hex(), err)
+			logger.Errorf("AddValidator %s for hash %s failed: %v", pubkeyRec, gpm.Hash.Hex(), err)
 		}
 		creatorNum := len(d.Visor.v.TrustNodes())
 		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
@@ -1232,6 +1234,7 @@ func (vs *Visor) RequestPrepare(pool *Pool) error {
 
 	err := vs.strand("RequestPrepare", func() error {
 		for _, hash := range vs.v.GetPendingHash() {
+			fmt.Printf("request prepared message %s by ticker\n", hash.Hex())
 			m := NewGetPrepareMessage(hash)
 			err := pool.Pool.BroadcastMessage(m)
 			if err != nil {
