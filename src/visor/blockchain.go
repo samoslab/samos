@@ -3,7 +3,6 @@ package visor
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/boltdb/bolt"
@@ -657,8 +656,6 @@ func (bc Blockchain) verifyBlockHeader(b coin.Block) error {
 		return err
 	}
 
-	fmt.Printf("head.bkseq %d, current seq %d\n", head.Head.BkSeq, b.Head.BkSeq)
-	fmt.Printf("head.hash %s, current hash %s\n", head.Head.Hash().Hex(), b.Head.Hash().Hex())
 	if b.Head.BkSeq != head.Head.BkSeq+1 {
 		return errors.New("BkSeq invalid")
 	}
