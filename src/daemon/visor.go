@@ -726,9 +726,9 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 			err := d.Visor.AddPendingBlock(b)
 			if err == nil {
 				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
-				logger.Critical().Infof("local pubkey %s", d.Visor.v.Config.BlockchainTrustPubkey)
+				logger.Critical().Infof("local pubkey %s", d.Visor.v.Config.BlockchainTrustPubkey.Hex())
 				if d.Visor.v.Config.IsMaster {
-					logger.Critical().Infof("send givepreparemsg using %s", d.Visor.v.Config.BlockchainTrustSeckey)
+					logger.Critical().Infof("send givepreparemsg using %s", d.Visor.v.Config.BlockchainTrustSeckey.Hex())
 					m := NewGivePrepareMessage(b.HashHeader(), d.Visor.v.Config.BlockchainTrustSeckey)
 					d.Pool.Pool.BroadcastMessage(m)
 				}
@@ -1101,7 +1101,7 @@ func (gpm *GetPrepareMessage) Process(d *Daemon) {
 		// todo: should check hash exists or not
 		if d.Visor.v.CheckHashExists(gpm.Hash) || d.Visor.v.CheckHashExistsInChain(gpm.Hash) {
 			m := NewGivePrepareMessage(gpm.Hash, d.Visor.v.Config.BlockchainTrustSeckey)
-			fmt.Printf("get block hash %s from other nodes\n", gpm.Hash.Hex())
+			fmt.Printf("get block request hash %s from other nodes\n", gpm.Hash.Hex())
 			if err := d.Pool.Pool.SendMessage(gpm.c.Addr, m); err != nil {
 				logger.Errorf("Send GivePrepareMessage to %s failed: %v", gpm.c.Addr, err)
 			}
@@ -1154,7 +1154,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {
-			logger.Errorf("AddValidator %s for hash %s failed: %v", pubkeyRec, gpm.Hash.Hex(), err)
+			logger.Errorf("AddValidator %s for hash %s failed: %v", pubkeyRec.Hex(), gpm.Hash.Hex(), err)
 		}
 		creatorNum := len(d.Visor.v.TrustNodes())
 		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
