@@ -466,6 +466,11 @@ func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
 	return vs.v.InTurnTheNode(when)
 }
 
+// HasUnconfirmedBlock check is there unconfimed block
+func (vs *Visor) HasUnconfirmedBlock() bool {
+	return len(vs.v.GetPendingHash()) > 0
+}
+
 // CreateAndPublishBlock creates a block from unconfirmed transactions and sends it to the network.
 // Will panic if not running as a master chain.  Returns creation error and
 // whether it was published or not
@@ -675,6 +680,7 @@ func (gbm *GetBlocksMessage) Process(d *Daemon) {
 	}
 
 	logger.Debugf("Got %d blocks since %d", len(blocks), gbm.LastBlock)
+	logger.Errorf("Got %d blocks since %d", len(blocks), gbm.LastBlock)
 
 	m := NewGiveBlocksMessage(blocks)
 	if err := d.Pool.Pool.SendMessage(gbm.c.Addr, m); err != nil {
@@ -728,7 +734,6 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
 				logger.Critical().Infof("local pubkey %s", d.Visor.v.Config.BlockchainTrustPubkey.Hex())
 				if d.Visor.v.Config.IsMaster {
-					logger.Critical().Infof("send givepreparemsg using %s", d.Visor.v.Config.BlockchainTrustSeckey.Hex())
 					err := d.Visor.v.AddValidator(b.HashHeader(), d.Visor.v.Config.BlockchainTrustPubkey)
 					if err != nil {
 						logger.Critical().Infof("AddValidator for local pubkey %s failed %v", d.Visor.v.Config.BlockchainTrustPubkey.Hex(), err)

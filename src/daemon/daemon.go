@@ -510,6 +510,10 @@ loop:
 					logger.Infof("slot not for this node: %v", err)
 					continue
 				}
+				if dm.Visor.HasUnconfirmedBlock() {
+					logger.Infof("can not make block: %v", err)
+					continue
+				}
 
 				sb, err := dm.Visor.CreateAndPublishBlock(dm.Pool)
 				if err != nil {

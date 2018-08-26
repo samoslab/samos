@@ -592,6 +592,13 @@ func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
 
 // CheckBlockMakerConstraint verify the block should made by the pubkey in the slot
 func (vs *Visor) CheckBlockMakerConstraint(block coin.SignedBlock) error {
+	height := block.Seq()
+	if height <= vs.HeadBkSeq() {
+		errors.New("pending block seq less than head")
+	}
+	if err := vs.pbft.CheckBkSeq(height); err != nil {
+		return err
+	}
 	pubkeyRec, err := cipher.PubKeyFromSig(block.Sig, block.HashHeader()) //recovered pubkey
 	if err != nil {
 		return err

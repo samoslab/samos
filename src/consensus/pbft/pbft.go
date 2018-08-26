@@ -35,6 +35,18 @@ func (p *PBFT) GetSignedBlock(hash cipher.SHA256) (coin.SignedBlock, error) {
 	return coin.SignedBlock{}, errors.New("block not exists")
 }
 
+// CheckBkSeq check seq validaty
+func (p *PBFT) CheckBkSeq(seq uint64) error {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	for _, block := range p.PendingBlocks {
+		if seq <= block.Seq() {
+			return errors.New("pending blockseq less than pbft")
+		}
+	}
+	return nil
+}
+
 // DeleteHash delete hash from pending block map
 func (p *PBFT) DeleteHash(hash cipher.SHA256) error {
 	p.mutex.Lock()
