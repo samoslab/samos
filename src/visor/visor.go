@@ -504,6 +504,11 @@ func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
 	return err
 }
 
+// RemoveUnconfirmBlock remove pending block if it unconfirmed in 120 seconds
+func (vs *Visor) RemoveUnconfirmBlock() {
+	vs.pbft.RemoveUnconfirmBlock()
+}
+
 // InTurnTheNode it is time create block for this node
 func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
 	if len(vs.GetPendingHash()) > 0 {
