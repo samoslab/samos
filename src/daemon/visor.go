@@ -3,6 +3,7 @@ package daemon
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -52,6 +53,7 @@ type VisorConfig struct {
 	TrustNodeAnnounceRate time.Duration
 	TrustNodeRequestRate  time.Duration
 	PrepareRequestRate    time.Duration
+	AgreeNumRequestRate   time.Duration
 }
 
 // NewVisorConfig creates default visor config
@@ -70,6 +72,7 @@ func NewVisorConfig() VisorConfig {
 		TrustNodeAnnounceRate: time.Second * 60,
 		TrustNodeRequestRate:  time.Second * 60,
 		PrepareRequestRate:    time.Second * 2,
+		AgreeNumRequestRate:   time.Second * 60,
 	}
 }
 
@@ -404,6 +407,29 @@ func (vs *Visor) broadcastPrepareMsg(sb coin.SignedBlock, pool *Pool) error {
 	return pool.Pool.BroadcastMessage(m)
 }
 
+// BroadcastMessage message to all connections
+func (vs *Visor) BroadcastMessage(pool *Pool) error {
+	if vs.Config.DisableNetworking {
+		return nil
+	}
+
+	if vs.v.IsGenesisNode() {
+		// Locate all txns from the unconfirmed pool
+		trustNodes := vs.TrustNodes()
+		m := NewGiveTrustMessage(trustNodes, vs.v.Config.BlockchainSeckey)
+		if err := pool.Pool.BroadcastMessage(m); err != nil {
+			logger.Errorf("Broadcast GiveTrustMessage failed: %v", err)
+			return err
+		}
+		num := vs.v.GetAgreeNodeNum()
+		if num > 0 && num <= len(trustNodes) {
+			m := NewGiveAgreeNumMessage(num, vs.v.Config.BlockchainSeckey)
+			return pool.Pool.BroadcastMessage(m)
+		}
+	}
+	return nil
+}
+
 // broadcastTransaction broadcasts a single transaction to all peers.
 func (vs *Visor) broadcastTransaction(t coin.Transaction, pool *Pool) error {
 	if vs.Config.DisableNetworking {
@@ -462,6 +488,7 @@ func (vs *Visor) ResendUnconfirmedTxns(pool *Pool) []cipher.SHA256 {
 	return txids
 }
 
+// InTurnTheNode should the node create block
 func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
 	return vs.v.InTurnTheNode(when)
 }
@@ -1035,7 +1062,10 @@ func (gtm *GiveTrustMessage) Process(d *Daemon) {
 	if len(gtm.Trust) != 0 {
 		// verify signature
 		verifiedHash := pubkeysArrHash(gtm.Trust)
-		cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gtm.Sig, verifiedHash)
+		err := cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gtm.Sig, verifiedHash)
+		if err != nil {
+			return
+		}
 		if err := d.Visor.v.InsertTrustPubkeyList(gtm.Trust); err != nil {
 			return
 		}
@@ -1157,7 +1187,7 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		logger.Errorf("Get block %s validator failed", gpm.Hash.Hex())
 	}
 	for _, v := range pubkeys {
-		fmt.Printf("pubkey %s\n", v.Hex())
+		logger.Debugf("pubkey %s", v.Hex())
 	}
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
@@ -1170,8 +1200,12 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 			logger.Errorf("Get Validator Number failed: %v", err)
 			return
 		}
-		fmt.Printf("creatorNum is %d , current Number is %d\n", creatorNum, currentNum)
-		if creatorNum > 0 && currentNum == creatorNum {
+		agreeNum := d.Visor.v.GetAgreeNodeNum()
+		if agreeNum <= 0 || agreeNum > creatorNum {
+			agreeNum = creatorNum
+		}
+		logger.Debugf("currentNum: %d, agreeNum: %d, creatorNum: %d", currentNum, agreeNum, creatorNum)
+		if currentNum >= agreeNum {
 			err := d.Visor.v.StartExecuteSignedBlock(gpm.Hash)
 			if err != nil {
 				logger.Errorf("Start Execute Block %s failed: %v", gpm.Hash.Hex(), err)
@@ -1242,7 +1276,6 @@ func (vs *Visor) RequestPrepare(pool *Pool) error {
 
 	err := vs.strand("RequestPrepare", func() error {
 		for _, hash := range vs.v.GetPendingHash() {
-			fmt.Printf("request prepared message %s by ticker\n", hash.Hex())
 			m := NewGetPrepareMessage(hash)
 			err := pool.Pool.BroadcastMessage(m)
 			if err != nil {
@@ -1259,21 +1292,131 @@ func (vs *Visor) RequestPrepare(pool *Pool) error {
 	return err
 }
 
-// AnnouncePrepare sends an AnnouncePrepareMessage to all connections
-func (vs *Visor) AnnouncePrepare(pool *Pool) error {
+// RequestAgreeNodeNum Sends a GetAgreeNumMessage to all connections
+func (vs *Visor) RequestAgreeNodeNum(pool *Pool) error {
 	if vs.Config.DisableNetworking {
 		return nil
 	}
 
-	err := vs.strand("AnnouncePrepare", func() error {
-		hash := cipher.SHA256{}
-		m := NewAnnouncePrepareMessage(hash, vs.v.Config.BlockchainTrustSeckey)
+	err := vs.strand("RequestAgressNodeNum", func() error {
+		m := NewGetAgreeNumMessage()
 		return pool.Pool.BroadcastMessage(m)
 	})
 
 	if err != nil {
-		logger.Debugf("Broadcast AnnouncePrepareMessage failed: %v", err)
+		logger.Debugf("Broadcast GetAgreeNumMessage failed: %v", err)
 	}
 
 	return err
+}
+
+// GetAgreeNumMessage request transactions of given hash
+type GetAgreeNumMessage struct {
+	c *gnet.MessageContext `enc:"-"`
+}
+
+// NewGetAgreeNumMessage creates GetAgreeNumMessage
+func NewGetAgreeNumMessage() *GetAgreeNumMessage {
+	return &GetAgreeNumMessage{}
+}
+
+// Handle handle message
+func (gtm *GetAgreeNumMessage) Handle(mc *gnet.MessageContext, daemon interface{}) error {
+	gtm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(gtm, mc)
+}
+
+// Process process message
+func (gtm *GetAgreeNumMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	// Reply to sender with GiveAgreeNumMessage
+	if d.Visor.v.IsGenesisNode() {
+		// Locate all txns from the unconfirmed pool
+		agreeNumNodes := d.Visor.v.GetAgreeNodeNum()
+		m := NewGiveAgreeNumMessage(agreeNumNodes, d.Visor.v.Config.BlockchainSeckey)
+		if err := d.Pool.Pool.SendMessage(gtm.c.Addr, m); err != nil {
+			logger.Errorf("Send GiveAgreeNumMessage to %s failed: %v", gtm.c.Addr, err)
+		}
+	}
+}
+
+// GiveAgreeNumMessage tells the transaction of given hashes
+type GiveAgreeNumMessage struct {
+	AgreeNum int
+	Sig      cipher.Sig
+	c        *gnet.MessageContext `enc:"-"`
+}
+
+func intHash(num int) cipher.SHA256 {
+	return cipher.SumSHA256([]byte(strconv.Itoa(num)))
+}
+
+// NewGiveAgreeNumMessage creates GiveAgreeNumMessage
+func NewGiveAgreeNumMessage(agreeNum int, secKey cipher.SecKey) *GiveAgreeNumMessage {
+	sig := cipher.SignHash(intHash(agreeNum), secKey)
+	return &GiveAgreeNumMessage{
+		AgreeNum: agreeNum,
+		Sig:      sig,
+	}
+}
+
+// Handle handle message
+func (gtm *GiveAgreeNumMessage) Handle(mc *gnet.MessageContext,
+	daemon interface{}) error {
+	gtm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(gtm, mc)
+}
+
+// Process process message
+func (gtm *GiveAgreeNumMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	if gtm.AgreeNum > 0 {
+		// verify signature
+		verifiedHash := intHash(gtm.AgreeNum)
+		err := cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gtm.Sig, verifiedHash)
+		if err != nil {
+			return
+		}
+		if err := d.Visor.v.InsertAgreeNodeNum(gtm.AgreeNum); err != nil {
+			return
+		}
+	}
+}
+
+// AnnounceAgreeNumMessage tells a peer that we have these transactions
+type AnnounceAgreeNumMessage struct {
+	AgreeNum int
+	c        *gnet.MessageContext `enc:"-"`
+}
+
+// NewAnnounceAgreeNumMessage creates announce agreeNum message
+func NewAnnounceAgreeNumMessage(agreeNum int) *AnnounceAgreeNumMessage {
+	return &AnnounceAgreeNumMessage{
+		AgreeNum: agreeNum,
+	}
+}
+
+// Handle handle message
+func (atm *AnnounceAgreeNumMessage) Handle(mc *gnet.MessageContext,
+	daemon interface{}) error {
+	atm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(atm, mc)
+}
+
+// Process process message
+func (atm *AnnounceAgreeNumMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		return
+	}
+
+	m := NewGetAgreeNumMessage()
+	if err := d.Pool.Pool.SendMessage(atm.c.Addr, m); err != nil {
+		logger.Errorf("Send GetAgreeNumMessage to %s failed: %v", atm.c.Addr, err)
+	}
 }

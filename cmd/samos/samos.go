@@ -59,8 +59,7 @@ var (
 	BlockchainTrustPubkeyStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563"
 	BlockchainTrustSeckeyStr = ""
 
-	TrustAddressListStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe,2mBbNkm1pxv1Q8pYiA4n8v9zoUEWBEyKZ24,vwXnudR3vJ4EnS9FacQFaCH1XPLg31T1sJ"
-	TrustPubkeyListStr  = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
+	TrustPubkeyListStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -162,12 +161,11 @@ type Config struct {
 	BlockchainPubkey cipher.PubKey
 	BlockchainSeckey cipher.SecKey
 
-	TrustAddress          cipher.Address
 	BlockchainTrustPubkey cipher.PubKey
 	BlockchainTrustSeckey cipher.SecKey
-	TrustAddressList      []cipher.Address
 	TrustPubkeyList       []cipher.PubKey
 
+	AgreeNum int
 	/* Developer options */
 
 	// Enable cpu profiling
@@ -242,8 +240,8 @@ func (c *Config) register() {
 	flag.StringVar(&BlockchainTrustPubkeyStr, "trust-public-key", BlockchainTrustPubkeyStr, "public key of the trust node")
 	flag.StringVar(&BlockchainTrustSeckeyStr, "trust-secret-key", BlockchainTrustSeckeyStr, "secret key, set for trust node")
 	flag.StringVar(&TrustAddressStr, "trust-address", TrustAddressStr, "trust node address")
-	flag.StringVar(&TrustAddressListStr, "trust-address-list", TrustAddressListStr, "trust address list")
 	flag.StringVar(&TrustPubkeyListStr, "trust-pubkey-list", TrustPubkeyListStr, "trust pubkey list")
+	flag.IntVar(&c.AgreeNum, "agreeNum", c.AgreeNum, "agree num for pbft")
 
 	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos_test/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")
@@ -327,11 +325,10 @@ var devConfig = Config{
 	BlockchainPubkey: cipher.PubKey{},
 	BlockchainSeckey: cipher.SecKey{},
 
-	TrustAddress:          cipher.Address{},
 	BlockchainTrustPubkey: cipher.PubKey{},
 	BlockchainTrustSeckey: cipher.SecKey{},
-	TrustAddressList:      []cipher.Address{},
 	TrustPubkeyList:       []cipher.PubKey{},
+	AgreeNum:              0,
 
 	GenesisAddress:   cipher.Address{},
 	GenesisTimestamp: GenesisTimestamp,
@@ -435,10 +432,6 @@ func (c *Config) postProcess() {
 	if BlockchainSeckeyStr != "" {
 		c.BlockchainSeckey = cipher.SecKey{}
 	}
-	if TrustAddressStr != "" {
-		c.TrustAddress, err = cipher.DecodeBase58Address(TrustAddressStr)
-		panicIfError(err, "Invalid Address")
-	}
 	if BlockchainTrustPubkeyStr != "" {
 		c.BlockchainTrustPubkey, err = cipher.PubKeyFromHex(BlockchainTrustPubkeyStr)
 		panicIfError(err, "Invalid Pubkey")
@@ -452,15 +445,6 @@ func (c *Config) postProcess() {
 		c.BlockchainTrustSeckey = cipher.SecKey{}
 	}
 
-	if TrustAddressListStr != "" {
-		addresses := strings.Split(TrustAddressListStr, ",")
-		sort.Strings(addresses)
-		for _, address := range addresses {
-			trustAddressStr, err := cipher.DecodeBase58Address(address)
-			panicIfError(err, "Invalid Address")
-			c.TrustAddressList = append(c.TrustAddressList, trustAddressStr)
-		}
-	}
 	if TrustPubkeyListStr != "" {
 		pubkeys := strings.Split(TrustPubkeyListStr, ",")
 		sort.Strings(pubkeys)
@@ -650,9 +634,8 @@ func configureDaemon(c *Config) daemon.Config {
 
 	dc.Visor.Config.BlockchainTrustPubkey = c.BlockchainTrustPubkey
 	dc.Visor.Config.BlockchainTrustSeckey = c.BlockchainTrustSeckey
-	dc.Visor.Config.TrustAddress = c.TrustAddress
-	dc.Visor.Config.TrustAddressList = c.TrustAddressList
 	dc.Visor.Config.TrustPubkeyList = c.TrustPubkeyList
+	dc.Visor.Config.AgreeNum = c.AgreeNum
 
 	dc.Visor.Config.GenesisAddress = c.GenesisAddress
 	dc.Visor.Config.GenesisSignature = c.GenesisSignature

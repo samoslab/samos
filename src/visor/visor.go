@@ -101,6 +101,8 @@ type Config struct {
 
 	// How often new blocks are created by the master, in seconds
 	BlockCreationInterval uint64
+	// How often broadcast message by the genesis master, in seconds
+	BroadcastInterval uint64
 	// How often an unconfirmed txn is checked against the blockchain
 	UnconfirmedCheckInterval time.Duration
 	// How long we'll hold onto an unconfirmed txn
@@ -127,6 +129,7 @@ type Config struct {
 
 	TrustAddressList []cipher.Address
 	TrustPubkeyList  []cipher.PubKey
+	AgreeNum         int
 
 	// Genesis block sig
 	GenesisSignature cipher.Sig
@@ -163,6 +166,7 @@ func NewVisorConfig() Config {
 		BlockchainSeckey: cipher.SecKey{},
 
 		BlockCreationInterval: 2,
+		BroadcastInterval:     30,
 		//BlockCreationForceInterval: 120, //create block if no block within this many seconds
 
 		UnconfirmedCheckInterval:     time.Hour * 2,
@@ -345,6 +349,14 @@ func (vs *Visor) Run() error {
 		if err := vs.InsertTrustPubkeyList(vs.Config.TrustPubkeyList); err != nil {
 			return err
 		}
+		agreeNum := len(vs.Config.TrustPubkeyList)
+		if vs.Config.AgreeNum > 0 && vs.Config.AgreeNum <= len(vs.Config.TrustPubkeyList) {
+			agreeNum = vs.Config.AgreeNum
+		}
+		fmt.Printf("agree num is %d\n", agreeNum)
+		if err := vs.InsertAgreeNodeNum(agreeNum); err != nil {
+			return err
+		}
 	}
 
 	return vs.bcParser.Run()
@@ -398,6 +410,7 @@ func (vs *Visor) GenesisPreconditions() {
 	}
 }
 
+// IsGenesisNode genesis node return true
 func (vs *Visor) IsGenesisNode() bool {
 	if vs.Config.BlockchainSeckey != (cipher.SecKey{}) {
 		if vs.Config.BlockchainPubkey == cipher.PubKeyFromSecKey(vs.Config.BlockchainSeckey) {
@@ -423,6 +436,16 @@ func (vs *Visor) RemoveInvalidUnconfirmed() ([]cipher.SHA256, error) {
 // InsertTrustPubkeyList insert trust pubkey into bolt db
 func (vs *Visor) InsertTrustPubkeyList(pubkeys []cipher.PubKey) error {
 	return vs.trustNode.AddNodePubkey(pubkeys)
+}
+
+// InsertAgreeNodeNum set agress node number
+func (vs *Visor) InsertAgreeNodeNum(num int) error {
+	return vs.trustNode.InsertAgreeNodeNum(num)
+}
+
+// GetAgreeNodeNum agress node number
+func (vs *Visor) GetAgreeNodeNum() int {
+	return vs.trustNode.GetAgreeNodeNum()
 }
 
 // TrustNodes get trust node pubkey list

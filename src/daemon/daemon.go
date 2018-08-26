@@ -359,6 +359,12 @@ func (dm *Daemon) Run() error {
 		blockCreationTicker.Stop()
 	}
 
+	genesisInterval := time.Duration(dm.Visor.Config.Config.BroadcastInterval)
+	genesisBroadcastTicker := time.NewTicker(time.Second * genesisInterval)
+	if !dm.Visor.v.IsGenesisNode() {
+		genesisBroadcastTicker.Stop()
+	}
+
 	unconfirmedRefreshTicker := time.Tick(dm.Visor.Config.Config.UnconfirmedRefreshRate)
 	unconfirmedRemoveInvalidTicker := time.Tick(dm.Visor.Config.Config.UnconfirmedRemoveInvalidRate)
 	blocksRequestTicker := time.Tick(dm.Visor.Config.BlocksRequestRate)
@@ -367,6 +373,7 @@ func (dm *Daemon) Run() error {
 	TrustNodeAnnounceTicker := time.Tick(dm.Visor.Config.TrustNodeAnnounceRate)
 
 	PrepareRequestTicker := time.Tick(dm.Visor.Config.PrepareRequestRate)
+	AgressNodeNumRequestTicker := time.Tick(dm.Visor.Config.PrepareRequestRate)
 
 	privateConnectionsTicker := time.Tick(dm.Config.PrivateRate)
 	cullInvalidTicker := time.Tick(dm.Config.CullInvalidRate)
@@ -527,6 +534,12 @@ loop:
 				logger.Critical().Infof("Created and Broadcast a new block, version=%d seq=%d time=%d", head.Version, head.BkSeq, head.Time)
 			}
 
+		case <-genesisBroadcastTicker.C:
+			elapser.Register("genesisBroadcastTicker.C")
+			if dm.Visor.v.IsGenesisNode() {
+				dm.Visor.BroadcastMessage(dm.Pool)
+			}
+
 		case <-unconfirmedRefreshTicker:
 			elapser.Register("unconfirmedRefreshTicker")
 			// Get the transactions that turn to valid
@@ -568,6 +581,10 @@ loop:
 		case <-PrepareRequestTicker:
 			elapser.Register("PrepareRequestTicker")
 			dm.Visor.RequestPrepare(dm.Pool)
+
+		case <-AgressNodeNumRequestTicker:
+			elapser.Register("AgreeNodeNumRequestTicker")
+			dm.Visor.RequestAgreeNodeNum(dm.Pool)
 
 		case err = <-errC:
 			break loop
