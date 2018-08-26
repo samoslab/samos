@@ -602,7 +602,6 @@ func (vs *Visor) HeadBkSeq() uint64 {
 
 // ExecuteSignedBlock executes signed block
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
-	fmt.Printf("execut signed block +++++++++++++\n")
 	return vs.strand("ExecuteSignedBlock", func() error {
 		return vs.v.ExecuteSignedBlock(b)
 	})
@@ -1345,7 +1344,7 @@ func (gtm *GetAgreeNumMessage) Process(d *Daemon) {
 
 // GiveAgreeNumMessage tells the transaction of given hashes
 type GiveAgreeNumMessage struct {
-	AgreeNum int
+	AgreeNum string
 	Sig      cipher.Sig
 	c        *gnet.MessageContext `enc:"-"`
 }
@@ -1358,7 +1357,7 @@ func intHash(num int) cipher.SHA256 {
 func NewGiveAgreeNumMessage(agreeNum int, secKey cipher.SecKey) *GiveAgreeNumMessage {
 	sig := cipher.SignHash(intHash(agreeNum), secKey)
 	return &GiveAgreeNumMessage{
-		AgreeNum: agreeNum,
+		AgreeNum: strconv.Itoa(agreeNum),
 		Sig:      sig,
 	}
 }
@@ -1376,47 +1375,19 @@ func (gtm *GiveAgreeNumMessage) Process(d *Daemon) {
 		return
 	}
 
-	if gtm.AgreeNum > 0 {
+	num, err := strconv.Atoi(gtm.AgreeNum)
+	if err != nil {
+		return
+	}
+	if num > 0 {
 		// verify signature
-		verifiedHash := intHash(gtm.AgreeNum)
+		verifiedHash := intHash(num)
 		err := cipher.VerifySignature(d.Visor.v.Config.BlockchainPubkey, gtm.Sig, verifiedHash)
 		if err != nil {
 			return
 		}
-		if err := d.Visor.v.InsertAgreeNodeNum(gtm.AgreeNum); err != nil {
+		if err := d.Visor.v.InsertAgreeNodeNum(num); err != nil {
 			return
 		}
-	}
-}
-
-// AnnounceAgreeNumMessage tells a peer that we have these transactions
-type AnnounceAgreeNumMessage struct {
-	AgreeNum int
-	c        *gnet.MessageContext `enc:"-"`
-}
-
-// NewAnnounceAgreeNumMessage creates announce agreeNum message
-func NewAnnounceAgreeNumMessage(agreeNum int) *AnnounceAgreeNumMessage {
-	return &AnnounceAgreeNumMessage{
-		AgreeNum: agreeNum,
-	}
-}
-
-// Handle handle message
-func (atm *AnnounceAgreeNumMessage) Handle(mc *gnet.MessageContext,
-	daemon interface{}) error {
-	atm.c = mc
-	return daemon.(*Daemon).recordMessageEvent(atm, mc)
-}
-
-// Process process message
-func (atm *AnnounceAgreeNumMessage) Process(d *Daemon) {
-	if d.Visor.Config.DisableNetworking {
-		return
-	}
-
-	m := NewGetAgreeNumMessage()
-	if err := d.Pool.Pool.SendMessage(atm.c.Addr, m); err != nil {
-		logger.Errorf("Send GetAgreeNumMessage to %s failed: %v", atm.c.Addr, err)
 	}
 }

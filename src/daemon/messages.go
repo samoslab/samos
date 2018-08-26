@@ -61,7 +61,6 @@ func getMessageConfigs() []MessageConfig {
 		NewMessageConfig("ANNC", AnnouncePrepareMessage{}),
 		NewMessageConfig("GETA", GetAgreeNumMessage{}),
 		NewMessageConfig("GIVA", GiveAgreeNumMessage{}),
-		NewMessageConfig("ANNA", AnnounceAgreeNumMessage{}),
 	}
 }
 
