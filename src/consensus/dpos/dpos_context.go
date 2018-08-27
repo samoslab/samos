@@ -6,19 +6,17 @@ import (
 	"github.com/samoslab/samos/src/cipher"
 )
 
+// DposContext store trust pubkey
 type DposContext struct {
 	candidate []cipher.PubKey
 }
 
+// NewDposContext new instance
 func NewDposContext() *DposContext {
-	//address := []string{"2fxav8p7QFkKk8TBwmE6wvu8S8VVEyvpX8C", "CB2tqSePaPBrMiBh2513njfUtev8GfMjEX", "jFAUc1AUeAgVjc4Br5mv3baaQkuiKZ7maw"}
-	//candidate := []cipher.PubKey{}
-	//for _, v := range address {
-	//	candidate = append(candidate, cipher.MustDecodeBase58PubKey(v))
-	//}
 	return &DposContext{}
 }
 
+// GetValidators return all validators
 func (dc *DposContext) GetValidators() ([]cipher.PubKey, error) {
 	if len(dc.candidate) == 0 {
 		return dc.candidate, errors.New("zero validator")
@@ -26,6 +24,7 @@ func (dc *DposContext) GetValidators() ([]cipher.PubKey, error) {
 	return dc.candidate, nil
 }
 
+// SetValidators set valid validator
 func (dc *DposContext) SetValidators(validators []cipher.PubKey) error {
 	dc.candidate = validators
 	return nil

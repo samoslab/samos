@@ -3,6 +3,7 @@ package blockdb
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/boltdb/bolt"
@@ -78,6 +79,13 @@ func (tn *TrustNode) AddNodePubkey(pubkeys []cipher.PubKey) error {
 	})
 }
 
+// InsertAgreeNodeNum write the agress node number
+func (tn *TrustNode) InsertAgreeNodeNum(num int) error {
+	return tn.db.Update(func(tx *bolt.Tx) error {
+		return tn.AddAgressNodeNum(tx, num)
+	})
+}
+
 // AddNodePubkeyWithTx adds block with *bolt.Tx
 func (tn *TrustNode) AddNodePubkeyWithTx(tx *bolt.Tx, pubkeys []cipher.PubKey) error {
 	bkt := tx.Bucket(tn.node.Name)
@@ -95,6 +103,16 @@ func (tn *TrustNode) AddNodePubkeyWithTx(tx *bolt.Tx, pubkeys []cipher.PubKey) e
 	return bkt.Put([]byte("pubkey"), []byte(strings.Join(trustPks, ",")))
 }
 
+// AddAgressNodeNum adds num with *bolt.Tx
+func (tn *TrustNode) AddAgressNodeNum(tx *bolt.Tx, num int) error {
+	bkt := tx.Bucket(tn.node.Name)
+	if bkt == nil {
+		return fmt.Errorf("bucket %s doesn't eist", tn.node.Name)
+	}
+
+	return bkt.Put([]byte("agreeNodeNum"), []byte(strconv.Itoa(num)))
+}
+
 // GetPubkeys get all trust nodes
 func (tn *TrustNode) GetPubkeys() []cipher.PubKey {
 	return tn.getPubkeys()
@@ -110,4 +128,17 @@ func (tn *TrustNode) getPubkeys() []cipher.PubKey {
 		pubkeys = append(pubkeys, cipher.MustPubKeyFromHex(pk))
 	}
 	return pubkeys
+}
+
+// GetAgreeNodeNum get agree node num
+func (tn *TrustNode) GetAgreeNodeNum() int {
+	bin := tn.node.Get([]byte("agreeNodeNum"))
+	if bin == nil {
+		return -1
+	}
+	num, err := strconv.Atoi(string(bin))
+	if err != nil {
+		return -1
+	}
+	return num
 }

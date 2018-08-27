@@ -56,6 +56,11 @@ func getMessageConfigs() []MessageConfig {
 		NewMessageConfig("GETM", GetTrustMessage{}),
 		NewMessageConfig("GIVM", GiveTrustMessage{}),
 		NewMessageConfig("ANNM", AnnounceTrustMessage{}),
+		NewMessageConfig("GETC", GetPrepareMessage{}),
+		NewMessageConfig("GIVC", GivePrepareMessage{}),
+		NewMessageConfig("ANNC", AnnouncePrepareMessage{}),
+		NewMessageConfig("GETA", GetAgreeNumMessage{}),
+		NewMessageConfig("GIVA", GiveAgreeNumMessage{}),
 	}
 }
 

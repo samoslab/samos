@@ -359,12 +359,21 @@ func (dm *Daemon) Run() error {
 		blockCreationTicker.Stop()
 	}
 
+	genesisInterval := time.Duration(dm.Visor.Config.Config.BroadcastInterval)
+	genesisBroadcastTicker := time.NewTicker(time.Second * genesisInterval)
+	if !dm.Visor.v.IsGenesisNode() {
+		genesisBroadcastTicker.Stop()
+	}
+
 	unconfirmedRefreshTicker := time.Tick(dm.Visor.Config.Config.UnconfirmedRefreshRate)
 	unconfirmedRemoveInvalidTicker := time.Tick(dm.Visor.Config.Config.UnconfirmedRemoveInvalidRate)
 	blocksRequestTicker := time.Tick(dm.Visor.Config.BlocksRequestRate)
 	blocksAnnounceTicker := time.Tick(dm.Visor.Config.BlocksAnnounceRate)
 	TrustNodeRequestTicker := time.Tick(dm.Visor.Config.TrustNodeRequestRate)
 	TrustNodeAnnounceTicker := time.Tick(dm.Visor.Config.TrustNodeAnnounceRate)
+
+	PrepareRequestTicker := time.Tick(dm.Visor.Config.PrepareRequestRate)
+	AgressNodeNumRequestTicker := time.Tick(dm.Visor.Config.PrepareRequestRate)
 
 	privateConnectionsTicker := time.Tick(dm.Config.PrivateRate)
 	cullInvalidTicker := time.Tick(dm.Config.CullInvalidRate)
@@ -503,9 +512,14 @@ loop:
 			// Create blocks, if master chain
 			elapser.Register("blockCreationTicker.C")
 			if dm.Visor.Config.Config.IsMaster {
+				dm.Visor.v.RemoveUnconfirmBlock()
 				should, err := dm.Visor.InTurnTheNode(utc.UnixNow())
 				if err != nil || !should {
 					logger.Infof("slot not for this node: %v", err)
+					continue
+				}
+				if dm.Visor.HasUnconfirmedBlock() {
+					logger.Infof("can not make block: %v", err)
 					continue
 				}
 
@@ -517,7 +531,13 @@ loop:
 
 				// Not a critical error, but we want it visible in logs
 				head := sb.Block.Head
-				logger.Critical().Infof("Created and published a new block, version=%d seq=%d time=%d", head.Version, head.BkSeq, head.Time)
+				logger.Critical().Infof("Created and Broadcast a new block, version=%d seq=%d time=%d", head.Version, head.BkSeq, head.Time)
+			}
+
+		case <-genesisBroadcastTicker.C:
+			elapser.Register("genesisBroadcastTicker.C")
+			if dm.Visor.v.IsGenesisNode() {
+				dm.Visor.BroadcastMessage(dm.Pool)
 			}
 
 		case <-unconfirmedRefreshTicker:
@@ -557,6 +577,14 @@ loop:
 		case <-TrustNodeAnnounceTicker:
 			elapser.Register("TrustNodeAnnounceTicker")
 			dm.Visor.AnnounceTrustNode(dm.Pool)
+
+		case <-PrepareRequestTicker:
+			elapser.Register("PrepareRequestTicker")
+			dm.Visor.RequestPrepare(dm.Pool)
+
+		case <-AgressNodeNumRequestTicker:
+			elapser.Register("AgreeNodeNumRequestTicker")
+			dm.Visor.RequestAgreeNodeNum(dm.Pool)
 
 		case err = <-errC:
 			break loop
