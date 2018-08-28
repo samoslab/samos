@@ -1188,10 +1188,10 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		logger.Debugf("pubkey %s", v.Hex())
 	}
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
-		if d.Visor.v.CheckHashExistsInChain(gpm.Hash) {
-			logger.Infof("block hash %s exists in blockchain", gpm.Hash.Hex())
-			return
-		}
+		//if d.Visor.v.CheckHashExistsInChain(gpm.Hash) {
+		//	logger.Infof("block hash %s exists in blockchain", gpm.Hash.Hex())
+		//	return
+		//}
 		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {
 			logger.Errorf("AddValidator %s for hash failed: %v", pubkeyRec.Hex(), err)
