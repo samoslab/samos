@@ -13,6 +13,7 @@ import (
 // PBFT pending block data
 type PBFT struct {
 	Status        int
+	BlockNum      int
 	PendingBlocks map[cipher.SHA256]coin.SignedBlock
 	PreparedInfos map[cipher.SHA256][]cipher.PubKey
 	BlockTime     map[cipher.SHA256]int64
@@ -23,6 +24,7 @@ type PBFT struct {
 func NewPBFT() *PBFT {
 	return &PBFT{
 		Status:        0,
+		BlockNum:      0,
 		PendingBlocks: make(map[cipher.SHA256]coin.SignedBlock, 1),
 		BlockTime:     make(map[cipher.SHA256]int64, 1),
 		PreparedInfos: make(map[cipher.SHA256][]cipher.PubKey, 1),
@@ -41,6 +43,7 @@ func (p *PBFT) RemoveUnconfirmBlock() {
 			delete(p.PendingBlocks, hash)
 			delete(p.BlockTime, hash)
 			delete(p.PreparedInfos, hash)
+			p.BlockNum--
 		}
 	}
 }
@@ -77,6 +80,8 @@ func (p *PBFT) DeleteHash(hash cipher.SHA256) error {
 
 	delete(p.PendingBlocks, hash)
 	delete(p.PreparedInfos, hash)
+	delete(p.BlockTime, hash)
+	p.BlockNum--
 
 	return nil
 }
@@ -95,21 +100,24 @@ func (p *PBFT) WaitingConfirmedBlockHash() []cipher.SHA256 {
 // AddSignedBlock add a signed block
 func (p *PBFT) AddSignedBlock(sb coin.SignedBlock) error {
 	p.mutex.Lock()
+	defer p.mutex.Unlock()
 	bh := sb.Block.HashHeader()
 	if _, ok := p.PendingBlocks[bh]; ok {
-		p.mutex.Unlock()
 		return errors.New("the block has added")
 	}
-	p.PendingBlocks[bh] = sb
-	p.BlockTime[bh] = utc.UnixNow()
 
+	if p.BlockNum >= 1 {
+		return errors.New("has unconfirmed block, this block cannot added")
+	}
 	pubkeyRec, err := cipher.PubKeyFromSig(sb.Sig, bh) //recovered pubkey
 	if err != nil {
-		p.mutex.Unlock()
 		return errors.New("Invalid sig: PubKey recovery failed")
 	}
-	p.mutex.Unlock()
-	return p.AddValidator(bh, pubkeyRec)
+	p.PendingBlocks[bh] = sb
+	p.PreparedInfos[bh] = []cipher.PubKey{pubkeyRec}
+	p.BlockTime[bh] = utc.UnixNow()
+	p.BlockNum++
+	return nil
 }
 
 // GetBlockValidators returns all pubkeys for block hash
@@ -145,7 +153,7 @@ func (p *PBFT) AddValidator(hash cipher.SHA256, pubkey cipher.PubKey) error {
 	defer p.mutex.Unlock()
 	validators, ok := p.PreparedInfos[hash]
 	if !ok {
-		validators = []cipher.PubKey{}
+		return errors.New("this block hash not added into prepared infos")
 	}
 	for _, pk := range validators {
 		if pk == pubkey {

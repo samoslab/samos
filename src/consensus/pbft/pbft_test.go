@@ -29,6 +29,23 @@ func makeNewBlock(uxHash cipher.SHA256) (*coin.Block, error) {
 		}}
 	return coin.NewBlock(prev, 100+20, uxHash, coin.Transactions{coin.Transaction{}}, _feeCalc)
 }
+func makeNewBlock1(uxHash cipher.SHA256) (*coin.Block, error) {
+	body := coin.BlockBody{
+		Transactions: coin.Transactions{coin.Transaction{}},
+	}
+
+	prev := coin.Block{
+		Body: body,
+		Head: coin.BlockHeader{
+			Version:  0x02,
+			Time:     1000,
+			BkSeq:    1,
+			Fee:      100,
+			PrevHash: uxHash,
+			BodyHash: body.Hash(),
+		}}
+	return coin.NewBlock(prev, 1000+20, uxHash, coin.Transactions{coin.Transaction{}}, _feeCalc)
+}
 
 func TestPbft(t *testing.T) {
 	pbft := NewPBFT()
@@ -48,8 +65,10 @@ func TestPbft(t *testing.T) {
 	}
 
 	err = pbft.AddSignedBlock(sb)
-	hash := sb.HashHeader()
 	assert.NoError(t, err)
+	err = pbft.AddSignedBlock(sb)
+	assert.Equal(t, err, errors.New("the block has added"))
+	hash := sb.HashHeader()
 	err = pbft.AddValidator(hash, pubkey)
 	assert.Error(t, err)
 	err = pbft.AddValidator(hash, pubkey1)
@@ -63,6 +82,22 @@ func TestPbft(t *testing.T) {
 	num, err = pbft.ValidatorNumber(hash)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, num)
+
+	temphashstr := "abcd12345678"
+	temphash := cipher.SumSHA256([]byte(temphashstr))
+	err = pbft.AddValidator(temphash, pubkey2)
+	assert.Equal(t, err, errors.New("this block hash not added into prepared infos"))
+
+	block1, err := makeNewBlock1(temphash)
+	assert.NoError(t, err)
+	seckey1 := cipher.MustSecKeyFromHex("ebfb674103d75439360694cba709f522ab461d75914c7868204101927bf08b36")
+	sig1 := cipher.SignHash(block.HashHeader(), seckey1)
+	sb1 := coin.SignedBlock{
+		Block: *block1,
+		Sig:   sig1,
+	}
+	err = pbft.AddSignedBlock(sb1)
+	assert.Equal(t, err, errors.New("has unconfirmed block, this block cannot added"))
 
 	err = pbft.CheckPubkeyExists(hash, pubkey1)
 	assert.NoError(t, err)

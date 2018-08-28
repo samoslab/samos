@@ -1180,21 +1180,18 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		logger.Errorf("Invalid sig: PubKey recovery failed: %v", err)
 		return
 	}
-	pubkeys, err := d.Visor.v.GetBlockValidators(gpm.Hash)
-	if err != nil {
-		logger.Errorf("Get block %s validator failed", gpm.Hash.Hex())
-	}
-	for _, v := range pubkeys {
-		logger.Debugf("pubkey %s", v.Hex())
-	}
 	if d.Visor.v.IsTrustPubkey(pubkeyRec) {
-		//if d.Visor.v.CheckHashExistsInChain(gpm.Hash) {
-		//	logger.Infof("block hash %s exists in blockchain", gpm.Hash.Hex())
-		//	return
-		//}
-		err := d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
+		pubkeys, err := d.Visor.v.GetBlockValidators(gpm.Hash)
+		if err != nil {
+			logger.Errorf("Get block %s validator failed, waiting pending block added", gpm.Hash.Hex())
+			return
+		}
+		err = d.Visor.v.AddValidator(gpm.Hash, pubkeyRec)
 		if err != nil {
 			logger.Errorf("AddValidator %s for hash failed: %v", pubkeyRec.Hex(), err)
+		}
+		for _, v := range pubkeys {
+			logger.Debugf("pubkey %s", v.Hex())
 		}
 		creatorNum := len(d.Visor.v.TrustNodes())
 		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
