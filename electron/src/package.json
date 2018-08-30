@@ -1,7 +1,7 @@
 {
   "main": "electron-main.js",
   "license": "MIT",
-  "description": "samos wallet",
+  "description": "samostest wallet",
   "dependencies": {
     "electron-debug": "^1.0.1",
     "electron-log": "^1.2.2",

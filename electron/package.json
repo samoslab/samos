@@ -1,13 +1,13 @@
 {
-    "name": "samos",
-    "productName": "Samos",
-    "author": "samos",
+    "name": "samostest",
+    "productName": "Samostest",
+    "author": "samostest",
     "main": "src/electron-main.js",
     "version": "0.23.2",
-    "description": "samos wallet",
+    "description": "samostest wallet",
     "license": "MIT",
     "build": {
-        "appId": "io.samos.samos",
+        "appId": "io.samos.samostest",
         "nsis": {
             "oneClick": false,
             "allowToChangeInstallationDirectory": true
@@ -56,7 +56,7 @@
                 ]
             },
             {
-                "from": "./samos/",
+                "from": "./samostest/",
                 "to": "./app/dist/"
             }
         ],
