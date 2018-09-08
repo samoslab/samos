@@ -32,7 +32,7 @@ import (
 
 var (
 	// Version of the node. Can be set by -ldflags
-	Version = "0.23.0"
+	Version = "1.2.0"
 	// Commit ID. Can be set by -ldflags
 	Commit = ""
 	// Branch name. Can be set by -ldflags
