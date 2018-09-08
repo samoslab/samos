@@ -16,6 +16,8 @@ import (
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
+	"github.com/samoslab/samos/src/consensus/dpos"
+	"github.com/samoslab/samos/src/consensus/pbft"
 	"github.com/samoslab/samos/src/testutil"
 	_require "github.com/samoslab/samos/src/testutil/require"
 	"github.com/samoslab/samos/src/util/fee"
@@ -39,12 +41,12 @@ func readAll(t *testing.T, f string) []byte {
 	return b
 }
 
-func mustParsePubkey(t *testing.T) cipher.PubKey {
+func mustParsePubkey(t *testing.T) []cipher.PubKey {
 	// Parse the blockchain pubkey associated with this corrupted test db
 	t.Helper()
 	pubkey, err := cipher.PubKeyFromHex(blockchainPubkeyStr)
 	require.NoError(t, err)
-	return pubkey
+	return []cipher.PubKey{pubkey}
 }
 
 func writeDBFile(t *testing.T, badDBFile string, badDBData []byte) {
@@ -149,7 +151,7 @@ func TestVisorCreateBlock(t *testing.T) {
 	db, shutdown := testutil.PrepareDB(t)
 	defer shutdown()
 
-	db, bc, err := loadBlockchain(db, genPublic, false)
+	db, bc, err := loadBlockchain(db, []cipher.PubKey{genPublic}, false)
 	require.NoError(t, err)
 
 	unconfirmed := NewUnconfirmedTxnPool(db)
@@ -158,13 +160,22 @@ func TestVisorCreateBlock(t *testing.T) {
 	cfg.DBPath = db.Path()
 	cfg.IsMaster = false
 	cfg.BlockchainPubkey = genPublic
+	cfg.BlockchainTrustPubkey = genPublic
 	cfg.GenesisAddress = genAddress
+	cfg.TrustPubkeyList = []cipher.PubKey{cfg.BlockchainTrustPubkey}
+	dpos := dpos.NewDpos(cfg.BlockchainTrustPubkey)
+	dpos.SetTrustNode(cfg.TrustPubkeyList)
+	tn, err := blockdb.NewTrustNode(db)
+	assert.NoError(t, err)
 
 	v := &Visor{
 		Config:      cfg,
 		Unconfirmed: unconfirmed,
 		Blockchain:  bc,
 		db:          db,
+		pbft:        pbft.NewPBFT(),
+		dpos:        dpos,
+		trustNode:   tn,
 	}
 
 	// CreateBlock panics if called when not master
@@ -174,6 +185,7 @@ func TestVisorCreateBlock(t *testing.T) {
 
 	v.Config.IsMaster = true
 	v.Config.BlockchainSeckey = genSecret
+	v.Config.BlockchainTrustSeckey = genSecret
 
 	addGenesisBlock(t, v.Blockchain)
 	gb := v.Blockchain.GetGenesisBlock()
@@ -196,6 +208,8 @@ func TestVisorCreateBlock(t *testing.T) {
 	v.Config.MaxBlockSize = txn.Size()
 	sb, err := v.CreateAndExecuteBlock()
 	require.NoError(t, err)
+	err = v.StartExecuteSignedBlock(sb.HashHeader())
+	assert.NoError(t, err)
 	require.Equal(t, 1, len(sb.Body.Transactions))
 	require.Equal(t, 0, unconfirmed.Len())
 	v.Config.MaxBlockSize = 1024 * 4
@@ -300,7 +314,7 @@ func TestVisorInjectTransaction(t *testing.T) {
 	db, shutdown := testutil.PrepareDB(t)
 	defer shutdown()
 
-	db, bc, err := loadBlockchain(db, genPublic, false)
+	db, bc, err := loadBlockchain(db, []cipher.PubKey{genPublic}, false)
 	require.NoError(t, err)
 
 	unconfirmed := NewUnconfirmedTxnPool(db)
@@ -311,11 +325,20 @@ func TestVisorInjectTransaction(t *testing.T) {
 	cfg.BlockchainPubkey = genPublic
 	cfg.GenesisAddress = genAddress
 
+	cfg.BlockchainTrustPubkey = genPublic
+	cfg.TrustPubkeyList = []cipher.PubKey{cfg.BlockchainTrustPubkey}
+	dpos := dpos.NewDpos(cfg.BlockchainTrustPubkey)
+	dpos.SetTrustNode(cfg.TrustPubkeyList)
+	tn, err := blockdb.NewTrustNode(db)
+	assert.NoError(t, err)
 	v := &Visor{
 		Config:      cfg,
 		Unconfirmed: unconfirmed,
 		Blockchain:  bc,
 		db:          db,
+		pbft:        pbft.NewPBFT(),
+		dpos:        dpos,
+		trustNode:   tn,
 	}
 
 	// CreateBlock panics if called when not master
@@ -325,6 +348,7 @@ func TestVisorInjectTransaction(t *testing.T) {
 
 	v.Config.IsMaster = true
 	v.Config.BlockchainSeckey = genSecret
+	v.Config.BlockchainTrustSeckey = genSecret
 
 	addGenesisBlock(t, v.Blockchain)
 	gb := v.Blockchain.GetGenesisBlock()
@@ -349,6 +373,8 @@ func TestVisorInjectTransaction(t *testing.T) {
 	// Execute a block to clear this transaction from the pool
 	sb, err := v.CreateAndExecuteBlock()
 	require.NoError(t, err)
+	err = v.StartExecuteSignedBlock(sb.HashHeader())
+	assert.NoError(t, err)
 	require.Equal(t, 1, len(sb.Body.Transactions))
 	require.Equal(t, 2, len(sb.Body.Transactions[0].Out))
 	require.Equal(t, 0, unconfirmed.Len())
@@ -1682,7 +1708,7 @@ func TestRefreshUnconfirmed(t *testing.T) {
 	db, shutdown := testutil.PrepareDB(t)
 	defer shutdown()
 
-	db, bc, err := loadBlockchain(db, genPublic, false)
+	db, bc, err := loadBlockchain(db, []cipher.PubKey{genPublic}, false)
 	require.NoError(t, err)
 
 	unconfirmed := NewUnconfirmedTxnPool(db)
@@ -1778,7 +1804,7 @@ func TestRemoveInvalidUnconfirmedDoubleSpendArbitrating(t *testing.T) {
 	db, shutdown := testutil.PrepareDB(t)
 	defer shutdown()
 
-	db, bc, err := loadBlockchain(db, genPublic, true)
+	db, bc, err := loadBlockchain(db, []cipher.PubKey{genPublic}, true)
 	require.NoError(t, err)
 
 	unconfirmed := NewUnconfirmedTxnPool(db)
@@ -1789,12 +1815,22 @@ func TestRemoveInvalidUnconfirmedDoubleSpendArbitrating(t *testing.T) {
 	cfg.BlockchainPubkey = genPublic
 	cfg.GenesisAddress = genAddress
 	cfg.BlockchainSeckey = genSecret
+	cfg.BlockchainTrustSeckey = genSecret
 
+	cfg.BlockchainTrustPubkey = genPublic
+	cfg.TrustPubkeyList = []cipher.PubKey{cfg.BlockchainTrustPubkey}
+	dpos := dpos.NewDpos(cfg.BlockchainTrustPubkey)
+	dpos.SetTrustNode(cfg.TrustPubkeyList)
+	tn, err := blockdb.NewTrustNode(db)
+	assert.NoError(t, err)
 	v := &Visor{
 		Config:      cfg,
 		Unconfirmed: unconfirmed,
 		Blockchain:  bc,
 		db:          db,
+		pbft:        pbft.NewPBFT(),
+		dpos:        dpos,
+		trustNode:   tn,
 	}
 
 	addGenesisBlock(t, v.Blockchain)
@@ -1827,6 +1863,8 @@ func TestRemoveInvalidUnconfirmedDoubleSpendArbitrating(t *testing.T) {
 	// Execute a block, txn2 should be included because it has a higher fee
 	sb, err := v.CreateAndExecuteBlock()
 	require.NoError(t, err)
+	err = v.StartExecuteSignedBlock(sb.HashHeader())
+	assert.NoError(t, err)
 	require.Equal(t, 1, len(sb.Body.Transactions))
 	require.Equal(t, 2, len(sb.Body.Transactions[0].Out))
 	require.Equal(t, 1, unconfirmed.Len())
