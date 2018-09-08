@@ -47,19 +47,19 @@ var (
 	logger = logging.MustGetLogger("main")
 
 	// GenesisSignatureStr hex string of genesis signature
-	GenesisSignatureStr = "8970950ab1d54faef79adfc4a4942db55b8123b05124b8cf441128566c3928214abb5537aad196555770f8824f36e42d48ddc5b7c1dc0991b26e09d33d639ba800"
+	GenesisSignatureStr = "73874031bb09f93f7a7acfb23cd6b823abaa33cdeb07806ea57c998c715b99d07ee7b599df1c35526cfee8d91c7204194bbf8880f6646714e72dcca1b80d09de00"
 	// GenesisAddressStr genesis address string
-	GenesisAddressStr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
+	GenesisAddressStr = "2PzndHacXbmM8GNjMsA5dDTiyQFiKzjpFzX"
 	// BlockchainPubkeyStr pubic key string
-	BlockchainPubkeyStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563"
+	BlockchainPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
 	// BlockchainSeckeyStr empty private key string
 	BlockchainSeckeyStr = ""
 
 	TrustAddressStr          = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
-	BlockchainTrustPubkeyStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563"
+	BlockchainTrustPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
 	BlockchainTrustSeckeyStr = ""
 
-	TrustPubkeyListStr = "03cec5e9f78524a4283868b79cf3a2b406bcd7956cd9b4be325e070a1cb1881563,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
+	TrustPubkeyListStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -71,8 +71,10 @@ var (
 
 	// DefaultConnections the default trust node addresses
 	DefaultConnections = []string{
-		"47.52.211.167:18858",
-		"47.52.222.166:18858",
+		"47.52.211.167:8858",
+		"47.74.7.161:8858",
+		"47.254.130.80:8858",
+		"47.52.222.166:8858",
 	}
 )
 
@@ -213,8 +215,8 @@ func (c *Config) register() {
 
 	flag.BoolVar(&c.LaunchBrowser, "launch-browser", c.LaunchBrowser, "launch system default webbrowser at client startup")
 	flag.BoolVar(&c.PrintWebInterfaceAddress, "print-web-interface-address", c.PrintWebInterfaceAddress, "print configured web interface address and exit")
-	flag.StringVar(&c.DataDirectory, "data-dir", c.DataDirectory, "directory to store app data (defaults to ~/.samos_test)")
-	flag.StringVar(&c.DBPath, "db-path", c.DBPath, "path of database file (defaults to ~/.samos_test/data.db)")
+	flag.StringVar(&c.DataDirectory, "data-dir", c.DataDirectory, "directory to store app data (defaults to ~/.samos)")
+	flag.StringVar(&c.DBPath, "db-path", c.DBPath, "path of database file (defaults to ~/.samos/data.db)")
 	flag.BoolVar(&c.DBReadOnly, "db-read-only", c.DBReadOnly, "open bolt db read-only")
 	flag.StringVar(&c.ConnectTo, "connect-to", c.ConnectTo, "connect to this ip only")
 	flag.BoolVar(&c.ProfileCPU, "profile-cpu", c.ProfileCPU, "enable cpu profiling")
@@ -243,7 +245,7 @@ func (c *Config) register() {
 	flag.StringVar(&TrustPubkeyListStr, "trust-pubkey-list", TrustPubkeyListStr, "trust pubkey list")
 	flag.IntVar(&c.AgreeNum, "agreeNum", c.AgreeNum, "agree num for pbft")
 
-	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos_test/wallet/")
+	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")
 	flag.IntVar(&c.PeerlistSize, "peerlist-size", c.PeerlistSize, "The peer list size")
 	flag.DurationVar(&c.OutgoingConnectionsRate, "connection-rate", c.OutgoingConnectionsRate, "How often to make an outgoing connection")
@@ -275,7 +277,7 @@ var devConfig = Config{
 	// public interface
 	Address: "",
 	//gnet uses this for TCP incoming and outgoing
-	Port: 18858,
+	Port: 8858,
 	// MaxOutgoingConnections is the maximum outgoing connections allowed.
 	MaxOutgoingConnections: 16,
 	DownloadPeerList:       false,
@@ -287,7 +289,7 @@ var devConfig = Config{
 	//AddressVersion: "test",
 	// Remote web interface
 	WebInterface:             true,
-	WebInterfacePort:         18640,
+	WebInterfacePort:         8640,
 	WebInterfaceAddr:         "127.0.0.1",
 	WebInterfaceCert:         "",
 	WebInterfaceKey:          "",
@@ -295,13 +297,13 @@ var devConfig = Config{
 	PrintWebInterfaceAddress: false,
 
 	RPCInterface:     true,
-	RPCInterfacePort: 18650,
+	RPCInterfacePort: 8650,
 	RPCInterfaceAddr: "127.0.0.1",
 	RPCThreadNum:     5,
 
 	LaunchBrowser: false,
-	// Data directory holds app data -- defaults to ~/.samos_test
-	DataDirectory: filepath.Join(home, ".samos_test"),
+	// Data directory holds app data -- defaults to ~/.samos
+	DataDirectory: filepath.Join(home, ".samos"),
 	// Web GUI static resources
 	GUIDirectory: "./src/gui/static/",
 	// Logging
@@ -339,7 +341,7 @@ var devConfig = Config{
 	// Enable cpu profiling
 	ProfileCPU: false,
 	// Where the file is written to
-	ProfileCPUFile: "samos_test.prof",
+	ProfileCPUFile: "samos.prof",
 	// HTTP profiling interface (see http://golang.org/pkg/net/http/pprof/)
 	HTTPProf: false,
 	// Will force it to connect to this ip:port, instead of waiting for it
@@ -874,7 +876,7 @@ func main() {
 func InitTransaction() coin.Transaction {
 	var tx coin.Transaction
 
-	output := cipher.MustSHA256FromHex("98bc6f88740f70a371748cb5569cedcaf495956fe684eb33500c8f6408592759")
+	output := cipher.MustSHA256FromHex("c8d02e832715e862f9c6ac7e763151483bb990e916cf5a75defa0d8029c23399")
 	tx.PushInput(output)
 
 	addrs := visor.GetDistributionAddresses()
@@ -893,7 +895,7 @@ func InitTransaction() coin.Transaction {
 		tx.PushOutput(addr, visor.DistributionAddressInitialBalance*1e6, 1)
 	}
 	seckeys := make([]cipher.SecKey, 1)
-	seckey := "0627aa3953f78239d3ff89bf3eccef63410f78b9d7dc23ad05f460cb8e3cc8e8"
+	seckey := ""
 	seckeys[0] = cipher.MustSecKeyFromHex(seckey)
 	tx.SignInputs(seckeys)
 	/*
