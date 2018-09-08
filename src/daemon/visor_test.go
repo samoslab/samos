@@ -69,7 +69,7 @@ func MakeTransactionForChain(t *testing.T, bc *visor.Blockchain, ux coin.UxOut, 
 
 func MakeBlockchain(t *testing.T, db *bolt.DB, seckey cipher.SecKey) *visor.Blockchain {
 	pubkey := cipher.PubKeyFromSecKey(seckey)
-	b, err := visor.NewBlockchain(db, pubkey)
+	b, err := visor.NewBlockchain(db, []cipher.PubKey{pubkey})
 	require.NoError(t, err)
 	gb, err := coin.NewGenesisBlock(GenesisAddress, GenesisCoins, GenesisTime)
 	if err != nil {

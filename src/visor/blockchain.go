@@ -59,7 +59,7 @@ type BlockListener func(b coin.Block)
 // Blockchain maintains blockchain and provides apis for accessing the chain.
 type Blockchain struct {
 	db          *bolt.DB
-	pubkey      cipher.PubKey
+	pubkey      []cipher.PubKey
 	blkListener []BlockListener
 
 	// arbitrating mode, if in arbitrating mode, when master node execute blocks,
@@ -78,7 +78,7 @@ func DefaultWalker(hps []coin.HashPair) cipher.SHA256 {
 }
 
 // NewBlockchain use the walker go through the tree and update the head and unspent outputs.
-func NewBlockchain(db *bolt.DB, pubkey cipher.PubKey, ops ...Option) (*Blockchain, error) {
+func NewBlockchain(db *bolt.DB, pubkey []cipher.PubKey, ops ...Option) (*Blockchain, error) {
 	chainstore, err := blockdb.NewBlockchain(db, DefaultWalker)
 	if err != nil {
 		return nil, err

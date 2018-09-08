@@ -1,6 +1,7 @@
 package coin
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/samoslab/samos/src/cipher"
@@ -45,12 +46,27 @@ type BlockBody struct {
 // SignedBlock signed block
 type SignedBlock struct {
 	Block
-	Sig cipher.Sig
+	Sig     cipher.Sig
+	Pending bool
 }
 
 // VerifySignature verifies that the block is signed by pubkey
-func (b SignedBlock) VerifySignature(pubkey cipher.PubKey) error {
-	return cipher.VerifySignature(pubkey, b.Sig, b.Block.HashHeader())
+func (b SignedBlock) VerifySignature(pubkeys []cipher.PubKey) error {
+	pubkeyRec, err := cipher.PubKeyFromSig(b.Sig, b.Block.HashHeader()) //recovered pubkey
+	if err != nil {
+		return errors.New("Invalid sig: PubKey recovery failed")
+	}
+	validPubkey := false
+	for _, pubkey := range pubkeys {
+		if pubkey == pubkeyRec {
+			validPubkey = true
+		}
+	}
+	if !validPubkey {
+		return errors.New("not trust public key")
+	}
+
+	return cipher.VerifySignature(pubkeyRec, b.Sig, b.Block.HashHeader())
 }
 
 // NewBlock creates new block.
