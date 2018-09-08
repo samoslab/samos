@@ -34,7 +34,7 @@ func run() error {
 	switch *coin {
 	case "btc", "bitcoin":
 		coinType = wallet.CoinTypeBitcoin
-	case "samos", "samos":
+	case "samo", "samos":
 		coinType = wallet.CoinTypeSamos
 	default:
 		return errors.New("unknown coin type")
