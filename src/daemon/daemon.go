@@ -528,6 +528,10 @@ loop:
 					logger.Errorf("Failed to create block: %v", err)
 					continue
 				}
+				err = CanMakeBlock(dm, sb.HashHeader())
+				if err != nil {
+					continue
+				}
 
 				// Not a critical error, but we want it visible in logs
 				head := sb.Block.Head

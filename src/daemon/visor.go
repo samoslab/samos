@@ -660,6 +660,27 @@ func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
 	return vs.v.AddPendingBlock(block)
 }
 
+func CanMakeBlock(dm *Daemon, hash cipher.SHA256) error {
+	creatorNum := len(dm.Visor.V.TrustNodes())
+	currentNum, err := dm.Visor.V.GetValidatorNumber(hash)
+	if err != nil {
+		logger.Errorf("Get Validator Number failed: %v", err)
+		return err
+	}
+	agreeNum := dm.Visor.V.GetAgreeNodeNum()
+	if agreeNum <= 0 || agreeNum > creatorNum {
+		agreeNum = creatorNum
+	}
+	if currentNum >= agreeNum {
+		err := dm.Visor.V.StartExecuteSignedBlock(hash)
+		if err != nil {
+			logger.Errorf("Start Execute Block %s failed: %v", hash, err)
+			return err
+		}
+	}
+	return nil
+}
+
 // Communication layer for the coin pkg
 
 // GetBlocksMessage sent to request blocks since LastBlock
@@ -1193,26 +1214,10 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		for _, v := range pubkeys {
 			logger.Debugf("pubkey %s", v.Hex())
 		}
-		creatorNum := len(d.Visor.v.TrustNodes())
-		currentNum, err := d.Visor.v.GetValidatorNumber(gpm.Hash)
+		err = CanMakeBlock(d, gpm.Hash)
 		if err != nil {
-			logger.Errorf("Get Validator Number failed: %v", err)
 			return
 		}
-		agreeNum := d.Visor.v.GetAgreeNodeNum()
-		if agreeNum <= 0 || agreeNum > creatorNum {
-			agreeNum = creatorNum
-		}
-		logger.Debugf("currentNum: %d, agreeNum: %d, creatorNum: %d", currentNum, agreeNum, creatorNum)
-		if currentNum >= agreeNum {
-			logger.Critical().Infof("Execute signed block %s", gpm.Hash.Hex())
-			err := d.Visor.v.StartExecuteSignedBlock(gpm.Hash)
-			if err != nil {
-				logger.Errorf("Start Execute Block %s failed: %v", gpm.Hash.Hex(), err)
-				return
-			}
-		}
-
 	}
 
 	if d.Visor.v.Config.IsMaster {
