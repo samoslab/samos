@@ -2,7 +2,7 @@
 
 A Samos node offers multiple interfaces:
 
-* REST API on port 8640
+* REST API on port 18640
 * [JSON-RPC 2.0 API on port 8081](https://github.com/samoslab/sky-fiber-jsonrpc/blob/master/README.md) **another service**
 
 The API interfaces do not support authentication or encryption so they should only be used over localhost.

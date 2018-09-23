@@ -107,8 +107,8 @@ $ docker run -ti --rm \
     -v samos-data:/data \
     -v samos-wallet:/wallet \
     -p 8858:8858\
-    -p 8640:8640 \
-    -p 8650:8650 \
+    -p 18640:18640 \
+    -p 18650:18650 \
     samos/samos
 ```
 
@@ -125,9 +125,9 @@ example will show you the available options.
 docker run --rm samos/samos -help
 ```
 
-Access the dashboard: [http://localhost:8640](http://localhost:8640).
+Access the dashboard: [http://localhost:18640](http://localhost:18640).
 
-Access the API: [http://localhost:8640/version](http://localhost:8640/version).
+Access the API: [http://localhost:18640/version](http://localhost:18640/version).
 
 ### Building your own images
 

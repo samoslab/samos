@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -12,11 +11,12 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"runtime/pprof"
+	"sort"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 
-	"github.com/howeyc/gopass"
 	"github.com/samoslab/samos/src/api/webrpc"
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
@@ -24,7 +24,6 @@ import (
 	"github.com/samoslab/samos/src/gui"
 	"github.com/samoslab/samos/src/util/browser"
 	"github.com/samoslab/samos/src/util/cert"
-	"github.com/samoslab/samos/src/util/encrypt"
 	"github.com/samoslab/samos/src/util/file"
 	"github.com/samoslab/samos/src/util/logging"
 	"github.com/samoslab/samos/src/visor"
@@ -33,7 +32,7 @@ import (
 
 var (
 	// Version of the node. Can be set by -ldflags
-	Version = "0.23.0"
+	Version = "1.2.3"
 	// Commit ID. Can be set by -ldflags
 	Commit = ""
 	// Branch name. Can be set by -ldflags
@@ -55,6 +54,12 @@ var (
 	BlockchainPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
 	// BlockchainSeckeyStr empty private key string
 	BlockchainSeckeyStr = ""
+
+	TrustAddressStr          = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
+	BlockchainTrustPubkeyStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e"
+	BlockchainTrustSeckeyStr = ""
+
+	TrustPubkeyListStr = "02aecd90febe163da3c4ac5bb711d9a87b2950d11413541acc9bda17fbda47954e,02d15bf28c4ed2c39b35b2be2f8bcde1318e2b3b65fe2a676db39b520bee9bfe86,02e99a1338841e8b1f192337d2c6157045faa0cfe3b8a02210283aed7f5ad6880d"
 
 	// BlockchainSeckeyFile encrypted seckey file
 	BlockchainSeckeyFile = ""
@@ -158,6 +163,11 @@ type Config struct {
 	BlockchainPubkey cipher.PubKey
 	BlockchainSeckey cipher.SecKey
 
+	BlockchainTrustPubkey cipher.PubKey
+	BlockchainTrustSeckey cipher.SecKey
+	TrustPubkeyList       []cipher.PubKey
+
+	AgreeNum int
 	/* Developer options */
 
 	// Enable cpu profiling
@@ -228,6 +238,12 @@ func (c *Config) register() {
 	flag.StringVar(&GenesisAddressStr, "genesis-address", GenesisAddressStr, "genesis address")
 	flag.StringVar(&GenesisSignatureStr, "genesis-signature", GenesisSignatureStr, "genesis block signature")
 	flag.Uint64Var(&c.GenesisTimestamp, "genesis-timestamp", c.GenesisTimestamp, "genesis block timestamp")
+
+	flag.StringVar(&BlockchainTrustPubkeyStr, "trust-public-key", BlockchainTrustPubkeyStr, "public key of the trust node")
+	flag.StringVar(&BlockchainTrustSeckeyStr, "trust-secret-key", BlockchainTrustSeckeyStr, "secret key, set for trust node")
+	flag.StringVar(&TrustAddressStr, "trust-address", TrustAddressStr, "trust node address")
+	flag.StringVar(&TrustPubkeyListStr, "trust-pubkey-list", TrustPubkeyListStr, "trust pubkey list")
+	flag.IntVar(&c.AgreeNum, "agreeNum", c.AgreeNum, "agree num for pbft")
 
 	flag.StringVar(&c.WalletDirectory, "wallet-dir", c.WalletDirectory, "location of the wallet files. Defaults to ~/.samos/wallet/")
 	flag.IntVar(&c.MaxOutgoingConnections, "max-outgoing-connections", c.MaxOutgoingConnections, "The maximum outgoing connections allowed")
@@ -311,6 +327,11 @@ var devConfig = Config{
 	BlockchainPubkey: cipher.PubKey{},
 	BlockchainSeckey: cipher.SecKey{},
 
+	BlockchainTrustPubkey: cipher.PubKey{},
+	BlockchainTrustSeckey: cipher.SecKey{},
+	TrustPubkeyList:       []cipher.PubKey{},
+	AgreeNum:              0,
+
 	GenesisAddress:   cipher.Address{},
 	GenesisTimestamp: GenesisTimestamp,
 	GenesisSignature: cipher.Sig{},
@@ -358,35 +379,35 @@ func (c *Config) Parse() {
 		flag.Usage()
 		os.Exit(0)
 	}
-	if c.RunMaster == true && BlockchainSeckeyStr == "" {
-		if BlockchainSeckeyFile == "" {
-			logger.Error("master-secret-file must not empty")
-			os.Exit(1)
-		}
-		if _, err := os.Stat(BlockchainSeckeyFile); os.IsNotExist(err) {
-			logger.Error("%s not exists", BlockchainSeckeyFile)
-			os.Exit(1)
-		}
-		fmt.Printf("input password\n")
-		key, err := gopass.GetPasswd()
-		if err != nil {
-			logger.Error("password input error")
-			os.Exit(1)
-		}
-		encryptMsg, err := ioutil.ReadFile(BlockchainSeckeyFile)
-		if err != nil {
-			logger.Error("read secret file failed, %+v", err)
-			os.Exit(1)
-		}
+	//if c.RunMaster == true && BlockchainSeckeyStr == "" {
+	//	if BlockchainSeckeyFile == "" {
+	//		logger.Error("master-secret-file must not empty")
+	//		os.Exit(1)
+	//	}
+	//	if _, err := os.Stat(BlockchainSeckeyFile); os.IsNotExist(err) {
+	//		logger.Error("%s not exists", BlockchainSeckeyFile)
+	//		os.Exit(1)
+	//	}
+	//	fmt.Printf("input password\n")
+	//	key, err := gopass.GetPasswd()
+	//	if err != nil {
+	//		logger.Error("password input error")
+	//		os.Exit(1)
+	//	}
+	//	encryptMsg, err := ioutil.ReadFile(BlockchainSeckeyFile)
+	//	if err != nil {
+	//		logger.Error("read secret file failed, %+v", err)
+	//		os.Exit(1)
+	//	}
 
-		msg, err := encrypt.Decrypt(key, string(encryptMsg))
-		if err != nil {
-			logger.Error("decrypt failed, please input corrent password: error %+v", err)
-			os.Exit(1)
-		}
+	//	msg, err := encrypt.Decrypt(key, string(encryptMsg))
+	//	if err != nil {
+	//		logger.Error("decrypt failed, please input corrent password: error %+v", err)
+	//		os.Exit(1)
+	//	}
 
-		BlockchainSeckeyStr = msg
-	}
+	//	BlockchainSeckeyStr = msg
+	//}
 
 	c.postProcess()
 }
@@ -412,6 +433,27 @@ func (c *Config) postProcess() {
 	}
 	if BlockchainSeckeyStr != "" {
 		c.BlockchainSeckey = cipher.SecKey{}
+	}
+	if BlockchainTrustPubkeyStr != "" {
+		c.BlockchainTrustPubkey, err = cipher.PubKeyFromHex(BlockchainTrustPubkeyStr)
+		panicIfError(err, "Invalid Pubkey")
+	}
+	if BlockchainTrustSeckeyStr != "" {
+		c.BlockchainTrustSeckey, err = cipher.SecKeyFromHex(BlockchainTrustSeckeyStr)
+		panicIfError(err, "Invalid Seckey")
+		BlockchainTrustPubkeyStr = ""
+	}
+	if BlockchainTrustPubkeyStr != "" {
+		c.BlockchainTrustSeckey = cipher.SecKey{}
+	}
+
+	if TrustPubkeyListStr != "" {
+		pubkeys := strings.Split(TrustPubkeyListStr, ",")
+		sort.Strings(pubkeys)
+		for _, pubkey := range pubkeys {
+			trustPubkeyStr := cipher.MustPubKeyFromHex(pubkey)
+			c.TrustPubkeyList = append(c.TrustPubkeyList, trustPubkeyStr)
+		}
 	}
 
 	c.DataDirectory, err = file.InitDataDir(c.DataDirectory)
@@ -591,6 +633,11 @@ func configureDaemon(c *Config) daemon.Config {
 
 	dc.Visor.Config.BlockchainPubkey = c.BlockchainPubkey
 	dc.Visor.Config.BlockchainSeckey = c.BlockchainSeckey
+
+	dc.Visor.Config.BlockchainTrustPubkey = c.BlockchainTrustPubkey
+	dc.Visor.Config.BlockchainTrustSeckey = c.BlockchainTrustSeckey
+	dc.Visor.Config.TrustPubkeyList = c.TrustPubkeyList
+	dc.Visor.Config.AgreeNum = c.AgreeNum
 
 	dc.Visor.Config.GenesisAddress = c.GenesisAddress
 	dc.Visor.Config.GenesisSignature = c.GenesisSignature
@@ -787,29 +834,12 @@ func Run(c *Config) {
 	}
 
 	/*
-	   time.Sleep(5)
-	   tx := InitTransaction()
-	   _ = tx
-	   err, _ = d.Visor.Visor.InjectTransaction(tx)
-	   if err != nil {
-	       log.Panic(err)
-	   }
-	*/
-
-	/*
-	   //first transaction
-	   if c.RunMaster == true {
-	       go func() {
-	           for d.Visor.Visor.Blockchain.Head().Seq() < 2 {
-	               time.Sleep(5)
-	               tx := InitTransaction()
-	               err, _ := d.Visor.Visor.InjectTransaction(tx)
-	               if err != nil {
-	                   //log.Panic(err)
-	               }
-	           }
-	       }()
-	   }
+		time.Sleep(5)
+		tx := InitTransaction()
+		_, _, err = d.Visor.V.InjectTransaction(tx)
+		if err != nil {
+			log.Panic(err)
+		}
 	*/
 
 	select {
@@ -864,17 +894,12 @@ func InitTransaction() coin.Transaction {
 		addr := cipher.MustDecodeBase58Address(addrs[i])
 		tx.PushOutput(addr, visor.DistributionAddressInitialBalance*1e6, 1)
 	}
+	seckeys := make([]cipher.SecKey, 1)
+	seckey := ""
+	seckeys[0] = cipher.MustSecKeyFromHex(seckey)
+	tx.SignInputs(seckeys)
 	/*
-		seckeys := make([]cipher.SecKey, 1)
-		seckey := ""
-		seckeys[0] = cipher.MustSecKeyFromHex(seckey)
-		tx.SignInputs(seckeys)
-	*/
-
-	txs := make([]cipher.Sig, 1)
-	sig := "7af6be1241be6e825e902895fc1a53d7b91b09f58c48235e8ccd073a7fee09ca65771e8b84439807c96d1c7382342e2aaff115f21237a72032540aa09a4410e900"
-	txs[0] = cipher.MustSigFromHex(sig)
-	tx.Sigs = txs
+	 */
 
 	tx.UpdateHeader()
 

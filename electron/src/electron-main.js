@@ -19,7 +19,7 @@ require('electron-context-menu')({});
 
 global.eval = function() { throw new Error('bad!!'); }
 
-const defaultURL = 'http://127.0.0.1:8640/';
+const defaultURL = 'http://127.0.0.1:18640/';
 let currentURL;
 
 // Force everything localhost, in case of a leak
@@ -54,15 +54,15 @@ function startSamos() {
   var exe = (() => {
         switch (process.platform) {
   case 'darwin':
-    return path.join(appPath, '../../Resources/app/samos');
+    return path.join(appPath, '../../Resources/app/samostest');
   case 'win32':
     // Use only the relative path on windows due to short path length
     // limits
-    return './resources/app/samos.exe';
+    return './resources/app/samostest.exe';
   case 'linux':
-    return path.join(path.dirname(appPath), './resources/app/samos');
+    return path.join(path.dirname(appPath), './resources/app/samostest');
   default:
-    return './resources/app/samos';
+    return './resources/app/samostest';
   }
 })()
 

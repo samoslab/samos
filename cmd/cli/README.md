@@ -88,12 +88,12 @@ The CLI uses environment variable to manage the configurations.
 
 ### RPC_ADDR
 
-CLI will connect to samos node rpc address:`127.0.0.1:8650` by default,
+CLI will connect to samos node rpc address:`127.0.0.1:18650` by default,
 you can change the address by setting the `RPC_ADDR` env variable
 with the following command:
 
 ```bash
-$ export RPC_ADDR=127.0.0.1:8650
+$ export RPC_ADDR=127.0.0.1:18650
 ```
 
 ### WALLET_DIR
@@ -160,7 +160,7 @@ GLOBAL OPTIONS:
    --help, -h     show help
    --version, -v  print the version
 ENVIRONMENT VARIABLES:
-    RPC_ADDR: Address of RPC node. Default "127.0.0.1:8650"
+    RPC_ADDR: Address of RPC node. Default "127.0.0.1:18650"
     COIN: Name of the coin. Default "samos"
     WALLET_DIR: Directory where wallets are stored. This value is overriden by any subcommand flag specifying a wallet filename, if that filename includes a path. Default "$HOME/.$COIN/wallets"
     WALLET_NAME: Name of wallet file (without path). This value is overriden by any subcommand flag specifying a wallet filename. Default "$COIN_cli.wlt"
@@ -1489,7 +1489,7 @@ $ samos-cli status
  "num_of_blocks": 21210,
  "hash_of_last_block": "d5797705bfc0ac7956f3eeaa083aec4e89a6b27ada7499c5a53dad2fda84c5f9",
  "time_since_last_block": "18446744073709551591s",
- "webrpc_address": "127.0.0.1:8650"
+ "webrpc_address": "127.0.0.1:18650"
 }
 ```
 </details>
