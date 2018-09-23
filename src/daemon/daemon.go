@@ -528,6 +528,15 @@ loop:
 					logger.Errorf("Failed to create block: %v", err)
 					continue
 				}
+				err = CanMakeBlock(dm, sb.HashHeader())
+				if err != nil {
+					continue
+				}
+				err = dm.Visor.broadcastBlock(sb.ToSignedBlock(), dm.Pool)
+				if err != nil {
+					logger.Errorf("broadcast block %s failed", sb.HashHeader())
+					continue
+				}
 
 				// Not a critical error, but we want it visible in logs
 				head := sb.Block.Head

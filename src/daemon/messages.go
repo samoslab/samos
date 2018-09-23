@@ -50,6 +50,7 @@ func getMessageConfigs() []MessageConfig {
 		NewMessageConfig("GETB", GetBlocksMessage{}),
 		NewMessageConfig("GIVB", GiveBlocksMessage{}),
 		NewMessageConfig("ANNB", AnnounceBlocksMessage{}),
+		NewMessageConfig("GIPB", GivePendingBlockMessage{}),
 		NewMessageConfig("GETT", GetTxnsMessage{}),
 		NewMessageConfig("GIVT", GiveTxnsMessage{}),
 		NewMessageConfig("ANNT", AnnounceTxnsMessage{}),
