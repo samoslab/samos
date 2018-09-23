@@ -19,11 +19,11 @@ require('electron-context-menu')({});
 
 global.eval = function() { throw new Error('bad!!'); }
 
-const defaultURL = 'http://127.0.0.1:18640/';
+const defaultURL = 'http://127.0.0.1:8640/';
 let currentURL;
 
 // Force everything localhost, in case of a leak
-app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1, EXCLUDE api.coinmarketcap.com, api.github.com');
+app.commandLine.appendSwitch('host-rules', 'MAP * 127.0.0.1, EXCLUDE api.github.com');
 app.commandLine.appendSwitch('ssl-version-fallback-min', 'tls1.2');
 app.commandLine.appendSwitch('--no-proxy-server');
 app.setAsDefaultProtocolClient('samos');

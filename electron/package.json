@@ -5,7 +5,7 @@
     "main": "src/electron-main.js",
     "version": "1.2.3",
     "description": "samos wallet",
-   "license": "MIT",
+    "license": "MIT",
     "build": {
         "appId": "io.samos.samos",
         "nsis": {
