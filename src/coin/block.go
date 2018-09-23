@@ -46,8 +46,21 @@ type BlockBody struct {
 // SignedBlock signed block
 type SignedBlock struct {
 	Block
+	Sig cipher.Sig
+}
+
+// PendingSignedBlock signed block
+type PendingSignedBlock struct {
+	Block
 	Sig     cipher.Sig
 	Pending bool
+}
+
+func (psb PendingSignedBlock) ToSignedBlock() SignedBlock {
+	return SignedBlock{
+		Block: psb.Block,
+		Sig:   psb.Sig,
+	}
 }
 
 // VerifySignature verifies that the block is signed by pubkey

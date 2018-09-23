@@ -397,8 +397,19 @@ func (vs *Visor) broadcastBlock(sb coin.SignedBlock, pool *Pool) error {
 	return pool.Pool.BroadcastMessage(m)
 }
 
+// Sends a signed block to all connections.
+// TODO: deprecate, should only send to clients that request by hash
+func (vs *Visor) broadcastPendingBlock(sb coin.PendingSignedBlock, pool *Pool) error {
+	if vs.Config.DisableNetworking {
+		return nil
+	}
+
+	m := NewGivePendingBlockMessage([]coin.PendingSignedBlock{sb})
+	return pool.Pool.BroadcastMessage(m)
+}
+
 // Sends a prepare message to all connections
-func (vs *Visor) broadcastPrepareMsg(sb coin.SignedBlock, pool *Pool) error {
+func (vs *Visor) broadcastPrepareMsg(sb coin.PendingSignedBlock, pool *Pool) error {
 	if vs.Config.DisableNetworking {
 		return nil
 	}
@@ -501,12 +512,12 @@ func (vs *Visor) HasUnconfirmedBlock() bool {
 // CreateAndPublishBlock creates a block from unconfirmed transactions and sends it to the network.
 // Will panic if not running as a master chain.  Returns creation error and
 // whether it was published or not
-func (vs *Visor) CreateAndPublishBlock(pool *Pool) (coin.SignedBlock, error) {
+func (vs *Visor) CreateAndPublishBlock(pool *Pool) (coin.PendingSignedBlock, error) {
 	if vs.Config.DisableNetworking {
-		return coin.SignedBlock{}, errors.New("Visor disabled")
+		return coin.PendingSignedBlock{}, errors.New("Visor disabled")
 	}
 
-	var sb coin.SignedBlock
+	var sb coin.PendingSignedBlock
 	err := vs.strand("CreateAndPublishBlock", func() error {
 		var err error
 		sb, err = vs.v.CreateAndExecuteBlock()
@@ -514,7 +525,7 @@ func (vs *Visor) CreateAndPublishBlock(pool *Pool) (coin.SignedBlock, error) {
 			return err
 		}
 
-		err = vs.broadcastBlock(sb, pool)
+		err = vs.broadcastPendingBlock(sb, pool)
 		if err != nil {
 			return err
 		}
@@ -727,7 +738,6 @@ func (gbm *GetBlocksMessage) Process(d *Daemon) {
 	}
 
 	logger.Debugf("Got %d blocks since %d", len(blocks), gbm.LastBlock)
-	logger.Errorf("Got %d blocks since %d", len(blocks), gbm.LastBlock)
 
 	m := NewGiveBlocksMessage(blocks)
 	if err := d.Pool.Pool.SendMessage(gbm.c.Addr, m); err != nil {
@@ -775,34 +785,15 @@ func (gbm *GiveBlocksMessage) Process(d *Daemon) {
 			continue
 		}
 
-		if b.Pending {
-			err := d.Visor.AddPendingBlock(b)
-			if err == nil {
-				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
-				if d.Visor.v.Config.IsMaster {
-					err := d.Visor.v.AddValidator(b.HashHeader(), d.Visor.v.Config.BlockchainTrustPubkey)
-					if err != nil {
-						logger.Critical().Infof("AddValidator failed %v", err)
-					}
-					m := NewGivePrepareMessage(b.HashHeader(), d.Visor.v.Config.BlockchainTrustSeckey)
-					d.Pool.Pool.BroadcastMessage(m)
-				}
-			} else {
-				logger.Critical().Errorf("Failed to add pending block %d: %v", b.Block.Head.BkSeq, err)
-				break
-			}
+		err := d.Visor.ExecuteSignedBlock(b)
+		if err == nil {
+			logger.Critical().Infof("Added new block %d", b.Block.Head.BkSeq)
+			processed++
 		} else {
-
-			err := d.Visor.ExecuteSignedBlock(b)
-			if err == nil {
-				logger.Critical().Infof("Added new block %d", b.Block.Head.BkSeq)
-				processed++
-			} else {
-				logger.Critical().Errorf("Failed to execute received block %d: %v", b.Block.Head.BkSeq, err)
-				// Blocks must be received in order, so if one fails its assumed
-				// the rest are failing
-				break
-			}
+			logger.Critical().Errorf("Failed to execute received block %d: %v", b.Block.Head.BkSeq, err)
+			// Blocks must be received in order, so if one fails its assumed
+			// the rest are failing
+			break
 		}
 	}
 	if processed == 0 {
@@ -1218,6 +1209,17 @@ func (gpm *GivePrepareMessage) Process(d *Daemon) {
 		if err != nil {
 			return
 		}
+
+		sb, err := d.Visor.v.GetBlockByHash(gpm.Hash)
+		if err != nil {
+			logger.Errorf("get block by hash %s failed", gpm.Hash.Hex())
+			return
+		}
+		err = d.Visor.broadcastBlock(*sb, d.Pool)
+		if err != nil {
+			logger.Errorf("broadcast block %s failed", sb.HashHeader())
+			return
+		}
 	}
 
 	if d.Visor.v.Config.IsMaster {
@@ -1264,7 +1266,6 @@ func (apm *AnnouncePrepareMessage) Process(d *Daemon) {
 	if d.Visor.v.CheckHashExists(apm.Hash) {
 		//todo the logic is stupid, pubkey not exists
 		if !d.Visor.v.CheckPubkeyExists(apm.Hash, pubkeyRec) {
-			fmt.Printf("stupid announce prepare message\n")
 			m := NewGetPrepareMessage(apm.Hash)
 			if err := d.Pool.Pool.SendMessage(apm.c.Addr, m); err != nil {
 				logger.Errorf("Send GetPrepareMessage to %s failed: %v", apm.c.Addr, err)
@@ -1396,4 +1397,62 @@ func (gtm *GiveAgreeNumMessage) Process(d *Daemon) {
 			return
 		}
 	}
+}
+
+// GivePendingBlockMessage sent in response to GetBlocksMessage, or unsolicited
+type GivePendingBlockMessage struct {
+	PendingBlock []coin.PendingSignedBlock
+	c            *gnet.MessageContext `enc:"-"`
+}
+
+// NewGivePendingBlockMessage creates GivePendingBlockMessage
+func NewGivePendingBlockMessage(blocks []coin.PendingSignedBlock) *GivePendingBlockMessage {
+	return &GivePendingBlockMessage{
+		PendingBlock: blocks,
+	}
+}
+
+// Handle handle message
+func (gbm *GivePendingBlockMessage) Handle(mc *gnet.MessageContext,
+	daemon interface{}) error {
+	gbm.c = mc
+	return daemon.(*Daemon).recordMessageEvent(gbm, mc)
+}
+
+// Process process message
+func (gbm *GivePendingBlockMessage) Process(d *Daemon) {
+	if d.Visor.Config.DisableNetworking {
+		logger.Critical().Info("Visor disabled, ignoring GivePendingBlockMessage")
+		return
+	}
+
+	if !d.Visor.v.Config.IsMaster {
+		return
+	}
+
+	maxSeq := d.Visor.HeadBkSeq()
+	for _, b := range gbm.PendingBlock {
+		if b.Seq() <= maxSeq {
+			continue
+		}
+
+		if b.Pending {
+			err := d.Visor.AddPendingBlock(b.ToSignedBlock())
+			if err == nil {
+				logger.Critical().Infof("Added pending block %d", b.Block.Head.BkSeq)
+				if d.Visor.v.Config.IsMaster {
+					err := d.Visor.v.AddValidator(b.HashHeader(), d.Visor.v.Config.BlockchainTrustPubkey)
+					if err != nil {
+						logger.Critical().Infof("AddValidator failed %v", err)
+					}
+					m := NewGivePrepareMessage(b.HashHeader(), d.Visor.v.Config.BlockchainTrustSeckey)
+					d.Pool.Pool.BroadcastMessage(m)
+				}
+			} else {
+				logger.Critical().Errorf("Failed to add pending block %d: %v", b.Block.Head.BkSeq, err)
+				break
+			}
+		}
+	}
+
 }

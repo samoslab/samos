@@ -349,7 +349,6 @@ func (vs *Visor) Run() error {
 		if vs.Config.AgreeNum > 0 && vs.Config.AgreeNum <= len(vs.Config.TrustPubkeyList) {
 			agreeNum = vs.Config.AgreeNum
 		}
-		fmt.Printf("agree num is %d\n", agreeNum)
 		if err := vs.InsertAgreeNodeNum(agreeNum); err != nil {
 			return err
 		}
@@ -385,7 +384,8 @@ func (vs *Visor) maybeCreateGenesisBlock() error {
 	var sb coin.SignedBlock
 	// record the signature of genesis block
 	if vs.Config.IsMaster {
-		sb = vs.SignBlock(*b)
+		sb1 := vs.SignBlock(*b)
+		sb = sb1.ToSignedBlock()
 		logger.Infof("Genesis block signature=%s", sb.Sig.Hex())
 	} else {
 		sb = coin.SignedBlock{
@@ -546,12 +546,12 @@ func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
 }
 
 // CreateBlock creates a SignedBlock from pending transactions
-func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
+func (vs *Visor) CreateBlock(when uint64) (coin.PendingSignedBlock, error) {
 	if !vs.Config.IsMaster {
 		logger.Panic("Only master chain can create blocks")
 	}
 
-	var sb coin.SignedBlock
+	var sb coin.PendingSignedBlock
 
 	// Gather all unconfirmed transactions
 	txns := vs.Unconfirmed.RawTxns()
@@ -606,12 +606,12 @@ func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
 }
 
 // CreateAndExecuteBlock creates a SignedBlock from pending transactions and executes it
-func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
+func (vs *Visor) CreateAndExecuteBlock() (coin.PendingSignedBlock, error) {
 	sb, err := vs.CreateBlock(uint64(utc.UnixNow()))
 	if err != nil {
 		return sb, err
 	}
-	return sb, vs.AddPendingBlock(sb)
+	return sb, vs.AddPendingBlock(sb.ToSignedBlock())
 }
 
 // CheckBlockMakerConstraint verify the block should made by the pubkey in the slot
@@ -692,14 +692,14 @@ func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
 }
 
 // SignBlock signs a block for master.  Will panic if anything is invalid
-func (vs *Visor) SignBlock(b coin.Block) coin.SignedBlock {
+func (vs *Visor) SignBlock(b coin.Block) coin.PendingSignedBlock {
 	if !vs.Config.IsMaster {
 		logger.Panic("Only master chain can sign blocks")
 	}
 
 	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainTrustSeckey)
 
-	return coin.SignedBlock{
+	return coin.PendingSignedBlock{
 		Block:   b,
 		Sig:     sig,
 		Pending: true,
