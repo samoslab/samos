@@ -111,7 +111,7 @@ func TestSHA256KnownValue(t *testing.T) {
 		// echo -n input | sha256sum
 		{
 			"samos",
-			"5a42c0643bdb465d90bf673b99c14f5fa02db71513249d904573d2b8b63d353d",
+			"82c86d84bfb5bd4e0f675b554130f5160ccc69b04e24bb1478908160e57094d7",
 		},
 		{
 			"hello world",

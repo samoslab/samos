@@ -3,9 +3,9 @@
     "productName": "Samos",
     "author": "samos",
     "main": "src/electron-main.js",
-    "version": "0.23.2",
+    "version": "1.2.3",
     "description": "samos wallet",
-    "license": "MIT",
+   "license": "MIT",
     "build": {
         "appId": "io.samos.samos",
         "nsis": {
@@ -56,7 +56,7 @@
                 ]
             },
             {
-                "from": "./samos/",
+                "from": "./samos",
                 "to": "./app/dist/"
             }
         ],

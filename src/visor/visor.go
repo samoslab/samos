@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/samoslab/samos/src/consensus/dpos"
+	"github.com/samoslab/samos/src/consensus/pbft"
 
 	"github.com/samoslab/samos/src/cipher"
 	"github.com/samoslab/samos/src/coin"
@@ -37,6 +39,8 @@ var (
 	// maxDropletDivisor represents the modulus divisor when checking droplet precision rules.
 	// It is computed from MaxDropletPrecision in init()
 	maxDropletDivisor uint64
+
+	ErrNotTrustPubkey = errors.New("not trust public key")
 )
 
 // MaxDropletDivisor represents the modulus divisor when checking droplet precision rules.
@@ -89,8 +93,16 @@ type Config struct {
 	//Secret key of blockchain authority (if master)
 	BlockchainSeckey cipher.SecKey
 
+	//Public key of blockchain authority
+	BlockchainTrustPubkey cipher.PubKey
+
+	//Secret key of blockchain authority (if master)
+	BlockchainTrustSeckey cipher.SecKey
+
 	// How often new blocks are created by the master, in seconds
 	BlockCreationInterval uint64
+	// How often broadcast message by the genesis master, in seconds
+	BroadcastInterval uint64
 	// How often an unconfirmed txn is checked against the blockchain
 	UnconfirmedCheckInterval time.Duration
 	// How long we'll hold onto an unconfirmed txn
@@ -111,6 +123,10 @@ type Config struct {
 
 	//address for genesis
 	GenesisAddress cipher.Address
+
+	TrustPubkeyList []cipher.PubKey
+	AgreeNum        int
+
 	// Genesis block sig
 	GenesisSignature cipher.Sig
 	// Genesis block timestamp
@@ -145,7 +161,8 @@ func NewVisorConfig() Config {
 		BlockchainPubkey: cipher.PubKey{},
 		BlockchainSeckey: cipher.SecKey{},
 
-		BlockCreationInterval: 10,
+		BlockCreationInterval: 2,
+		BroadcastInterval:     30,
 		//BlockCreationForceInterval: 120, //create block if no block within this many seconds
 
 		UnconfirmedCheckInterval:     time.Hour * 2,
@@ -167,7 +184,7 @@ func NewVisorConfig() Config {
 // Verify verifies the configuration
 func (c Config) Verify() error {
 	if c.IsMaster {
-		if c.BlockchainPubkey != cipher.PubKeyFromSecKey(c.BlockchainSeckey) {
+		if c.BlockchainTrustPubkey != cipher.PubKeyFromSecKey(c.BlockchainTrustSeckey) {
 			return errors.New("Cannot run in master: invalid seckey for pubkey")
 		}
 	}
@@ -243,9 +260,12 @@ type Visor struct {
 	Wallets     *wallet.Service
 	StartedAt   time.Time
 
-	history  historyer
-	bcParser *BlockchainParser
-	db       *bolt.DB
+	history   historyer
+	bcParser  *BlockchainParser
+	db        *bolt.DB
+	dpos      *dpos.Dpos
+	pbft      *pbft.PBFT
+	trustNode *blockdb.TrustNode
 }
 
 // NewVisor creates a Visor for managing the blockchain database
@@ -259,7 +279,7 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 		return nil, err
 	}
 
-	db, bc, err := loadBlockchain(db, c.BlockchainPubkey, c.Arbitrating)
+	db, bc, err := loadBlockchain(db, c.TrustPubkeyList, c.Arbitrating)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +305,12 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	tn, err := blockdb.NewTrustNode(db)
+	if err != nil {
+		return nil, err
+	}
+	dpos := dpos.NewDpos(c.BlockchainTrustPubkey)
+	dpos.SetTrustNode(c.TrustPubkeyList)
 	v := &Visor{
 		Config:      c,
 		db:          db,
@@ -295,6 +320,9 @@ func NewVisor(c Config, db *bolt.DB) (*Visor, error) {
 		bcParser:    bp,
 		Wallets:     wltServ,
 		StartedAt:   time.Now(),
+		dpos:        dpos,
+		pbft:        pbft.NewPBFT(),
+		trustNode:   tn,
 	}
 
 	return v, nil
@@ -311,6 +339,20 @@ func (vs *Visor) Run() error {
 		return err
 	}
 	logger.Infof("Removed %d invalid txns from pool", len(removed))
+
+	if vs.IsGenesisNode() {
+		// todo need check pubkey equal or not
+		if err := vs.InsertTrustPubkeyList(vs.Config.TrustPubkeyList); err != nil {
+			return err
+		}
+		agreeNum := len(vs.Config.TrustPubkeyList)
+		if vs.Config.AgreeNum > 0 && vs.Config.AgreeNum <= len(vs.Config.TrustPubkeyList) {
+			agreeNum = vs.Config.AgreeNum
+		}
+		if err := vs.InsertAgreeNodeNum(agreeNum); err != nil {
+			return err
+		}
+	}
 
 	return vs.bcParser.Run()
 }
@@ -342,7 +384,8 @@ func (vs *Visor) maybeCreateGenesisBlock() error {
 	var sb coin.SignedBlock
 	// record the signature of genesis block
 	if vs.Config.IsMaster {
-		sb = vs.SignBlock(*b)
+		sb1 := vs.SignBlock(*b)
+		sb = sb1.ToSignedBlock()
 		logger.Infof("Genesis block signature=%s", sb.Sig.Hex())
 	} else {
 		sb = coin.SignedBlock{
@@ -363,6 +406,16 @@ func (vs *Visor) GenesisPreconditions() {
 	}
 }
 
+// IsGenesisNode genesis node return true
+func (vs *Visor) IsGenesisNode() bool {
+	if vs.Config.BlockchainSeckey != (cipher.SecKey{}) {
+		if vs.Config.BlockchainPubkey == cipher.PubKeyFromSecKey(vs.Config.BlockchainSeckey) {
+			return true
+		}
+	}
+	return false
+}
+
 // RefreshUnconfirmed checks unconfirmed txns against the blockchain and returns
 // all transaction that turn to valid.
 func (vs *Visor) RefreshUnconfirmed() ([]cipher.SHA256, error) {
@@ -376,13 +429,129 @@ func (vs *Visor) RemoveInvalidUnconfirmed() ([]cipher.SHA256, error) {
 	return vs.Unconfirmed.RemoveInvalid(vs.Blockchain)
 }
 
+// InsertTrustPubkeyList insert trust pubkey into bolt db
+func (vs *Visor) InsertTrustPubkeyList(pubkeys []cipher.PubKey) error {
+	return vs.trustNode.AddNodePubkey(pubkeys)
+}
+
+// InsertAgreeNodeNum set agress node number
+func (vs *Visor) InsertAgreeNodeNum(num int) error {
+	return vs.trustNode.InsertAgreeNodeNum(num)
+}
+
+// GetAgreeNodeNum agress node number
+func (vs *Visor) GetAgreeNodeNum() int {
+	return vs.trustNode.GetAgreeNodeNum()
+}
+
+// TrustNodes get trust node pubkey list
+func (vs *Visor) TrustNodes() []cipher.PubKey {
+	return vs.trustNode.GetPubkeys()
+}
+
+// IsTrustPubkey check the pubkey valid or not
+func (vs *Visor) IsTrustPubkey(pubKey cipher.PubKey) bool {
+	for _, pkey := range vs.TrustNodes() {
+		if pkey == pubKey {
+			return true
+		}
+	}
+	return false
+}
+
+// AddValidator add a validator for block
+func (vs *Visor) AddValidator(hash cipher.SHA256, pubKey cipher.PubKey) error {
+	return vs.pbft.AddValidator(hash, pubKey)
+}
+
+// GetValidatorNumber returns nunber of valid validator
+func (vs *Visor) GetValidatorNumber(hash cipher.SHA256) (int, error) {
+	return vs.pbft.ValidatorNumber(hash)
+}
+
+// GetPendingHash returns waiting into chian block hash list
+func (vs *Visor) GetPendingHash() []cipher.SHA256 {
+	return vs.pbft.WaitingConfirmedBlockHash()
+}
+
+// CheckHashExists check block hash exists in pbft or not
+func (vs *Visor) CheckHashExists(hash cipher.SHA256) bool {
+	_, err := vs.pbft.GetSignedBlock(hash)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// CheckHashExistsInChain check block hash exists in blockchian or not
+func (vs *Visor) CheckHashExistsInChain(hash cipher.SHA256) bool {
+	_, err := vs.GetBlockByHash(hash)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// CheckPubkeyExists check pubkey is in pbft validator list or not
+func (vs *Visor) CheckPubkeyExists(hash cipher.SHA256, pubKey cipher.PubKey) bool {
+	if err := vs.pbft.CheckPubkeyExists(hash, pubKey); err != nil {
+		return false
+	}
+	return true
+}
+
+// GetBlockValidators  returns all pubkeys for block hash
+func (vs *Visor) GetBlockValidators(hash cipher.SHA256) ([]cipher.PubKey, error) {
+	return vs.pbft.GetBlockValidators(hash)
+}
+
+// DeletePbftHash delete block hash from pbft
+func (vs *Visor) DeletePbftHash(hash cipher.SHA256) error {
+	return vs.pbft.DeleteHash(hash)
+}
+
+// StartExecuteSignedBlock make block into blockchain if validtor check ok
+func (vs *Visor) StartExecuteSignedBlock(hash cipher.SHA256) error {
+	block, err := vs.pbft.GetSignedBlock(hash)
+	if err != nil {
+		return err
+	}
+	err = vs.ExecuteSignedBlock(block)
+	if err == nil {
+		vs.DeletePbftHash(hash)
+	}
+	return err
+}
+
+// RemoveUnconfirmBlock remove pending block if it unconfirmed in 120 seconds
+func (vs *Visor) RemoveUnconfirmBlock() {
+	vs.pbft.RemoveUnconfirmBlock()
+}
+
+// InTurnTheNode it is time create block for this node
+func (vs *Visor) InTurnTheNode(when int64) (bool, error) {
+	if len(vs.GetPendingHash()) > 0 {
+		return false, errors.New("pbft has unconfirmed block")
+	}
+
+	lastBlock, err := vs.GetHeadBlock()
+	if err != nil {
+		return false, err
+	}
+	err = vs.dpos.CheckValidator(lastBlock, when)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // CreateBlock creates a SignedBlock from pending transactions
-func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
+func (vs *Visor) CreateBlock(when uint64) (coin.PendingSignedBlock, error) {
 	if !vs.Config.IsMaster {
 		logger.Panic("Only master chain can create blocks")
 	}
 
-	var sb coin.SignedBlock
+	var sb coin.PendingSignedBlock
 
 	// Gather all unconfirmed transactions
 	txns := vs.Unconfirmed.RawTxns()
@@ -437,19 +606,67 @@ func (vs *Visor) CreateBlock(when uint64) (coin.SignedBlock, error) {
 }
 
 // CreateAndExecuteBlock creates a SignedBlock from pending transactions and executes it
-func (vs *Visor) CreateAndExecuteBlock() (coin.SignedBlock, error) {
+func (vs *Visor) CreateAndExecuteBlock() (coin.PendingSignedBlock, error) {
 	sb, err := vs.CreateBlock(uint64(utc.UnixNow()))
-	if err == nil {
-		return sb, vs.ExecuteSignedBlock(sb)
+	if err != nil {
+		return sb, err
 	}
+	return sb, vs.AddPendingBlock(sb.ToSignedBlock())
+}
 
-	return sb, err
+// CheckBlockMakerConstraint verify the block should made by the pubkey in the slot
+func (vs *Visor) CheckBlockMakerConstraint(block coin.SignedBlock) error {
+	height := block.Seq()
+	if height <= vs.HeadBkSeq() {
+		errors.New("pending block seq less than head")
+	}
+	if err := vs.pbft.CheckBkSeq(height); err != nil {
+		return err
+	}
+	pubkeyRec, err := cipher.PubKeyFromSig(block.Sig, block.HashHeader()) //recovered pubkey
+	if err != nil {
+		return err
+	}
+	validatorPubkey, err := vs.dpos.GetValidator(int64(block.Time()))
+	if err != nil {
+		return err
+	}
+	if pubkeyRec == validatorPubkey {
+		return nil
+	}
+	return errors.New("block create time is not satified")
+}
+
+// VerifyBlockTransactions check tansaction in block is confirmed or not
+func (vs *Visor) VerifyBlockTransactions(block coin.SignedBlock) error {
+	for _, tx := range block.Block.Body.Transactions {
+		if err := tx.Verify(); err != nil {
+			fmt.Printf("Transaction %s verify failed %v\n", tx.Hash().Hex(), err)
+			return err
+		}
+	}
+	return nil
+}
+
+// AddPendingBlock hold pending block, store into blockchain if validator number reach threshold
+func (vs *Visor) AddPendingBlock(block coin.SignedBlock) error {
+	if err := vs.CheckBlockMakerConstraint(block); err != nil {
+		return err
+	}
+	if err := vs.VerifyBlockTransactions(block); err != nil {
+		return err
+	}
+	return vs.pbft.AddSignedBlock(block)
 }
 
 // ExecuteSignedBlock adds a block to the blockchain, or returns error.
 // Blocks must be executed in sequence, and be signed by the master server
 func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
-	if err := b.VerifySignature(vs.Config.BlockchainPubkey); err != nil {
+	trustPubkeys := vs.TrustNodes()
+	if len(vs.TrustNodes()) == 0 {
+		trustPubkeys = vs.Config.TrustPubkeyList
+	}
+	if err := b.VerifySignature(trustPubkeys); err != nil {
 		return err
 	}
 
@@ -475,16 +692,17 @@ func (vs *Visor) ExecuteSignedBlock(b coin.SignedBlock) error {
 }
 
 // SignBlock signs a block for master.  Will panic if anything is invalid
-func (vs *Visor) SignBlock(b coin.Block) coin.SignedBlock {
+func (vs *Visor) SignBlock(b coin.Block) coin.PendingSignedBlock {
 	if !vs.Config.IsMaster {
 		logger.Panic("Only master chain can sign blocks")
 	}
 
-	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainSeckey)
+	sig := cipher.SignHash(b.HashHeader(), vs.Config.BlockchainTrustSeckey)
 
-	return coin.SignedBlock{
-		Block: b,
-		Sig:   sig,
+	return coin.PendingSignedBlock{
+		Block:   b,
+		Sig:     sig,
+		Pending: true,
 	}
 }
 

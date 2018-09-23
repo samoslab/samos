@@ -55,7 +55,7 @@ func checkdb(c *gcli.Context) error {
 		return fmt.Errorf("decode genesis pubkey failed: %v", err)
 	}
 
-	if err := IntegrityCheck(db, pubkey); err != nil {
+	if err := IntegrityCheck(db, []cipher.PubKey{pubkey}); err != nil {
 		return fmt.Errorf("checkdb failed: %v", err)
 	}
 
@@ -64,7 +64,7 @@ func checkdb(c *gcli.Context) error {
 }
 
 // IntegrityCheck checks database integrity
-func IntegrityCheck(db *bolt.DB, genesisPubkey cipher.PubKey) error {
+func IntegrityCheck(db *bolt.DB, genesisPubkey []cipher.PubKey) error {
 	_, err := visor.NewBlockchain(db, genesisPubkey, visor.Arbitrating(true))
 	return err
 }

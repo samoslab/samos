@@ -50,9 +50,18 @@ func getMessageConfigs() []MessageConfig {
 		NewMessageConfig("GETB", GetBlocksMessage{}),
 		NewMessageConfig("GIVB", GiveBlocksMessage{}),
 		NewMessageConfig("ANNB", AnnounceBlocksMessage{}),
+		NewMessageConfig("GIPB", GivePendingBlockMessage{}),
 		NewMessageConfig("GETT", GetTxnsMessage{}),
 		NewMessageConfig("GIVT", GiveTxnsMessage{}),
 		NewMessageConfig("ANNT", AnnounceTxnsMessage{}),
+		NewMessageConfig("GETM", GetTrustMessage{}),
+		NewMessageConfig("GIVM", GiveTrustMessage{}),
+		NewMessageConfig("ANNM", AnnounceTrustMessage{}),
+		NewMessageConfig("GETC", GetPrepareMessage{}),
+		NewMessageConfig("GIVC", GivePrepareMessage{}),
+		NewMessageConfig("ANNC", AnnouncePrepareMessage{}),
+		NewMessageConfig("GETA", GetAgreeNumMessage{}),
+		NewMessageConfig("GIVA", GiveAgreeNumMessage{}),
 	}
 }
 
