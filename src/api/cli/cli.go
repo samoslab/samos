@@ -22,7 +22,7 @@ import (
 
 const (
 	// Version is the CLI Version
-	Version           = "1.2.0"
+	Version           = "1.2.3"
 	walletExt         = ".wlt"
 	defaultCoin       = "samos"
 	defaultWalletName = "$COIN_cli" + walletExt
