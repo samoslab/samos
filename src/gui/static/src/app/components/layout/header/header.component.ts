@@ -94,32 +94,65 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
   }
 
-  private higherVersion(first: string, second: string): boolean {
-    const fa = first.split('.');
-    const fb = second.split('.');
-    for (let i = 0; i < 3; i++) {
-      const na = Number(fa[i]);
-      const nb = Number(fb[i]);
-      if (na > nb || !isNaN(na) && isNaN(nb)) {
-        return true;
-      } else if (na < nb || isNaN(na) && !isNaN(nb)) {
-        return false;
-      }
+  private toNum(a){
+    var a=a.toString();
+    var c=a.split('.');
+    var num_place=["","0","00","000","0000"],r=num_place.reverse();
+    for (var i=0;i<c.length;i++){
+      var len=c[i].length;
+      c[i]=r[len]+c[i];
     }
-    return false;
+    var res= c.join('');
+    return res;
+  } 
+
+  private higherVersion(first: string, second: string): boolean {
+    console.log(first+' '+second);
+    // const fa = first.split('.');
+    // const fb = second.split('.');
+    // for (let i = 0; i < 3; i++) {
+    //   const na = Number(fa[i]);
+    //   const nb = Number(fb[i]);
+    //   if (na > nb || !isNaN(na) && isNaN(nb)) {
+    //     return true;
+    //   } else if (na < nb || isNaN(na) && !isNaN(nb)) {
+    //     return false;
+    //   }
+    // }
+    // return false;
+
+    var _a=this.toNum(first),_b=this.toNum(second);
+    if(_a==_b) return false;
+    if(_a>_b) return true;  
+    if(_a<_b) return false;  
   }
 
   private retrieveReleaseVersion() {
-    this.http.get('https://api.github.com/repos/samoslab/samos/tags')
-          .map((res: any) => res.json())
-          .map((res: any) => {
-            let r = res.json();
-            return r.length < 1 ? [{name: ""}] : r;
-          })
-      .catch((error: any) => Observable.throw(error || 'Unable to fetch latest release version from github.'))
-      .subscribe(response =>  {
-        this.releaseVersion = response.find(element => element['name'].indexOf('rc') === -1)['name'].substr(1);
-        this.updateAvailable = this.higherVersion(this.releaseVersion, this.version);
-      });
+    //this.http.get('http://samos.io/version/samos-tags.txt')
+    //this.http.get('https://api.github.com/repos/samoslab/samos/tags')
+    // this.http.get('http://samos.io/api/version?tag=samos')
+    //       .map((res: any) => res.json())
+    //       .map((res: any) => {
+    //         let r = res.json();
+    //         return r.length < 1 ? [{name: ""}] : r;
+    //       })
+    //   .catch((error: any) => Observable.throw(error || 'Unable to fetch latest release version from github.'))
+    //   .subscribe(response =>  {
+    //     this.releaseVersion = response.find(element => element['name'].indexOf('rc') === -1)['name'].substr(1);
+    //     this.updateAvailable = this.higherVersion(this.releaseVersion, this.version);
+    //   });
+
+    var _this = this;
+    try{
+      this.http.get('http://samos.io/api/version?tag=samos').map((res: any) => res.json()).subscribe(function (response) {
+        response.version_code ? response : 'return';
+        _this.releaseVersion = response.version_code;
+        var releaseVersion = _this.releaseVersion.toString();
+        _this.updateAvailable = _this.higherVersion(releaseVersion,_this.version);
+  
+      })
+    }catch(error){
+      Observable.throw(error || 'Unable to fetch latest release version from github.');
+    }
   }
 }
