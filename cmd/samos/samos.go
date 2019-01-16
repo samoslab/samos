@@ -72,9 +72,9 @@ var (
 	// DefaultConnections the default trust node addresses
 	DefaultConnections = []string{
 		"47.52.211.167:8858",
-		"47.74.7.161:8858",
-		"47.254.130.80:8858",
+		"193.112.246.101:8858",
 		"47.52.222.166:8858",
+		"150.109.100.158:8858",
 	}
 )
 
