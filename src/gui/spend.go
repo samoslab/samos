@@ -241,6 +241,7 @@ func NewCreatedTransactionInput(out wallet.UxBalance) (*CreatedTransactionInput,
 // createTransactionRequest is sent to /wallet/transaction
 type createTransactionRequest struct {
 	HoursSelection hoursSelection                 `json:"hours_selection"`
+	FromAddress    *wh.Address                    `json:"from_address"`
 	Wallet         createTransactionRequestWallet `json:"wallet"`
 	ChangeAddress  *wh.Address                    `json:"change_address"`
 	To             []receiver                     `json:"to"`
@@ -329,9 +330,13 @@ func (r createTransactionRequest) Validate() error {
 		return errors.New("missing wallet.id")
 	}
 
+	validAddress := true
 	for i, a := range r.Wallet.Addresses {
 		if a.Null() {
 			return fmt.Errorf("wallet.addresses[%d] is empty", i)
+		}
+		// Fromaddress must in wallet
+		if r.FromAddress != nil {
 		}
 	}
 
@@ -381,8 +386,12 @@ func (r createTransactionRequest) Validate() error {
 
 // ToWalletParams converts createTransactionRequest to wallet.CreateTransactionParams
 func (r createTransactionRequest) ToWalletParams() wallet.CreateTransactionParams {
-	addresses := make([]cipher.Address, len(r.Wallet.Addresses))
-	for i, a := range r.Wallet.Addresses {
+	inputAddress := r.Wallet.Addresses
+	if r.FromAddress != nil {
+		inputAddress = r.FromAddress
+	}
+	addresses := make([]cipher.Address, len(inputAddress))
+	for i, a := range inputAddress {
 		addresses[i] = a.Address
 	}
 
