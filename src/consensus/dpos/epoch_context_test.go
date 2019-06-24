@@ -39,6 +39,7 @@ func TestCalSlot(t *testing.T) {
 		},
 	}
 	for _, cs := range testCases {
+		// prevslot Integral multiple of 10
 		slot, err := calSolt(PrevSlot(cs.now))
 		if err != nil {
 			assert.Equal(t, cs.err, err)

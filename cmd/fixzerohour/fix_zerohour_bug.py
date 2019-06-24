@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# File Name: fix_zerohour_bug.py
-# Author: ben
-# mail: zhiyuan_06@foxmail.com
-# Created Time: 一  3/18 15:40:39 2019
 
 import sys
 reload(sys)
@@ -16,10 +12,8 @@ def shell_result(cmd):
    cnt=commands.getoutput(cmd)
    return json.loads(cnt)
 
-#主账户
 main_wallet = "/Users/lxx/.samos/wallets/samos_cli.wlt"
 main_addr = "EX8omhDyjKtc8zHGp1KZwn7usCndaoJxSe"
-#中转账户
 transfer_wallet = "/Users/lxx/.samos/wallets/w1.wlt"
 transfer_addr = "273K8WaBCB6kYC6W34qnfNAuoMoH1z5zpZq"
 
@@ -39,7 +33,6 @@ if need_merge:
     print cmd
     tcoins = shell_result(cmd)
     total_coins = tcoins["confirmed"]["coins"]
-    ## 所有币全部发送到指定地址，等待10秒，再从指定地址转回来
     cmd = coin_process + " send -f " +  main_wallet +  " " + transfer_addr + " " + total_coins
     print "[send transfer cmd] ",  cmd
     txid = commands.getoutput(cmd)
