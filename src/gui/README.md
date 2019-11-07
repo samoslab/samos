@@ -1343,17 +1343,17 @@ Result:
 
 ```json
 {
-    "current": 2760,
-    "highest": 2760,
+    "current": 3139,
+    "highest": 3139,
     "peers": [
-    {
-        "address": "35.157.164.126:6000",
-        "height": 2760
-    },
-    {
-        "address": "63.142.253.76:6000",
-        "height": 2760
-    },
+        {
+            "address": "119.28.179.53:8858",
+            "height": 3139
+        },
+        {
+            "address": "134.175.244.138:8858",
+            "height": 3139
+        },
     ]
 }
 ```
@@ -1963,21 +1963,21 @@ Args:
 Example:
 
 ```sh
-curl 'http://127.0.0.1:8640/network/connection?addr=176.9.84.75:6000'
-```
+ curl 'http://127.0.0.1:8640/network/connection?addr=134.175.193.44:8858'
+ ```
 
 Result:
 
 ```json
 {
-    "id": 109548,
-    "address": "176.9.84.75:6000",
-    "last_sent": 1520675817,
-    "last_received": 1520675817,
+    "id": 35,
+    "address": "134.175.193.44:8858",
+    "last_sent": 1573105202,
+    "last_received": 1573105203,
     "outgoing": false,
     "introduced": true,
-    "mirror": 719118746,
-    "listen_port": 6000
+    "mirror": 452292657,
+    "listen_port": 8858
 }
 ```
 
