@@ -13,6 +13,7 @@ GOLDFLAGS="-X main.Commit=${COMMIT} -X main.Branch=${BRANCH}"
 go run -ldflags "${GOLDFLAGS}" cmd/samos/samos.go \
     -gui-dir="${DIR}/src/gui/static/" \
     -launch-browser=true \
+    -disable-csrf=true \
     -enable-wallet-api=true \
     -rpc-interface=false \
     -log-level=debug \

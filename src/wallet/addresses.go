@@ -52,6 +52,7 @@ func CreateAddresses(coinType CoinType, seed string, genCount int, hideSecretKey
 
 // GetSkycoinWalletEntry returns a ReadableEntry in Skycoin format
 func GetSkycoinWalletEntry(pub cipher.PubKey, sec cipher.SecKey) ReadableEntry {
+	fmt.Printf(" %d ",len(cipher.AddressFromPubKey(pub).String()))
 	return ReadableEntry{
 		Address: cipher.AddressFromPubKey(pub).String(),
 		Public:  pub.Hex(),

@@ -2,7 +2,6 @@
 
 API default service port is `8640`.
 
-A REST API implemented in Go is available, see [Samos REST API Client Godoc](https://godoc.org/github.com/samoslab/samos/src/gui#Client).
 
 <!-- MarkdownTOC autolink="true" bracket="round" -->
 
@@ -88,7 +87,7 @@ Result:
 
 ```json
 {
-    "csrf_token": "klSgXoMOFTvEnt8KptBvHjhlFnW0OIkzyFVn4i8frDvIus9iLsFukqA9sM9Rxf3pLZHRLr82vBQxTq50vbYA8g"
+    "csrf_token": "5ZHxeIes-MQKGZZ8ubIOe5HOx1Up0DmJ_K0x6HYnJ6FsmWhXGGVtpmPn5diRYo5DqbbBLgoQdra9LDI7M9m5KA"
 }
 ```
 
@@ -113,25 +112,25 @@ Response:
 {
     "blockchain": {
         "head": {
-            "seq": 21175,
-            "block_hash": "8a3e0aac619551ae009cfb28c2b36bb1300925f74da770d1512072314f6a4c80",
-            "previous_block_hash": "001eb7911b6a6ab7c75feb88726dd2bc8b87133aebc82201c4404537eb74f7ac",
-            "timestamp": 1523168686,
-            "fee": 2,
+            "seq": 3136,
+            "block_hash": "6b03ae8aba5f2ddb5362abd051944289bc7ee1bcf453e89ef6f1c7dc873044a4",
+            "previous_block_hash": "16efa2fdc8569f8b8e0282f5602f461524e3a4a921e133bdb67109d2a75f416b",
+            "timestamp": 1572410492,
+            "fee": 2143475574,
             "version": 0,
-            "tx_body_hash": "36be8d70d1e9f70b340ea7ecf0b247c27086bad10568044c1196fe150f6cea1b"
+            "tx_body_hash": "34c84625949538800c43bae1ab419b8e0eeffa55e49945ce151d6a6a4af9ef8f"
         },
-        "unspents": 14750,
+        "unspents": 4283,
         "unconfirmed": 0,
-        "time_since_last_block": "12m6s"
+        "time_since_last_block": "186h40m23s"
     },
     "version": {
-        "version": "1.2.0",
-        "commit": "f61b4319c2f146a5ad86f7cbda26a1ba6a09998d",
-        "branch": "develop"
+        "version": "1.2.3",
+        "commit": "2cde75a764037c8456cb0b0ef9cbd14406e026e0",
+        "branch": ""
     },
-    "open_connections": 30,
-    "uptime": "13.686460853s"
+    "open_connections": 8,
+    "uptime": "2h4m9.418071452s"
 }
 ```
 
@@ -154,8 +153,9 @@ Result:
 
 ```json
 {
-    "version": "0.20.0",
-    "commit": "cc733e9922d85c359f5f183d3a3a6e42c73ccb16"
+    "version": "1.2.3",
+    "commit": "2cde75a764037c8456cb0b0ef9cbd14406e026e0",
+    "branch": ""
 }
 ```
 
@@ -171,20 +171,20 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/balance\?addrs\=7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD,nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq
-```
+ curl http://127.0.0.1:8640/balance\?addrs\=kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r,2Z494SmHNKrhiQpBw3QtgaNovpWMG1jCBcZ
+ ```
 
 Result:
 
 ```json
 {
     "confirmed": {
-        "coins": 70000000,
-        "hours": 28052
+        "coins": 107033000,
+        "hours": 768539
     },
     "predicted": {
-        "coins": 9000000,
-        "hours": 8385
+        "coins": 107033000,
+        "hours": 768539
     }
 }
 ```
@@ -204,13 +204,13 @@ Addrs and hashes cannot be combined.
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/outputs?addrs=6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY
+ curl http://127.0.0.1:8640/outputs?addrs=2Z494SmHNKrhiQpBw3QtgaNovpWMG1jCBcZ
 ```
 
 or
 
 ```sh
-curl http://127.0.0.1:8640/outputs?hashes=7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0
+curl http://127.0.0.1:8640/outputs?hashes=818bd8df0a64413346f7ae438f912fb237fc53876306a3cb84447bafad44d8b8
 ```
 
 Result:
@@ -219,15 +219,15 @@ Result:
 {
     "head_outputs": [
         {
-            "hash": "7669ff7350d2c70a88093431a7b30d3e69dda2319dcb048aa80fa0d19e12ebe0",
-            "block_seq": 22,
-            "time": 1494275011,
-            "src_tx": "b51e1933f286c4f03d73e8966186bafb25f64053db8514327291e690ae8aafa5",
-            "address": "6dkVxyKFbFKg9Vdg6HPg1UANLByYRqkrdY",
-            "coins": "2.000000",
-            "hours": 633,
-            "calculated_hours": 10023
-        },
+            "hash": "818bd8df0a64413346f7ae438f912fb237fc53876306a3cb84447bafad44d8b8",
+            "time": 1569925622,
+            "block_seq": 3105,
+            "src_tx": "d8b8f59d13dfc4c8a5767962f1cd2c498bac111df2ce531698ff254119663edd",
+            "address": "2Z494SmHNKrhiQpBw3QtgaNovpWMG1jCBcZ",
+            "coins": "106.643000",
+            "hours": 568961,
+            "calculated_hours": 642570
+        }
     ],
     "outgoing_outputs": [],
     "incoming_outputs": []
@@ -248,7 +248,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet?id=2017_11_25_e5fb.wlt
+curl http://127.0.0.1:8640/wallet?id=2018_04_06_4049.wlt
 ```
 
 Result:
@@ -257,22 +257,26 @@ Result:
 {
     "meta": {
         "coin": "samos",
-        "filename": "2017_11_25_e5fb.wlt",
-        "label": "test",
+        "filename": "2018_04_06_4049.wlt",
+        "label": "ddd",
         "type": "deterministic",
-        "version": "0.2",
+        "version": "0.1",
         "crypto_type": "",
-        "timestamp": 1511640884,
+        "timestamp": 1522986297,
         "encrypted": false
     },
     "entries": [
         {
-            "address": "2HTnQe3ZupkG6k8S81brNC3JycGV2Em71F2",
-            "public_key": "0316ff74a8004adf9c71fa99808ee34c3505ee73c5cf82aa301d17817da3ca33b1"
+            "address": "kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r",
+            "public_key": "0281704cbc9316232262383e81d6e856f0782f918873392a7d29c319e1e12fb24c"
         },
         {
-            "address": "SMnCGfpt7zVXm8BkRSFMLeMRA6LUu3Ewne",
-            "public_key": "02539528248a1a2c4f0b73233491103ca83b40249dac3ae9eee9a10b9f9debd9a3"
+            "address": "Cc1SGeZdGUh4b4C6u1KkezrbfnhAQ82pGx",
+            "public_key": "030f025f43696151f86fe154dbaa8006d9a43d791ed4a59b4cdfc159ed140b94c0"
+        },
+        {
+            "address": "27JWhwCxgTnNF4vDCFZeURuNpWvDBiq8yuo",
+            "public_key": "02db03dcaaa1a8b5b595fe1dee7f971f3f058f2c396e7833f50f383f7d966f4eb9"
         }
     ]
 }
@@ -292,7 +296,7 @@ Returns all pending transaction for all addresses by selected Wallet
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/transactions?id=2017_11_25_e5fb.wlt
+curl http://127.0.0.1:8640/wallet/transactions?id=2018_04_06_4049.wlt
 ```
 
 Result:
@@ -302,36 +306,34 @@ Result:
     "transactions": [
         {
             "transaction": {
-                "length": 317,
+                "length": 220,
                 "type": 0,
-                "txid": "76ecbabc53ea2a3be46983058433dda6a3cf7ea0b86ba14d90b932fa97385de7",
-                "inner_hash": "5d55837bb0cbda9c9323ff9aafd7c3d31d0d38638346172fbe2d9078ebaa892a",
+                "txid": "d359af6a71232ade1831e8501b662fe07910d33803dda3acb1de1c02e4958888",
+                "inner_hash": "25a5826f7982954ec658b6d65d3ae55fbc74a8101a2ab71269b5c01900a5603c",
                 "sigs": [
-                    "464b7724302178c1cfeacadaaf3556a3b7e5259adf51919476c3acc695747ed244b5ce2187ce7bedb6ad65c71f7f7ff3fa6805e64fe5da3aaa00ad563c7424f600",
-                    "1155537b0391d4a6ee5eac07dee5798e953dca3a7c30643403dd2d326582c7d35080a16dc22644782ce1087bfc3bd06c2bf68e9a98e3989d90831646a9be2c9101"
+                    "48af4ba969b570f6ccac70cd351adc9fd748d1b732d40d3cb49715e09f3806d33db1b008ae4e5475a78d2adea732bf4acefe9bdbae9e9f5b31defa1a22e6846601"
                 ],
                 "inputs": [
-                    "782a8662efb0e933cab7d3ae9429ab53c4208cf44d8cdc07c2fbd7204b6b5cad",
-                    "2f6b61a44086588c4eaa56a5dd9f1e0be2528861a6731608fcec38891b95db91"
+                    "3178acfcbfb052a6e2c91715beab793fb8e507fad1411592fd7a5ed2cba4b246"
                 ],
                 "outputs": [
                     {
-                        "uxid": "bd302ef776efa8548183b89f21e90649f21b90fe2d2e90ecc1b880f2d995f226",
-                        "dst": "2UXZTg4ZHF6715b6tRhtaqceuQQ3G79GiZg",
-                        "coins": "998.000000",
-                        "hours": 247538
+                        "uxid": "3fd4d441001a35b3e643890eb353b5aa0692d31fb6b5d5f1db03e93a7cb86b7d",
+                        "dst": "kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r",
+                        "coins": "0.280000",
+                        "hours": 7873
                     },
                     {
-                        "uxid": "31058b6bfb30bfd441aec00929e75782bce47c8a75787ba519dbb268f89d2c4b",
-                        "dst": "2awsJ2CR5H6QXCF2hwDjcvcAH9SgyfxCxgz",
-                        "coins": "1.000000",
-                        "hours": 247538
+                        "uxid": "ffab542eb9ee47b5b902733526a91aa0b65c9c89b31cba89321618b1717f31fa",
+                        "dst": "2Z494SmHNKrhiQpBw3QtgaNovpWMG1jCBcZ",
+                        "coins": "0.010000",
+                        "hours": 7873
                     }
                 ]
             },
-            "received": "2018-03-16T18:03:57.139109904+05:30",
-            "checked": "2018-03-16T18:03:57.139109904+05:30",
-            "announced": "0001-01-01T00:00:00Z",
+            "received": "2019-11-07T07:27:23.25799162+08:00",
+            "checked": "2019-11-07T07:27:23.25799162+08:00",
+            "announced": "2019-11-07T07:27:23.261647883+08:00",
             "is_valid": true
         }
     ]
@@ -358,22 +360,18 @@ Result:
     {
         "meta": {
             "coin": "samos",
-            "filename": "2017_11_25_e5fb.wlt",
-            "label": "test",
+            "filename": "2018_04_26_7606.wlt",
+            "label": "8",
             "type": "deterministic",
-            "version": "0.2",
+            "version": "0.1",
             "crypto_type": "",
-            "timestamp": 1511640884,
+            "timestamp": 1526785598,
             "encrypted": false
         },
         "entries": [
             {
-                "address": "8C5icxR9zdkYTZZTVV3cCX7QoK4EkLuK4p",
-                "public_key": "0316ff74a8004adf9c71fa99808ee34c3505ee73c5cf82aa301d17817da3ca33b1"
-            },
-            {
-                "address": "23A1EWMZopUFLCwtXMe2CU9xTCbi5Gth643",
-                "public_key": "02539528248a1a2c4f0b73233491103ca83b40249dac3ae9eee9a10b9f9debd9a3"
+                "address": "9gTZWDtVq7aVy22V9iESnKJGW2k9ma4NXb",
+                "public_key": "03e270cb77fa425e75233800845e0898cbca0c2fcfc8d6c27f002401a0e789d226"
             }
         ]
     }
@@ -397,7 +395,7 @@ Result:
 
 ```json
 {
-    "address": "/Users/user/.samos/wallets"
+    "address": "/Users/yourname/.samos/wallets"
 }
 ```
 
@@ -422,7 +420,7 @@ Result:
 
 ```json
 {
-    "seed": "helmet van actor peanut differ icon trial glare member cancel marble rack"
+    "seed": "neutral try liar vast net hood describe february lobster trim budget fuel"
 }
 ```
 
@@ -446,7 +444,7 @@ curl -X POST http://127.0.0.1:8640/wallet/create \
  -H 'Content-Type: application/x-www-form-urlencoded' \
  -d 'seed=$seed' \
  -d 'label=$label' \
- -d 'scan=5' \
+ -d 'scan=1' \
  -d 'password=$password'
 ```
 
@@ -456,21 +454,21 @@ Result:
 {
     "meta": {
         "coin": "samos",
-        "filename": "2017_05_09_d554.wlt",
-        "label": "test",
+        "filename": "2018_04_21_5182.wlt",
+        "label": "go2",
+        "lastSeed": "c6736cb4dd3c120612625c0c77c92a7d3552b4dc887e044ad9c89ab4a44c3831",
+        "tm": "1524276396",
         "type": "deterministic",
-        "version": "0.2",
-        "crypto_type": "",
-        "timestamp": 1511640884,
-        "encrypted": false
+        "version": "0.1"
     },
     "entries": [
         {
-            "address": "y2JeYS4RS8L9GYM7UKdjLRyZanKHXumFoH",
-            "public_key": "0316ff74a8004adf9c71fa99808ee34c3505ee73c5cf82aa301d17817da3ca33b1"
+            "address": "2PErMyZYYtQUEjRmaasrqPPGePpVD2QBtCd",
+            "public_key": "03134d73e8efc1aa2bcc9c561177196a9c2278c1f5b5b2b5d1c5580f16474ec650",
         }
     ]
 }
+
 ```
 
 ### Generate new address in wallet
@@ -489,7 +487,7 @@ Example:
 ```sh
 curl -X POST http://127.0.0.1:8640/wallet/newAddress \
  -H 'Content-Type: x-www-form-urlencoded' \
- -d 'id=2017_05_09_d554.wlt' \
+ -d 'id=2018_04_21_5182.wlt' \
  -d 'num=2' \
  -d 'password=$password'
 ```
@@ -541,7 +539,7 @@ Args:
 Example:
 
 ```sh
-curl http://127.0.0.1:8640/wallet/balance?id=2017_05_09_d554.wlt
+curl http://127.0.0.1:8640/wallet/balance?id=2018_04_21_5182.wlt
 ```
 
 Result:
@@ -549,12 +547,12 @@ Result:
 ```json
 {
     "confirmed": {
-        "coins": 0,
-        "hours": 0
+        "coins": 1413000000,
+        "hours": 34556065
     },
     "predicted": {
-        "coins": 0,
-        "hours": 0
+        "coins": 1413000000,
+        "hours": 34556065
     }
 }
 ```
@@ -583,15 +581,14 @@ Statuses:
     500: other errors
 ```
 
-example, send 1 coin to `2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc` from wallet `2017_05_09_ea42.wlt`:
+example, send 0.1 coin to `2cent83ydXgs6ycaGqLiAchBzk53Vg8jWUH` from wallet `2018_04_21_5182.wlt`:
 
 ```sh
 curl -X POST  http://127.0.0.1:8640/wallet/spend \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'id=2017_05_09_ea42.wlt' \
-  -d 'dst=2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc' \
-  -d 'coins=1000000'
-  -d 'password=$password'
+  -d 'id=2018_04_21_5182.wlt' \
+  -d 'dst=2cent83ydXgs6ycaGqLiAchBzk53Vg8jWUH' \
+  -d 'coins=100000'
 ```
 
 Result:
@@ -600,43 +597,40 @@ Result:
 {
     "balance": {
         "confirmed": {
-            "coins": 61000000,
-            "hours": 19667
+            "coins": 1413000000,
+            "hours": 34556065
         },
         "predicted": {
-            "coins": 61000000,
-            "hours": 19667
+            "coins": 1412900000,
+            "hours": 23498143
         }
     },
     "txn": {
-        "length": 317,
+        "length": 220,
         "type": 0,
-        "txid": "89578005d8730fe1789288ee7dea036160a9bd43234fb673baa6abd91289a48b",
-        "inner_hash": "cac977eee019832245724aa643ceff451b9d8b24612b2f6a58177c79e8a4c26f",
+        "txid": "425767e85753f4a96631919da5f2f3b9ebfb68688487d617438ea49d0b1c7a45",
+        "inner_hash": "ce766c41dc3da04ac68c9244af44d5500a2131a19f5aaeea7d2cacfc3942c7c3",
         "sigs": [
-            "3f084a0c750731dd985d3137200f9b5fc3de06069e62edea0cdd3a91d88e56b95aff5104a3e797ab4d6d417861af0c343efb0fff2e5ba9e7cf88ab714e10f38101",
-            "e9a8aa8860d189daf0b1dbfd2a4cc309fc0c7250fa81113aa7258f9603d19727793c1b7533131605db64752aeb9c1f4465198bb1d8dd597213d6406a0a81ed3701"
+            "25c092c6eb3adab1254e843ee742f9e908b685f3ad0535821973eb13dd0f03af7f6eee3a13a6b9ed21897860f95ebbb75beed2af09b1e00f54b2a36de07f514200"
         ],
         "inputs": [
-            "bb89d4ed40d0e6e3a82c12e70b01a4bc240d2cd4f252cfac88235abe61bd3ad0",
-            "170d6fd7be1d722a1969cb3f7d45cdf4d978129c3433915dbaf098d4f075bbfc"
+            "a2bd238d64bf1ff6953d629a5c77ac84968dfd15d54ae4dede64429bbf4b15fd"
         ],
         "outputs": [
             {
-                "uxid": "ec9cf2f6052bab24ec57847c72cfb377c06958a9e04a077d07b6dd5bf23ec106",
-                "dst": "nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq",
-                "coins": "60.000000",
-                "hours": 2458
+                "uxid": "25dfdc27538546c10711d6fd6bfbc088af58cca0da583c7b11283aa5c2541077",
+                "dst": "2PErMyZYYtQUEjRmaasrqPPGePpVD2QBtCd",
+                "coins": "1396.900000",
+                "hours": 3685974
             },
             {
-                "uxid": "be40210601829ba8653bac1d6ecc4049955d97fb490a48c310fd912280422bd9",
-                "dst": "2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc",
-                "coins": "1.000000",
-                "hours": 2458
+                "uxid": "81e5cb0dc4b00fc7361b5ca181798276689e28699b733f46db4828d3ec27839f",
+                "dst": "2cent83ydXgs6ycaGqLiAchBzk53Vg8jWUH",
+                "coins": "0.100000",
+                "hours": 3685974
             }
         ]
-    },
-    "error": ""
+    }
 }
 ```
 
@@ -667,15 +661,15 @@ Example request body with manual hours selection type, unencrypted wallet and al
         "type": "manual"
     },
     "wallet": {
-        "id": "foo.wlt"
+        "id": "2018_04_21_5182.wlt"
     },
-    "change_address": "nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq",
+    "change_address": "kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r",
     "to": [{
-        "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+        "address": "rKJaDrhU6o9uW5Y75EwUrR1wvrURUfb5JC",
         "coins": "1.032",
         "hours": 7
     }, {
-        "address": "7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD",
+        "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
         "coins": "99.2",
         "hours": 0
     }]
@@ -692,16 +686,16 @@ Example request body with auto hours selection type, encrypted wallet, specified
         "share_factor": "0.5"
     },
     "wallet": {
-        "id": "foo.wlt",
-        "addresses": ["2iVtHS5ye99Km5PonsB42No3pQRGEURmxyc"],
-        "password": "foobar",
+        "id": "2018_04_21_5182.wlt",
+        "addresses": ["kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r"],
+        "password": "2018_04_21_5182bar",
     },
     "change_address": "nu7eSpT6hr5P21uzw7bnbxm83B6ywSjHdq",
     "to": [{
-        "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+        "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
         "coins": "1.032"
     }, {
-        "address": "7cpQ7t3PZZXvjTst8G7Uvs7XH4LeM8fBPD",
+        "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
         "coins": "99.2"
     }]
 }
@@ -725,11 +719,11 @@ For example, this is a valid value for `to`, if `hours_selection.type` is `"manu
 
 ```json
 [{
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2",
     "hours": "1"
 }, {
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2",
     "hours": "2"
 }]
@@ -739,11 +733,11 @@ But this is an invalid value for `to`, if `hours_selection.type` is `"manual"`:
 
 ```json
 [{
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2",
     "hours": "1"
 }, {
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2",
     "hours": "1"
 }]
@@ -753,10 +747,10 @@ And this is a valid value for `to`, if `hours_selection.type` is `"auto"`:
 
 ```json
 [{
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2"
 }, {
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.201"
 }]
 ```
@@ -765,10 +759,10 @@ But this is an invalid value for `to`, if `hours_selection.type` is `"auto"`:
 
 ```json
 [{
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2"
 }, {
-    "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+    "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
     "coins": "1.2"
 }]
 ```
@@ -788,14 +782,14 @@ curl -X POST http://127.0.0.1:8640/wallet/transaction -H 'content-type: applicat
         "share_factor": "0.5"
     },
     "wallet": {
-        "id": "foo.wlt"
+        "id": "otc4.wlt"
     },
-    "change_address": "uvcDrKc8rHTjxLrU4mPN56Hyh2tR6RvCvw",
+    "change_address": "kSJij7qQGNxvGKyY5CHj4HPbmVnm8Reo5r",
     "to": [{
-        "address": "2Huip6Eizrq1uWYqfQEh4ymibLysJmXnWXS",
+        "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
         "coins": "1",
     }, {
-        "address": "2Huip6Eizrq1uWYqfQEh4ymibLysJmXnWXS",
+        "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
         "coins": "8.99",
     }]
 }'
@@ -865,7 +859,7 @@ Example:
 ```sh
 curl -X POST http://127.0.0.1:8640/wallet/unload \
  -H 'Content-Type: x-www-form-urlencoded' \
- -d 'id=2017_05_09_d554.wlt'
+ -d 'id=2018_04_21_5182.wlt'
 ```
 
 ### Encrypt wallet
@@ -893,8 +887,8 @@ Result:
 {
     "meta": {
         "coin": "samos",
-        "filename": "test.wlt",
-        "label": "test",
+        "filename": "v2.wlt",
+        "label": "v2",
         "type": "deterministic",
         "version": "0.2",
         "crypto_type": "scrypt-chacha20poly1305",
@@ -903,7 +897,7 @@ Result:
     },
     "entries": [
         {
-            "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+            "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
             "public_key": "0316ff74a8004adf9c71fa99808ee34c3505ee73c5cf82aa301d17817da3ca33b1"
         }
     ]
@@ -945,7 +939,7 @@ Result:
     },
     "entries": [
         {
-            "address": "fznGedkc87a8SsW94dBowEv6J7zLGAjT17",
+            "address": "QMiiyBxDaxKbXzjpuf8mN9oTTQqUbWbzfK",
             "public_key": "032a1218cbafc8a93233f363c19c667cf02d42fa5a8a07c0d6feca79e82d72753d"
         }
     ]
@@ -1909,27 +1903,26 @@ curl "http://127.0.0.1:8640/richlist?n=4&include-distribution=true"
 Result:
 
 ```json
-{
     "richlist": [
         {
-            "address": "zMDywYdGEDtTSvWnCyc3qsYHWwj9ogws74",
-            "coins": "1000000.000000",
-            "locked": true
+            "address": "2aq5pvu8iowvzFhJabXTEMtQgH4kwf1nnir",
+            "coins": "3000020.000000",
+            "locked": false
         },
         {
-            "address": "z6CJZfYLvmd41GRVE8HASjRcy5hqbpHZvE",
-            "coins": "1000000.000000",
-            "locked": true
+            "address": "DeZafrvDoaJhBJJKPzDewU7dWzyJwqk5n4",
+            "coins": "2990000.000000",
+            "locked": false
         },
         {
-            "address": "wyQVmno9aBJZmQ99nDSLoYWwp7YDJCWsrH",
-            "coins": "1000000.000000",
-            "locked": true
+            "address": "2CP7hkLcCNoVboA5koiLnNoMqjan1hv4Jt5",
+            "coins": "2628974.650000",
+            "locked": false
         },
         {
-            "address": "tBaeg9zE2sgmw5ZQENaPPYd6jfwpVpGTzS",
-            "coins": "1000000.000000",
-            "locked": true
+            "address": "JRZuFNqSJaZ4Gu4QZfGHiXKh6nDboXVUHg",
+            "coins": "1213720.000000",
+            "locked": false
         }
     ]
 }
@@ -1952,7 +1945,7 @@ Result:
 
 ```json
 {
-    "count": 10103
+    "count": 2647
 }
 ```
 
@@ -2007,34 +2000,34 @@ Result:
 {
     "connections": [
         {
-            "id": 99107,
-            "address": "139.162.161.41:20002",
-            "last_sent": 1520675750,
-            "last_received": 1520675750,
+            "id": 34,
+            "address": "119.28.179.53:8858",
+            "last_sent": 1573104800,
+            "last_received": 1573104800,
             "outgoing": false,
             "introduced": true,
-            "mirror": 1338939619,
-            "listen_port": 20002
+            "mirror": 3314559384,
+            "listen_port": 8858
         },
         {
-            "id": 109548,
-            "address": "176.9.84.75:6000",
-            "last_sent": 1520675751,
-            "last_received": 1520675751,
+            "id": 35,
+            "address": "134.175.193.44:8858",
+            "last_sent": 1573104800,
+            "last_received": 1573104801,
             "outgoing": false,
             "introduced": true,
-            "mirror": 719118746,
-            "listen_port": 6000
+            "mirror": 452292657,
+            "listen_port": 8858
         },
         {
-            "id": 99115,
-            "address": "185.120.34.60:6000",
-            "last_sent": 1520675754,
-            "last_received": 1520675754,
+            "id": 36,
+            "address": "134.175.244.138:8858",
+            "last_sent": 1573104800,
+            "last_received": 1573104800,
             "outgoing": false,
             "introduced": true,
-            "mirror": 1931713869,
-            "listen_port": 6000
+            "mirror": 1260521939,
+            "listen_port": 8858
         }
     ]
 }
@@ -2058,14 +2051,10 @@ Result:
 
 ```json
 [
-    "104.237.142.206:6000",
-    "118.178.135.93:6000",
-    "120.77.69.188:6000",
-    "121.41.103.148:6000",
-    "139.162.7.132:6000",
-    "172.104.85.6:6000",
-    "176.58.126.224:6000",
-    "47.88.33.156:6000"
+    "150.109.100.158:8858",
+    "193.112.246.101:8858",
+    "47.52.211.167:8858",
+    "47.52.222.166:8858"
 ]
 ```
 
@@ -2086,14 +2075,10 @@ Result:
 
 ```json
 [
-    "104.237.142.206:6000",
-    "118.178.135.93:6000",
-    "120.77.69.188:6000",
-    "121.41.103.148:6000",
-    "139.162.7.132:6000",
-    "172.104.85.6:6000",
-    "176.58.126.224:6000",
-    "47.88.33.156:6000"
+    "150.109.100.158:8858",
+    "193.112.246.101:8858",
+    "47.52.211.167:8858",
+    "47.52.222.166:8858"
 ]
 ```
 
@@ -2114,29 +2099,13 @@ Result:
 
 ```json
 [
-    "104.237.142.206:6000",
-    "116.62.220.158:7200",
-    "118.237.210.163:6000",
-    "120.77.69.188:6000",
-    "121.41.103.148:6000",
-    "121.41.103.148:7200",
-    "139.162.161.41:20000",
-    "139.162.161.41:20001",
-    "139.162.161.41:20002",
-    "139.162.33.154:6000",
-    "139.162.7.132:6000",
-    "155.94.137.34:6000",
-    "164.132.108.92:6000",
-    "165.227.199.63:6000",
-    "172.104.145.6:6000",
-    "172.104.52.230:7200",
-    "172.104.85.6:6000",
-    "173.212.205.184:6000",
-    "173.249.30.221:6000",
-    "176.58.126.224:6000",
-    "176.9.84.75:6000",
-    "185.120.34.60:6000",
-    "35.201.160.163:6000",
-    "47.88.33.156:6000"
+    "119.28.179.53:8858",
+    "134.175.193.44:8858",
+    "134.175.244.138:8858",
+    "150.109.100.158:8858",
+    "193.112.246.101:8858",
+    "45.76.212.220:8858",
+    "47.52.211.167:8858",
+    "47.52.222.166:8858"
 ]
 ```
